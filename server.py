@@ -1,3 +1,4 @@
+"""Server running and utilities"""
 from flask import Flask
 
 from blueprints import index
