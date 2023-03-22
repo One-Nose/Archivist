@@ -1,9 +1,13 @@
 """The root file of the program"""
+from json import load
+
 from database import Database
 from server import start_server
 
 if __name__ == '__main__':
-    database = Database({'connect': {'user': 'root', 'password': 'root', 'database': 'archivist'}})
-    print(database.get_tables())
+    with open('config.json') as file:
+        config = load(file)
 
-    start_server()
+    database = Database(config)
+
+    # start_server()
