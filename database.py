@@ -11,7 +11,12 @@ class Database:
     cursor: Cursor
 
     def __init__(self, config: dict) -> None:
-        self.database = connect(**config.get('connect', {}))
+        config_connect = config.get('connect', {})
+        self.database = connect(
+            user=config_connect.get('user'),
+            password=config_connect.get('password'),
+            database=config_connect.get('database'),
+        )
         self.cursor = self.database.cursor()
 
     def create_table(self, table: str, columns: Sequence[tuple[str, str]]) -> None:
