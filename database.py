@@ -11,6 +11,10 @@ class Database:
     cursor: Cursor
 
     def __init__(self, config: dict) -> None:
+        """
+        Creates a Database object according to the optional config object
+        :param config: An object containing the config options
+        """
         config_connect = config.get('connect', {})
         self.database = connect(
             user=config_connect.get('user'),
