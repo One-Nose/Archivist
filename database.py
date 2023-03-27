@@ -1,8 +1,29 @@
 """Access the database and make queries"""
 from collections.abc import Sequence
+from typing import TypedDict
 
 from MySQLdb import connect, Connection
 from MySQLdb.cursors import Cursor
+
+
+class ConnectionConfig(TypedDict, total=False):
+    """
+    Configuration of the connection to the database
+    - user: The username to connect to the database
+    - password: The password to connect to the database
+    - database: The database to connect to
+    """
+    user: str
+    password: str
+    database: str
+
+
+class DatabaseConfig(TypedDict, total=False):
+    """
+    Configuration of the database
+    - connect: Configuration of the connection to the database
+    """
+    connect: ConnectionConfig
 
 
 class Database:
@@ -10,7 +31,7 @@ class Database:
     database: Connection
     cursor: Cursor
 
-    def __init__(self, config: dict) -> None:
+    def __init__(self, config: DatabaseConfig) -> None:
         """
         Creates a Database object according to the optional config object
         :param config: An object containing the config options
