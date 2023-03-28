@@ -1,0 +1,17 @@
+services:
+  db:
+    image: mariadb
+    environment:
+      MARIADB_ROOT_PASSWORD: root
+    volumes:
+      - db:/var/lib/mysql
+
+  adminer:
+    image: adminer
+    environment:
+      ADMINER_DESIGN: price
+    ports:
+      - 8080:8080
+
+volumes:
+  db:
