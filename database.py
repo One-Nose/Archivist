@@ -48,3 +48,7 @@ class Database:
     def create_tables(self) -> None:
         """Creates the required tables for the database"""
         # TODO: Implement function
+
+    def exec(self, statement: str) -> None:
+        """Executes an SQL statement"""
+        self.cursor.execute(statement)
