@@ -1,2 +1,2 @@
-Flask~=2.2.2
-mysqlclient~=2.1.1
+Flask~=2.2.3
+mariadb~=1.1.6

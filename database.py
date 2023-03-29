@@ -1,9 +1,8 @@
 """Access the database and make queries"""
 from typing import TypedDict
 
-from MySQLdb import connect  # type: ignore[ads]
-from MySQLdb import Connection
-from MySQLdb.cursors import Cursor
+from mariadb import Connection, connect
+from mariadb.cursors import Cursor
 
 
 class ConnectionConfig(TypedDict, total=False):
@@ -42,7 +41,9 @@ class Database:
             password=config_connect.get('password'),
             database=config_connect.get('database'),
         )
-        self.cursor = self.database.cursor()  # type: ignore
+        assert self.database is not None
+
+        self.cursor = self.database.cursor()
 
     def create_tables(self) -> None:
         """Creates the required tables for the database"""
