@@ -10,5 +10,6 @@ if __name__ == '__main__':
         config = load(file)
 
     archive = Archive(config)
+    archive.init()
 
     # start_server()
