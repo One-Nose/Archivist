@@ -4,7 +4,7 @@ from flask import Flask
 from blueprints import index
 
 
-def create_app() -> Flask:
+def _create_app() -> Flask:
     """Returns a new app."""
 
     app = Flask(__name__)
@@ -16,4 +16,4 @@ def create_app() -> Flask:
 def start_server() -> None:
     """Starts a server"""
 
-    create_app().run('127.0.0.1', 8080, debug=True)
+    _create_app().run('127.0.0.1', 8080, debug=True)

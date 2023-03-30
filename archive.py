@@ -27,8 +27,8 @@ class ArchiveConfig(TypedDict, total=False):
 
 class Archive:
     """Allows access to the database"""
-    archive: Connection
-    cursor: Cursor
+    _database: Connection
+    _cursor: Cursor
 
     def __init__(self, config: ArchiveConfig) -> None:
         """
@@ -36,14 +36,14 @@ class Archive:
         :param config: An object containing the config options
         """
         config_connect = config.get('connect', {})
-        self.archive = connect(
+        self._database = connect(
             user=config_connect.get('user'),
             password=config_connect.get('password'),
             database=config_connect.get('database'),
         )
-        assert self.archive is not None
+        assert self._database is not None
 
-        self.cursor = self.archive.cursor()
+        self._cursor = self._database.cursor()
 
     def create_tables(self) -> None:
         """Creates the required tables for the database"""
