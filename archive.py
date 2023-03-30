@@ -1,5 +1,5 @@
 """Access the database and make queries"""
-from typing import TypedDict
+from typing import Sequence, TypedDict
 
 from mariadb import Connection, connect
 from mariadb.cursors import Cursor
@@ -45,10 +45,27 @@ class Archive:
 
         self._cursor = self._database.cursor()
 
-    def create_tables(self) -> None:
-        """Creates the required tables for the database"""
-        # TODO: Implement function
+    def _create_table(self, name: str, columns: Sequence[tuple[str, str]]) -> None:
+        """
+        Creates a table
+        :param name: The name of the table
+        :param columns: A sequence of columns, each in the form of (name, type)
+        """
+        self._cursor.execute(
+            f'CREATE TABLE {name} ({", ".join(" ".join(column) for column in columns)})'
+        )
 
-    def exec(self, statement: str) -> None:
-        """Executes an SQL statement"""
-        self.cursor.execute(statement)
+    def init(self) -> None:
+        """Creates the required tables for the database"""
+
+        self._create_table('documents', (
+            ('id', 'INT AUTO_INCREMENT PRIMARY KEY'),
+            ('name', 'VARCHAR(255) NOT NULL'),
+            ('description', 'TEXT'),
+        ))
+
+        self._create_table('statements', (
+            ('id', 'INT AUTO_INCREMENT PRIMARY KEY'),
+            ('document', 'INT NOT NULL'),
+            ('description', 'TEXT'),
+        ))
