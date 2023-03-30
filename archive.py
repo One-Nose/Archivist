@@ -17,7 +17,7 @@ class ConnectionConfig(TypedDict, total=False):
     database: str
 
 
-class DatabaseConfig(TypedDict, total=False):
+class ArchiveConfig(TypedDict, total=False):
     """
     Configuration of the database
     - connect: Configuration of the connection to the database
@@ -25,25 +25,25 @@ class DatabaseConfig(TypedDict, total=False):
     connect: ConnectionConfig
 
 
-class Database:
+class Archive:
     """Allows access to the database"""
-    database: Connection
+    archive: Connection
     cursor: Cursor
 
-    def __init__(self, config: DatabaseConfig) -> None:
+    def __init__(self, config: ArchiveConfig) -> None:
         """
         Creates a Database object according to the optional config object
         :param config: An object containing the config options
         """
         config_connect = config.get('connect', {})
-        self.database = connect(
+        self.archive = connect(
             user=config_connect.get('user'),
             password=config_connect.get('password'),
             database=config_connect.get('database'),
         )
-        assert self.database is not None
+        assert self.archive is not None
 
-        self.cursor = self.database.cursor()
+        self.cursor = self.archive.cursor()
 
     def create_tables(self) -> None:
         """Creates the required tables for the database"""
