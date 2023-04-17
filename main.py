@@ -1,7 +1,7 @@
 """The root file of the program"""
 from json import load
 
-from archive import Archive
+from src.archive import Archive
 
 # from server import start_server
 
