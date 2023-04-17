@@ -55,6 +55,14 @@ class Archive:
             f'CREATE TABLE {name} ({", ".join(" ".join(column) for column in columns)})'
         )
 
+    def create_document(self, name: str, description: str = None) -> None:
+        """
+        Creates a document
+        :param name: The name of the document
+        :param description: An optional description
+        """
+        self._cursor.execute('INSERT INTO documents (NAME, DESCRIPTION) VALUES (?, ?)', (name, description))
+
     def init(self) -> None:
         """Creates the required tables for the database"""
 
