@@ -85,3 +85,27 @@ class Archive:
             ('document', 'INT NOT NULL'),
             ('description', 'TEXT'),
         ))
+
+
+class Document:
+    """Allows access to a document"""
+    _cursor: Cursor
+    id: int
+
+    def __init__(self, document_id: int, cursor: Cursor) -> None:
+        """
+        Creates a document object to access a document
+        :param document_id: The document's ID
+        :param cursor: The archive's cursor
+        """
+        self.id = document_id
+        self._cursor = cursor
+
+        print(document_id)
+
+    def add_statement(self, description: str = None) -> None:
+        """
+        Adds a statement to a document
+        :param description: An optional description
+        """
+        self._cursor.execute('INSERT INTO statements (document, description) VALUES (?, ?)', (self.id, description))
