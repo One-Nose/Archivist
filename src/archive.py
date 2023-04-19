@@ -1,4 +1,6 @@
 """Access the database and make queries"""
+from __future__ import annotations
+
 from typing import Sequence, TypedDict
 
 from mariadb import Connection, connect
@@ -63,13 +65,16 @@ class Archive:
         """
         self._cursor.execute('INSERT INTO statements (DOCUMENT, DESCRIPTION) VALUES (?, ?)', (document, description))
 
-    def create_document(self, name: str, description: str = None) -> None:
+    def new_document(self, name: str, description: str = None) -> Document:
         """
-        Creates a document
+        Creates a new document
         :param name: The name of the document
         :param description: An optional description
+        :return: A document object to access the newly created document
         """
-        self._cursor.execute('INSERT INTO documents (NAME, DESCRIPTION) VALUES (?, ?)', (name, description))
+        self._cursor.execute('INSERT INTO documents (name, description) VALUES (?, ?)', (name, description))
+        self._cursor.execute('SELECT LAST_INSERT_ID()')
+        return Document(self._cursor.fetchone(), self._cursor)
 
     def init(self) -> None:
         """Creates the required tables for the database"""
