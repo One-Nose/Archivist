@@ -57,13 +57,9 @@ class Archive:
             f'CREATE TABLE {name} ({", ".join(" ".join(column) for column in columns)})'
         )
 
-    def add_statement(self, document: int, description: str = None) -> None:
-        """
-        Adds a statement to a document
-        :param document: The document's ID
-        :param description: An optional description
-        """
-        self._cursor.execute('INSERT INTO statements (DOCUMENT, DESCRIPTION) VALUES (?, ?)', (document, description))
+    def commit(self) -> None:
+        """Commits the changes to the database"""
+        self._database.commit()
 
     def new_document(self, name: str, description: str = None) -> Document:
         """
