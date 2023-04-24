@@ -39,7 +39,7 @@ class Archive:
         Creates a Database object according to the optional config object
         :param config: An object containing the config options
         """
-        self._connect_options = config.get('connect', {})
+        self._connect_options = config['connect']
         self.connect()
 
     def _create_table(self, name: str, columns: Sequence[tuple[str, str]]) -> None:
