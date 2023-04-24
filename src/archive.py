@@ -14,6 +14,7 @@ class ConnectionConfig(TypedDict):
     - password: The password to connect to the database
     - database: The database to connect to
     """
+
     user: str
     password: str
     database: str
@@ -24,6 +25,7 @@ class ArchiveConfig(TypedDict):
     Configuration of the database
     - connect: Configuration of the connection to the database
     """
+
     connect: ConnectionConfig
 
 
@@ -117,6 +119,7 @@ class Archive:
 
 class Document:
     """Allows access to a document"""
+
     _cursor: Cursor
     id: int
 
