@@ -29,7 +29,8 @@ class ArchiveConfig(TypedDict):
 
 class Archive:
     """Allows access to the database"""
-    _connect_options: dict[str]
+
+    _connect_options: ConnectionConfig
     _connection: Connection
     _cursor: Cursor
 
