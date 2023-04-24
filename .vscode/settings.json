@@ -1,7 +1,20 @@
 {
   "pylint.args": [
-    "--disable",
-    "C0414",
-    "R0903"
-  ]
+    "--disable=too-few-public-methods",
+    "--disable=useless-import-alias",
+    "--good-names=id",
+  ],
+  "pylint.severity": {
+    "convention": "Error",
+    "refactor": "Error",
+    "warning": "Error",
+    "info": "Error"
+  },
+  "editor.formatOnSave": true,
+  "[python]": {
+    "editor.defaultFormatter": "ms-python.black-formatter"
+  },
+  "black-formatter.args": [
+    "--skip-string-normalization"
+  ],
 }
