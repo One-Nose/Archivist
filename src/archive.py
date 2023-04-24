@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from typing import Sequence, TypedDict
 
-from mariadb import Connection, connect
+from mariadb import Connection, connect, ProgrammingError
 from mariadb.cursors import Cursor
 
 
@@ -29,7 +29,8 @@ class ArchiveConfig(TypedDict, total=False):
 
 class Archive:
     """Allows access to the database"""
-    _database: Connection
+    _connect_options: dict[str]
+    _connection: Connection
     _cursor: Cursor
 
     def __init__(self, config: ArchiveConfig) -> None:
@@ -37,15 +38,8 @@ class Archive:
         Creates a Database object according to the optional config object
         :param config: An object containing the config options
         """
-        config_connect = config.get('connect', {})
-        self._database = connect(
-            user=config_connect.get('user'),
-            password=config_connect.get('password'),
-            database=config_connect.get('database'),
-        )
-        assert self._database is not None
-
-        self._cursor = self._database.cursor()
+        self._connect_options = config.get('connect', {})
+        self.connect()
 
     def _create_table(self, name: str, columns: Sequence[tuple[str, str]]) -> None:
         """
@@ -57,9 +51,47 @@ class Archive:
             f'CREATE TABLE {name} ({", ".join(" ".join(column) for column in columns)})'
         )
 
+    def _use(self) -> None:
+        """Sets the database as the connected database"""
+        self._cursor.execute(f'USE {self._connect_options["database"]}')
+
     def commit(self) -> None:
         """Commits the changes to the database"""
-        self._database.commit()
+        self._connection.commit()
+
+    def connect(self) -> None:
+        """Connects to the database, creates a cursor, and saves the connection and the cursor"""
+        self._connection = connect(
+            user=self._connect_options['user'],
+            password=self._connect_options['password'],
+        )
+        self._cursor = self._connection.cursor()
+        try:
+            self._use()
+        except ProgrammingError:
+            self.init()
+
+    def drop(self) -> None:
+        """Deletes the database"""
+        self._cursor.execute(f'DROP DATABASE {self._connect_options["database"]}')
+
+    def init(self) -> None:
+        """Creates the database and initializes it"""
+        self._cursor.execute(f'CREATE DATABASE {self._connect_options["database"]}')
+        self._use()
+
+        self._create_table('documents', (
+            ('id', 'INT AUTO_INCREMENT PRIMARY KEY'),
+            ('name', 'VARCHAR(255) NOT NULL'),
+            ('description', 'TEXT'),
+        ))
+
+        self._create_table('statements', (
+            ('id', 'INT AUTO_INCREMENT PRIMARY KEY'),
+            ('document', 'INT NOT NULL'),
+            ('type', "ENUM('events') NOT NULL"),
+            ('description', 'TEXT'),
+        ))
 
     def new_document(self, name: str, description: str = None) -> Document:
         """
@@ -71,21 +103,6 @@ class Archive:
         self._cursor.execute('INSERT INTO documents (name, description) VALUES (?, ?)', (name, description))
         self._cursor.execute('SELECT LAST_INSERT_ID()')
         return Document(self._cursor.fetchone(), self._cursor)
-
-    def init(self) -> None:
-        """Creates the required tables for the database"""
-
-        self._create_table('documents', (
-            ('id', 'INT AUTO_INCREMENT PRIMARY KEY'),
-            ('name', 'VARCHAR(255) NOT NULL'),
-            ('description', 'TEXT'),
-        ))
-
-        self._create_table('statements', (
-            ('id', 'INT AUTO_INCREMENT PRIMARY KEY'),
-            ('document', 'INT NOT NULL'),
-            ('description', 'TEXT'),
-        ))
 
 
 class Document:
