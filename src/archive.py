@@ -107,7 +107,10 @@ class Archive:
         :param description: An optional description
         :return: A document object to access the newly created document
         """
-        self._cursor.execute('INSERT INTO documents (name, description) VALUES (?, ?)', (name, description))
+        self._cursor.execute(
+            'INSERT INTO documents (name, description) VALUES (?, ?)',
+            (name, description),
+        )
         self._cursor.execute('SELECT LAST_INSERT_ID()')
         return Document(self._cursor.fetchone(), self._cursor)
 
@@ -133,4 +136,7 @@ class Document:
         Adds a statement to a document
         :param description: An optional description
         """
-        self._cursor.execute('INSERT INTO statements (document, description) VALUES (?, ?)', (self.id, description))
+        self._cursor.execute(
+            'INSERT INTO statements (document, description) VALUES (?, ?)',
+            (self.id, description),
+        )
