@@ -81,18 +81,24 @@ class Archive:
         self._cursor.execute(f'CREATE DATABASE {self._connect_options["database"]}')
         self._use()
 
-        self._create_table('documents', (
-            ('id', 'INT AUTO_INCREMENT PRIMARY KEY'),
-            ('name', 'VARCHAR(255) NOT NULL'),
-            ('description', 'TEXT'),
-        ))
+        self._create_table(
+            'documents',
+            (
+                ('id', 'INT AUTO_INCREMENT PRIMARY KEY'),
+                ('name', 'VARCHAR(255) NOT NULL'),
+                ('description', 'TEXT'),
+            ),
+        )
 
-        self._create_table('statements', (
-            ('id', 'INT AUTO_INCREMENT PRIMARY KEY'),
-            ('document', 'INT NOT NULL'),
-            ('type', "ENUM('events') NOT NULL"),
-            ('description', 'TEXT'),
-        ))
+        self._create_table(
+            'statements',
+            (
+                ('id', 'INT AUTO_INCREMENT PRIMARY KEY'),
+                ('document', 'INT NOT NULL'),
+                ('type', 'ENUM("events") NOT NULL'),
+                ('description', 'TEXT'),
+            ),
+        )
 
     def new_document(self, name: str, description: str = None) -> Document:
         """
