@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from typing import Sequence, TypedDict
 
-from mariadb import Connection, connect, ProgrammingError
+from mariadb import Connection, ProgrammingError, connect
 from mariadb.cursors import Cursor
 
 
