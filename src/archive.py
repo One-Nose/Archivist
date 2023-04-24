@@ -100,7 +100,7 @@ class Archive:
             ),
         )
 
-    def new_document(self, name: str, description: str = None) -> Document:
+    def new_document(self, name: str, description: str | None = None) -> Document:
         """
         Creates a new document
         :param name: The name of the document
@@ -128,7 +128,7 @@ class Document:
 
         print(document_id)
 
-    def add_statement(self, description: str = None) -> None:
+    def add_statement(self, description: str | None = None) -> None:
         """
         Adds a statement to a document
         :param description: An optional description
