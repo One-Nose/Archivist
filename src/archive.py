@@ -7,7 +7,7 @@ from mariadb import Connection, ProgrammingError, connect
 from mariadb.cursors import Cursor
 
 
-class ConnectionConfig(TypedDict, total=False):
+class ConnectionConfig(TypedDict):
     """
     Configuration of the connection to the database
     - user: The username to connect to the database
@@ -19,7 +19,7 @@ class ConnectionConfig(TypedDict, total=False):
     database: str
 
 
-class ArchiveConfig(TypedDict, total=False):
+class ArchiveConfig(TypedDict):
     """
     Configuration of the database
     - connect: Configuration of the connection to the database
