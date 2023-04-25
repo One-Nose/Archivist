@@ -130,7 +130,7 @@ class Archive:
             (name, description),
         )
         self._cursor.execute('SELECT LAST_INSERT_ID()')
-        return Document(self._cursor.fetchone(), self._cursor)
+        return Document(self._cursor.fetchone()[0], self._cursor)
 
 
 class Document:
