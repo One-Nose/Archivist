@@ -57,17 +57,6 @@ class Archive:
             f'CREATE TABLE {table} ({", ".join(" ".join(column) for column in columns.items())})'
         )
 
-    def insert(self, table: str, **values: ...) -> None:
-        """
-        Inserts values into a table (insecure)
-        :param table: The table to insert to
-        :param values: The values to insert in the form of column=value
-        """
-        self._cursor.execute(
-            f'INSERT INTO {table} ({", ".join(values)}) VALUES ({", ".join("?" for _ in values)})',
-            tuple(values.values()),
-        )
-
     def _use(self) -> None:
         """Sets the database as the connected database"""
         self._cursor.execute(f'USE {self._connect_options["database"]}')
@@ -121,6 +110,17 @@ class Archive:
             'documents',
             id='INT AUTO_INCREMENT PRIMARY KEY',
             name='VARCHAR(255) NOT NULL',
+        )
+
+    def insert(self, table: str, **values: ...) -> None:
+        """
+        Inserts values into a table (insecure)
+        :param table: The table to insert to
+        :param values: The values to insert in the form of column=value
+        """
+        self._cursor.execute(
+            f'INSERT INTO {table} ({", ".join(values)}) VALUES ({", ".join("?" for _ in values)})',
+            tuple(values.values()),
         )
 
     def new_document(self, name: str) -> Document:
