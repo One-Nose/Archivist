@@ -49,7 +49,7 @@ class Archive:
 
     def _create_table(self, table: str, **columns: str) -> None:
         """
-        Creates a table
+        Creates a table (insecure)
         :param table: The name of the table
         :param columns: A sequence of columns, each in the form of name=type
         """
