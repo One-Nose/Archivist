@@ -44,6 +44,9 @@ class Archive:
         self._connect_options = config['connect']
         self.connect()
 
+    def __repr__(self) -> str:
+        return f'{self.__class__.__name__}({repr(self._connect_options["database"])})'
+
     def _create_table(self, name: str, columns: Sequence[tuple[str, str]]) -> None:
         """
         Creates a table
@@ -136,7 +139,8 @@ class Document:
         self.id = document_id
         self._cursor = cursor
 
-        print(document_id)
+    def __repr__(self) -> str:
+        return f'{self.__class__.__name__}({repr(self.id)})'
 
     def declare(self, name: str | None = None) -> None:
         """
