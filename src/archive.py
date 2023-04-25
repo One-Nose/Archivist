@@ -104,12 +104,26 @@ class Archive:
             'declarations',
             id='INT AUTO_INCREMENT PRIMARY KEY',
             document='INT NOT NULL',
+            element_type='INT NOT NULL',
         )
 
         self._create_table(
             'documents',
             id='INT AUTO_INCREMENT PRIMARY KEY',
             name='VARCHAR(255) NOT NULL',
+        )
+
+        self._create_table(
+            'element_types',
+            id='INT AUTO_INCREMENT PRIMARY KEY',
+            name='VARCHAR(255) NOT NULL',
+        )
+
+        self._create_table(
+            'element_type_properties',
+            id='INT AUTO_INCREMENT PRIMARY KEY',
+            element_type='INT NOT NULL',
+            name='VARCHAR(255)',
         )
 
     def insert(self, table: str, **values: ...) -> None:
@@ -152,6 +166,8 @@ class Document:
     def __repr__(self) -> str:
         return f'{self.__class__.__name__}({repr(self.id)})'
 
-    def declare(self) -> None:
+    def declare(self, element_type: int) -> None:
         """Adds a declaration to the document"""
-        self._archive.insert('declarations', document=self.id)
+        self._archive.insert(
+            'declarations', document=self.id, element_type=element_type
+        )
