@@ -93,12 +93,11 @@ class Archive:
         )
 
         self._create_table(
-            'statements',
+            'declarations',
             (
                 ('id', 'INT AUTO_INCREMENT PRIMARY KEY'),
                 ('document', 'INT NOT NULL'),
-                ('type', 'ENUM("events") NOT NULL'),
-                ('description', 'TEXT'),
+                ('name', 'VARCHAR(255)'),
             ),
         )
 
@@ -134,12 +133,11 @@ class Document:
 
         print(document_id)
 
-    def add_statement(self, description: str | None = None) -> None:
+    def declare(self, name: str | None = None) -> None:
         """
-        Adds a statement to a document
-        :param description: An optional description
+        Adds a declaration to the document
+        :param name: An optional name
         """
         self._cursor.execute(
-            'INSERT INTO statements (document, description) VALUES (?, ?)',
-            (self.id, description),
+            'INSERT INTO declarations (document, name) VALUES (?, ?)', (self.id, name)
         )
