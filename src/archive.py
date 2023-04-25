@@ -100,7 +100,7 @@ class Archive:
         :return: A document object that allows access to the document
         """
 
-        return Document(document_id, self._cursor)
+        return Document(self, document_id)
 
     def drop(self) -> None:
         """Deletes the database"""
@@ -131,29 +131,27 @@ class Archive:
         """
         self._cursor.execute('INSERT INTO documents (name) VALUES (?)', (name,))
         self._cursor.execute('SELECT LAST_INSERT_ID()')
-        return Document(self._cursor.fetchone()[0], self._cursor)
+        return Document(self, self._cursor.fetchone()[0])
 
 
 class Document:
     """Allows access to a document"""
 
-    _cursor: Cursor
+    _archive: Archive
     id: int
 
-    def __init__(self, document_id: int, cursor: Cursor) -> None:
+    def __init__(self, archive: Archive, document_id: int) -> None:
         """
         Creates a document object to access a document
+        :param archive: The document's archive
         :param document_id: The document's ID
-        :param cursor: The archive's cursor
         """
         self.id = document_id
-        self._cursor = cursor
+        self._archive = archive
 
     def __repr__(self) -> str:
         return f'{self.__class__.__name__}({repr(self.id)})'
 
     def declare(self) -> None:
         """Adds a declaration to the document"""
-        self._cursor.execute(
-            'INSERT INTO declarations (document) VALUES (?)', (self.id,)
-        )
+        self._archive.insert('declarations', document=self.id)
