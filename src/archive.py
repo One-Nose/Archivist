@@ -12,7 +12,7 @@ class ConnectionConfig(TypedDict):
     Configuration of the connection to the database
     - user: The username to connect to the database
     - password: The password to connect to the database
-    - database: The database to connect to
+    - database: The database to connect to (insecure)
     """
 
     user: str
