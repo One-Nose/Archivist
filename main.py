@@ -8,3 +8,4 @@ if __name__ == '__main__':
         config = load(file)
 
     archive = Archive(config)
+    archive.close()

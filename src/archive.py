@@ -58,6 +58,11 @@ class Archive:
         """Sets the database as the connected database"""
         self._cursor.execute(f'USE {self._connect_options["database"]}')
 
+    def close(self) -> None:
+        """Closes the connection"""
+        self._cursor.close()
+        self._connection.close()
+
     def commit(self) -> None:
         """Commits the changes to the database"""
         self._connection.commit()
