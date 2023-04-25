@@ -1,7 +1,7 @@
 """Access the database and make queries"""
 from __future__ import annotations
 
-from typing import Sequence, TypedDict
+from typing import TypedDict
 
 from mariadb import Connection, ProgrammingError, connect
 from mariadb.cursors import Cursor
@@ -47,14 +47,14 @@ class Archive:
     def __repr__(self) -> str:
         return f'{self.__class__.__name__}({repr(self._connect_options["database"])})'
 
-    def _create_table(self, name: str, columns: Sequence[tuple[str, str]]) -> None:
+    def _create_table(self, table: str, **columns: str) -> None:
         """
         Creates a table
-        :param name: The name of the table
-        :param columns: A sequence of columns, each in the form of (name, type)
+        :param table: The name of the table
+        :param columns: A sequence of columns, each in the form of name=type
         """
         self._cursor.execute(
-            f'CREATE TABLE {name} ({", ".join(" ".join(column) for column in columns)})'
+            f'CREATE TABLE {table} ({", ".join(" ".join(column) for column in columns.items())})'
         )
 
     def _use(self) -> None:
@@ -102,18 +102,14 @@ class Archive:
 
         self._create_table(
             'declarations',
-            (
-                ('id', 'INT AUTO_INCREMENT PRIMARY KEY'),
-                ('document', 'INT NOT NULL'),
-            ),
+            id='INT AUTO_INCREMENT PRIMARY KEY',
+            document='INT NOT NULL',
         )
 
         self._create_table(
             'documents',
-            (
-                ('id', 'INT AUTO_INCREMENT PRIMARY KEY'),
-                ('name', 'VARCHAR(255) NOT NULL'),
-            ),
+            id='INT AUTO_INCREMENT PRIMARY KEY',
+            name='VARCHAR(255) NOT NULL',
         )
 
     def new_document(self, name: str) -> Document:
