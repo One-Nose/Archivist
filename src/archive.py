@@ -113,7 +113,6 @@ class Archive:
             (
                 ('id', 'INT AUTO_INCREMENT PRIMARY KEY'),
                 ('document', 'INT NOT NULL'),
-                ('name', 'VARCHAR(255) NOT NULL'),
             ),
         )
 
@@ -146,11 +145,8 @@ class Document:
     def __repr__(self) -> str:
         return f'{self.__class__.__name__}({repr(self.id)})'
 
-    def declare(self, name: str) -> None:
-        """
-        Adds a declaration to the document
-        :param name: The name of the declared element
-        """
+    def declare(self) -> None:
+        """Adds a declaration to the document"""
         self._cursor.execute(
-            'INSERT INTO declarations (document, name) VALUES (?, ?)', (self.id, name)
+            'INSERT INTO declarations (document) VALUES (?)', (self.id,)
         )
