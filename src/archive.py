@@ -101,18 +101,18 @@ class Archive:
         self._use()
 
         self._create_table(
-            'documents',
-            (
-                ('id', 'INT AUTO_INCREMENT PRIMARY KEY'),
-                ('name', 'VARCHAR(255) NOT NULL'),
-            ),
-        )
-
-        self._create_table(
             'declarations',
             (
                 ('id', 'INT AUTO_INCREMENT PRIMARY KEY'),
                 ('document', 'INT NOT NULL'),
+            ),
+        )
+
+        self._create_table(
+            'documents',
+            (
+                ('id', 'INT AUTO_INCREMENT PRIMARY KEY'),
+                ('name', 'VARCHAR(255) NOT NULL'),
             ),
         )
 
