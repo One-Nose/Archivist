@@ -129,7 +129,7 @@ class Archive:
         :param name: The name of the document
         :return: A document object to access the newly created document
         """
-        self._cursor.execute('INSERT INTO documents (name) VALUES (?)', (name,))
+        self.insert('documents', name=name)
         self._cursor.execute('SELECT LAST_INSERT_ID()')
         return Document(self, self._cursor.fetchone()[0])
 
