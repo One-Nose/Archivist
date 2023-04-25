@@ -82,6 +82,15 @@ class Archive:
         except ProgrammingError:
             self.init()
 
+    def document(self, document_id: int) -> Document:
+        """
+        Creates a document object to access an existing document
+        :param document_id: The document's numeral ID
+        :return: A document object that allows access to the document
+        """
+
+        return Document(document_id, self._cursor)
+
     def drop(self) -> None:
         """Deletes the database"""
         self._cursor.execute(f'DROP DATABASE {self._connect_options["database"]}')
