@@ -105,7 +105,6 @@ class Archive:
             (
                 ('id', 'INT AUTO_INCREMENT PRIMARY KEY'),
                 ('name', 'VARCHAR(255) NOT NULL'),
-                ('description', 'TEXT'),
             ),
         )
 
@@ -118,17 +117,13 @@ class Archive:
             ),
         )
 
-    def new_document(self, name: str, description: str | None = None) -> Document:
+    def new_document(self, name: str) -> Document:
         """
         Creates a new document
         :param name: The name of the document
-        :param description: An optional description
         :return: A document object to access the newly created document
         """
-        self._cursor.execute(
-            'INSERT INTO documents (name, description) VALUES (?, ?)',
-            (name, description),
-        )
+        self._cursor.execute('INSERT INTO documents (name) VALUES (?)', (name,))
         self._cursor.execute('SELECT LAST_INSERT_ID()')
         return Document(self._cursor.fetchone()[0], self._cursor)
 
