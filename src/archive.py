@@ -147,6 +147,11 @@ class Archive:
         self._cursor.execute('SELECT LAST_INSERT_ID()')
         return Document(self, self._cursor.fetchone()[0])
 
+    def reset(self) -> None:
+        """Completely resets the database"""
+        self.drop()
+        self.init()
+
 
 class Document:
     """Allows access to a document"""
