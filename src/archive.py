@@ -245,6 +245,20 @@ class Declaration(ArchiveProxy):
 
         self._archive.insert('titles', declaration=self.id, title=title)
 
+    def add_relation(self, relation_type: RelationType, target: Declaration) -> None:
+        """
+        Adds a relation between the declaration and a target declaration
+        :param relation_type: The type of the relation
+        :param target: The target declaration of the relation
+        """
+
+        self._archive.insert(
+            'relations',
+            type=relation_type.id,
+            declaration=self.id,
+            target_declaration=target.id,
+        )
+
 
 class Document(ArchiveProxy):
     """Allows access to a document"""
