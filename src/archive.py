@@ -147,8 +147,8 @@ class Archive:
             'relation_types',
             id='INT AUTO_INCREMENT PRIMARY KEY',
             description='VARCHAR(255) NOT NULL',
-            element_type1='INT NOT NULL',
-            element_type2='INT NOT NULL',
+            element1_type='INT NOT NULL',
+            element2_type='INT NOT NULL',
         )
 
         self._create_table(
