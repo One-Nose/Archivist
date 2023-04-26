@@ -309,7 +309,7 @@ class Category(ArchiveProxy):
 
 
 class Declaration(ArchiveProxy):
-    """Allows access to a declaration"""
+    """Allows access to a declaration of an element"""
 
     def add_description(self, description: str) -> None:
         """
