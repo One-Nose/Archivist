@@ -1,7 +1,7 @@
 """The root file of the program"""
 from json import load
 
-from src.archive import Archive
+from src.archive import Archive, RelationPropertyType
 
 if __name__ == '__main__':
     with open('config.json', encoding='utf-8') as file:
@@ -11,13 +11,15 @@ if __name__ == '__main__':
     archive.reset()
 
     period = archive.new_element_type('Period')
-    period.new_property('Beginning')
-    period.new_property('End')
+    beginning = period.new_property('Beginning')
+    end = period.new_property('End')
 
     event = archive.new_element_type('Event')
-    event.new_property('Date')
+    date = event.new_property('Date')
 
     during = event.new_relation_type('During %%', period)
+    during.add_property(date, RelationPropertyType.GREATER, beginning)
+    during.add_property(date, RelationPropertyType.LESS, end)
 
     episode4 = archive.new_document('Star Wars Episode IV: A New Hope')
 
