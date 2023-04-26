@@ -58,7 +58,10 @@ class Archive:
         )
 
     def _last_id(self) -> int:
-        """Gets the ID of the last inserted row"""
+        """
+        Gets the ID of the last inserted row
+        :return: The row's ID
+        """
         self._cursor.execute('SELECT LAST_INSERT_ID()')
         return self._cursor.fetchone()[0]
 
