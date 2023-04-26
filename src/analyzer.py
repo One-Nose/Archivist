@@ -13,4 +13,8 @@ class Analyzer:
     _archive: Archive
 
     def __init__(self, archive: Archive) -> None:
+        """
+        Creates an analyzer for an archive
+        :param archive: The archive to analyze
+        """
         self._archive = archive
