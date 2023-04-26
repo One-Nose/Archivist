@@ -27,6 +27,10 @@ if __name__ == '__main__':
     civil_war.add_description('It is a period of civil war.')
 
     rebel_victory = episode4.declare(event)
+    rebel_victory.add_description(
+        'Rebel spaceships, striking from a hidden base, have won their first'
+        'victory against the evil Galactic Empire.'
+    )
     rebel_victory.add_relation(during, civil_war)
 
     archive.commit()
