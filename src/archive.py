@@ -151,6 +151,15 @@ class Archive:
         self.insert('documents', name=name)
         return Document(self, self._last_id())
 
+    def new_element_type(self, name: str) -> ElementType:
+        """
+        Creates a new element type
+        :param name: The name of the element type
+        :return: An element type object to access the newly created element type
+        """
+        self.insert('element_types', name=name)
+        return ElementType(self, self._last_id())
+
     def reset(self) -> None:
         """Completely resets the database"""
         self.drop()
