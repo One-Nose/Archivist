@@ -157,26 +157,35 @@ class Archive:
         self.init()
 
 
-class Document:
-    """Allows access to a document"""
+class ArchiveProxy:
+    """Interface to allow access to part of an archive"""
 
     _archive: Archive
     id: int
 
-    def __init__(self, archive: Archive, document_id: int) -> None:
+    def __init__(self, archive: Archive, identifier: int) -> None:
         """
-        Creates a document object to access a document
-        :param archive: The document's archive
-        :param document_id: The document's ID
+        Creates a proxy object to access a part of an archive
+        :param archive: The proxy's archive
+        :param identifier: Numeral ID of the part the proxy points towards
         """
-        self.id = document_id
+
         self._archive = archive
+        self.id = identifier
 
     def __repr__(self) -> str:
         return f'{self.__class__.__name__}({repr(self.id)})'
 
-    def declare(self, element_type: int) -> None:
+
+class Document(ArchiveProxy):
+    """Allows access to a document"""
+
+    def declare(self, element_type: ElementType) -> None:
         """Adds a declaration to the document"""
         self._archive.insert(
-            'declarations', document=self.id, element_type=element_type
+            'declarations', document=self.id, element_type=element_type.id
         )
+
+
+class ElementType(ArchiveProxy):
+    """Allows access to an element type"""
