@@ -163,8 +163,8 @@ class Archive:
         self._create_table(
             'relations',
             id='INT AUTO_INCREMENT PRIMARY KEY',
-            type='INT NOT NULL',
             declaration='INT NOT NULL',
+            type='INT NOT NULL',
             target_declaration='INT NOT NULL',
         )
 
@@ -254,8 +254,8 @@ class Declaration(ArchiveProxy):
 
         self._archive.insert(
             'relations',
-            type=relation_type.id,
             declaration=self.id,
+            type=relation_type.id,
             target_declaration=target.id,
         )
 
