@@ -1,5 +1,6 @@
 {
   "pylint.args": [
+    "--disable=relative-beyond-top-level",
     "--disable=too-few-public-methods",
     "--disable=useless-import-alias",
     "--good-names=id",
