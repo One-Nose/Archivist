@@ -17,6 +17,8 @@ if __name__ == '__main__':
     event = archive.new_element_type('Event')
     event.add_property('Date')
 
+    during = event.new_relation_type('During %%', period)
+
     episode4 = archive.new_document('Star Wars Episode IV: A New Hope')
 
     civil_war = episode4.declare(period)
