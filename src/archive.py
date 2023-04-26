@@ -149,8 +149,7 @@ class Archive:
         :return: A document object to access the newly created document
         """
         self.insert('documents', name=name)
-        self._cursor.execute('SELECT LAST_INSERT_ID()')
-        return Document(self, self._cursor.fetchone()[0])
+        return Document(self, self._last_id())
 
     def reset(self) -> None:
         """Completely resets the database"""
