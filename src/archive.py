@@ -263,3 +263,7 @@ class ElementType(ArchiveProxy):
         """
 
         self._archive.insert('element_type_properties', element_type=self.id, name=name)
+
+
+class RelationType(ArchiveProxy):
+    """Allows access to a relation type"""
