@@ -41,6 +41,7 @@ class Archive:
         Creates a Database object according to the optional config object
         :param config: An object containing the config options
         """
+
         self._connect_options = config['connect']
         self.connect()
 
@@ -53,6 +54,7 @@ class Archive:
         :param table: The name of the table
         :param columns: A sequence of columns, each in the form of name=type
         """
+
         self._cursor.execute(
             f'CREATE TABLE {table} ({", ".join(" ".join(column) for column in columns.items())})'
         )
@@ -62,24 +64,29 @@ class Archive:
         Gets the ID of the last inserted row
         :return: The row's ID
         """
+
         self._cursor.execute('SELECT LAST_INSERT_ID()')
         return self._cursor.fetchone()[0]
 
     def _use(self) -> None:
         """Sets the database as the connected database"""
+
         self._cursor.execute(f'USE {self._connect_options["database"]}')
 
     def close(self) -> None:
         """Closes the connection"""
+
         self._cursor.close()
         self._connection.close()
 
     def commit(self) -> None:
         """Commits the changes to the database"""
+
         self._connection.commit()
 
     def connect(self) -> None:
         """Connects to the database, creates a cursor, and saves the connection and the cursor"""
+
         self._connection = connect(
             user=self._connect_options['user'],
             password=self._connect_options['password'],
@@ -101,10 +108,12 @@ class Archive:
 
     def drop(self) -> None:
         """Deletes the database"""
+
         self._cursor.execute(f'DROP DATABASE {self._connect_options["database"]}')
 
     def init(self) -> None:
         """Creates the database and initializes it"""
+
         self._cursor.execute(f'CREATE DATABASE {self._connect_options["database"]}')
         self._use()
 
@@ -140,6 +149,7 @@ class Archive:
         :param table: The table to insert to
         :param values: The values to insert in the form of column=value
         """
+
         self._cursor.execute(
             f'INSERT INTO {table} ({", ".join(values)}) VALUES ({", ".join("?" for _ in values)})',
             tuple(values.values()),
@@ -151,6 +161,7 @@ class Archive:
         :param name: The name of the document
         :return: A document object to access the newly created document
         """
+
         self.insert('documents', name=name)
         return Document(self, self._last_id())
 
@@ -160,11 +171,13 @@ class Archive:
         :param name: The name of the element type
         :return: An element type object to access the newly created element type
         """
+
         self.insert('element_types', name=name)
         return ElementType(self, self._last_id())
 
     def reset(self) -> None:
         """Completely resets the database"""
+
         self.drop()
         self.init()
 
