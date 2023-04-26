@@ -221,6 +221,14 @@ class ArchiveProxy:
 class Declaration(ArchiveProxy):
     """Allows access to a declaration"""
 
+    def add_title(self, title: str) -> None:
+        """
+        Adds a title to the declaration
+        :param title: The title to add
+        """
+
+        self._archive.insert('titles', declaration=self.id, title=title)
+
 
 class Document(ArchiveProxy):
     """Allows access to a document"""
