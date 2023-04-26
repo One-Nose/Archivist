@@ -144,6 +144,15 @@ class Archive:
         )
 
         self._create_table(
+            'relation_type_properties',
+            id='INT AUTO_INCREMENT PRIMARY KEY',
+            relation_type='INT NOT NULL',
+            element_property='INT NOT NULL',
+            type='ENUM("greater", "less")',
+            target_element_property='INT NOT NULL',
+        )
+
+        self._create_table(
             'relation_types',
             id='INT AUTO_INCREMENT PRIMARY KEY',
             element_type='INT NOT NULL',
