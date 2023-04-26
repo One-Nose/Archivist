@@ -225,11 +225,16 @@ class Declaration(ArchiveProxy):
 class Document(ArchiveProxy):
     """Allows access to a document"""
 
-    def declare(self, element_type: ElementType) -> None:
-        """Adds a declaration to the document"""
+    def declare(self, element_type: ElementType) -> Declaration:
+        """
+        Adds a declaration to the document
+        :return: A declaration object to access the declaration
+        """
+
         self._archive.insert(
             'declarations', document=self.id, element_type=element_type.id
         )
+        return Declaration(self._archive, self._archive.last_id())
 
 
 class ElementType(ArchiveProxy):
