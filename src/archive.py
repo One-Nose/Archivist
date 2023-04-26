@@ -1,7 +1,7 @@
 """Access the database and make queries"""
 from __future__ import annotations
 
-from enum import StrEnum, auto
+from enum import IntEnum, auto
 from typing import TypedDict
 
 from mariadb import Connection, ProgrammingError, connect
@@ -32,8 +32,15 @@ class ConnectionConfig(TypedDict):
     database: str
 
 
-class RelationPropertyType(StrEnum):
-    """A string enum for valid relation type property types"""
+class BuiltInCategory(IntEnum):
+    """A negative integer enum for built-in rule categories"""
+
+    @staticmethod
+    def _generate_next_value_(
+        name: str, start: int, count: int, last_values: list[int]
+    ) -> int:
+        del name, start, last_values
+        return -count - 1
 
     GREATER = auto()
     LESS = auto()
@@ -64,6 +71,49 @@ class Archive:
         """Sets the database as the connected database"""
 
         self.cursor.execute(f'USE {self._connect_options["database"]}')
+
+    def add_rule(
+        self,
+        category: Category | BuiltInCategory,
+        property1: tuple[Property, Property | None] | Property,
+        property2: tuple[Property, Property | None] | Property,
+    ) -> None:
+        """
+        Adds a rule to the archive
+        :param category: The category of the rule, may be built-in
+        :param property1: The rule's first argument, either as (property, subproperty) or property
+        :param property2: The rule's second argument, either as (property, subproperty) or property
+        """
+
+        if isinstance(property1, Property):
+            property1 = (property1, None)
+        elif property1[1]:
+            assert property1[1].parent == property1[0].category
+
+        if isinstance(property2, Property):
+            property2 = (property2, None)
+        elif property2[1]:
+            assert property2[1].parent == property2[0].category
+
+        assert property1[0].parent == property2[0].parent
+
+        self.insert(
+            'rules',
+            category=category,
+            property1=property1[0].id,
+            subproperty1=property1[1].id if property1[1] else 0,
+            property2=property2[0].id,
+            subproperty2=property2[1].id if property2[1] else 0,
+        )
+
+    def category(self, category_id: int) -> Category:
+        """
+        Creates a category object to access an existing category
+        :param type_id: The category's numeral ID
+        :return: A category object that allows access to the category
+        """
+
+        return Category(self, category_id)
 
     def close(self) -> None:
         """Closes the connection"""
@@ -114,15 +164,6 @@ class Archive:
 
         self.cursor.execute(f'DROP DATABASE {self._connect_options["database"]}')
 
-    def element_type(self, type_id: int) -> ElementType:
-        """
-        Creates an element type object to access an existing element type
-        :param type_id: The element type's numeral ID
-        :return: An element type object that allows access to the element type
-        """
-
-        return ElementType(self, type_id)
-
     def init(self) -> None:
         """Creates the database and initializes it"""
 
@@ -132,10 +173,23 @@ class Archive:
         self._analyzer.init()
 
         self.create_table(
+            'categories',
+            id='INT UNSIGNED AUTO_INCREMENT PRIMARY KEY',
+            name='VARCHAR(255) NOT NULL',
+        )
+
+        self.create_table(
             'declarations',
             id='INT UNSIGNED AUTO_INCREMENT PRIMARY KEY',
             document='INT UNSIGNED NOT NULL',
-            element_type='INT UNSIGNED NOT NULL',
+            category='INT UNSIGNED NOT NULL',
+        )
+
+        self.create_table(
+            'descriptions',
+            id='INT UNSIGNED AUTO_INCREMENT PRIMARY KEY',
+            declaration='INT UNSIGNED NOT NULL',
+            description='TEXT NOT NULL',
         )
 
         self.create_table(
@@ -145,49 +199,29 @@ class Archive:
         )
 
         self.create_table(
-            'element_type_properties',
+            'properties',
             id='INT UNSIGNED AUTO_INCREMENT PRIMARY KEY',
-            element_type='INT UNSIGNED NOT NULL',
+            parent='INT UNSIGNED NOT NULL',
             name='VARCHAR(255) NOT NULL',
-            type='INT UNSIGNED NOT NULL',
+            category='INT UNSIGNED NOT NULL',
         )
 
         self.create_table(
-            'element_types',
-            id='INT UNSIGNED AUTO_INCREMENT PRIMARY KEY',
-            name='VARCHAR(255) NOT NULL',
-        )
-
-        self.create_table(
-            'relation_type_properties',
-            id='INT UNSIGNED AUTO_INCREMENT PRIMARY KEY',
-            relation_type='INT UNSIGNED NOT NULL',
-            element_property='INT UNSIGNED NOT NULL',
-            type=f'ENUM({", ".join(repr(str(t)) for t in RelationPropertyType)}) NOT NULL',
-            target_element_property='INT UNSIGNED NOT NULL',
-        )
-
-        self.create_table(
-            'relation_types',
-            id='INT UNSIGNED AUTO_INCREMENT PRIMARY KEY',
-            element_type='INT UNSIGNED NOT NULL',
-            description='VARCHAR(255) NOT NULL',
-            target_element_type='INT UNSIGNED NOT NULL',
-        )
-
-        self.create_table(
-            'relations',
+            'property_declarations',
             id='INT UNSIGNED AUTO_INCREMENT PRIMARY KEY',
             declaration='INT UNSIGNED NOT NULL',
-            type='INT UNSIGNED NOT NULL',
-            target_declaration='INT UNSIGNED NOT NULL',
+            property='INT UNSIGNED NOT NULL',
+            value='INT UNSIGNED NOT NULL',
         )
 
         self.create_table(
-            'descriptions',
+            'rules',
             id='INT UNSIGNED AUTO_INCREMENT PRIMARY KEY',
-            declaration='INT UNSIGNED NOT NULL',
-            description='TEXT NOT NULL',
+            category='INT NOT NULL',
+            property1='INT UNSIGNED NOT NULL',
+            subproperty1='INT UNSIGNED NOT NULL',
+            property2='INT UNSIGNED NOT NULL',
+            subproperty2='INT UNSIGNED NOT NULL',
         )
 
     def insert(self, table: str, **values: ...) -> None:
@@ -202,6 +236,16 @@ class Archive:
             tuple(values.values()),
         )
 
+    def new_category(self, name: str) -> Category:
+        """
+        Creates a new category
+        :param name: The name of the category
+        :return: A category object to access the newly created category
+        """
+
+        self.insert('categories', name=name)
+        return Category(self, self.cursor.lastrowid)
+
     def new_document(self, name: str) -> Document:
         """
         Creates a new document
@@ -211,16 +255,6 @@ class Archive:
 
         self.insert('documents', name=name)
         return Document(self, self.cursor.lastrowid)
-
-    def new_element_type(self, name: str) -> ElementType:
-        """
-        Creates a new element type
-        :param name: The name of the element type
-        :return: An element type object to access the newly created element type
-        """
-
-        self.insert('element_types', name=name)
-        return ElementType(self, self.cursor.lastrowid)
 
     def reset(self) -> None:
         """Completely resets the database"""
@@ -245,8 +279,33 @@ class ArchiveProxy:
         self._archive = archive
         self.id = identifier
 
+    def __eq__(self, __value: object) -> bool:
+        if isinstance(__value, ArchiveProxy):
+            return self.id == __value.id
+        return False
+
     def __repr__(self) -> str:
         return f'{self.__class__.__name__}({repr(self.id)})'
+
+
+class Category(ArchiveProxy):
+    """Allows access to a category"""
+
+    def new_property(self, name: str, category: Category | None = None) -> Property:
+        """
+        Adds a property to the category
+        :param name: The property's name
+        :param category: The property's optional category
+        :return: A property object to access the newly created property
+        """
+
+        self._archive.insert(
+            'properties',
+            parent=self.id,
+            name=name,
+            category=category.id if category else 0,
+        )
+        return Property(self._archive, self._archive.cursor.lastrowid, self, category)
 
 
 class Declaration(ArchiveProxy):
@@ -262,94 +321,49 @@ class Declaration(ArchiveProxy):
             'descriptions', declaration=self.id, description=description
         )
 
-    def add_relation(self, relation_type: RelationType, target: Declaration) -> None:
+    def declare_property(self, declared_property: Property, value: Declaration) -> None:
         """
-        Adds a relation between the declaration and a target declaration
-        :param relation_type: The type of the relation
-        :param target: The target declaration of the relation
+        Declares a property of the declared element
+        :param declared_property: The property to declare
+        :param value: The value to declare the property as
         """
 
         self._archive.insert(
-            'relations',
+            'property_declarations',
             declaration=self.id,
-            type=relation_type.id,
-            target_declaration=target.id,
+            property=declared_property.id,
+            value=value.id,
         )
 
 
 class Document(ArchiveProxy):
     """Allows access to a document"""
 
-    def declare(self, element_type: ElementType) -> Declaration:
+    def declare(self, category: Category) -> Declaration:
         """
-        Adds a declaration to the document
+        Adds a declaration of an element to the document
+        :param category: The category of the declared element
         :return: A declaration object to access the declaration
         """
 
-        self._archive.insert(
-            'declarations', document=self.id, element_type=element_type.id
-        )
+        self._archive.insert('declarations', document=self.id, category=category.id)
         return Declaration(self._archive, self._archive.cursor.lastrowid)
 
 
-class ElementTypeProperty(ArchiveProxy):
+class Property(ArchiveProxy):
     """Allows access to an element type property"""
 
+    category: Category | None
+    parent: Category
 
-class ElementType(ArchiveProxy):
-    """Allows access to an element type"""
-
-    def new_property(
-        self, name: str, property_type: ElementType | None = None
-    ) -> ElementTypeProperty:
-        """
-        Adds a property to the element type
-        :param name: The property's name
-        :return: An element type property object to access the newly created property
-        """
-
-        self._archive.insert(
-            'element_type_properties',
-            element_type=self.id,
-            name=name,
-            property_type=property_type.id if property_type else 0,
-        )
-        return ElementTypeProperty(self._archive, self._archive.cursor.lastrowid)
-
-    def new_relation_type(
-        self, description: str, target_element_type: ElementType
-    ) -> RelationType:
-        """
-        Creates a new type of relation between an element of this type and a target element
-        :param description: The relation type's description, with %% for the target element
-        :param target_element_type: The type of the target element
-        :return: A relation type object to access the newly created relation type
-        """
-
-        self._archive.insert(
-            'relation_types',
-            element_type=self.id,
-            description=description,
-            target_element_type=target_element_type.id,
-        )
-        return RelationType(self._archive, self._archive.cursor.lastrowid)
-
-
-class RelationType(ArchiveProxy):
-    """Allows access to a relation type"""
-
-    def add_property(
+    def __init__(
         self,
-        element_property: ElementTypeProperty,
-        property_type: RelationPropertyType,
-        target_property: ElementTypeProperty,
-    ):
-        """Adds a property to the relation type"""
+        archive: Archive,
+        identifier: int,
+        parent: Category,
+        category: Category | None,
+    ) -> None:
+        super().__init__(archive, identifier)
 
-        self._archive.insert(
-            'relation_type_properties',
-            relation_type=self.id,
-            element_property=element_property.id,
-            type=property_type,
-            target_element_property=target_property.id,
-        )
+        self.parent = parent
+        self.category = category
