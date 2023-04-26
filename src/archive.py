@@ -60,17 +60,6 @@ class Archive:
     def __repr__(self) -> str:
         return f'{self.__class__.__name__}({repr(self._connect_options["database"])})'
 
-    def _create_table(self, table: str, **columns: str) -> None:
-        """
-        Creates a table (insecure)
-        :param table: The name of the table
-        :param columns: A sequence of columns, each in the form of name=type
-        """
-
-        self.cursor.execute(
-            f'CREATE TABLE {table} ({", ".join(" ".join(column) for column in columns.items())})'
-        )
-
     def _use(self) -> None:
         """Sets the database as the connected database"""
 
@@ -99,6 +88,17 @@ class Archive:
             self._use()
         except ProgrammingError:
             self.init()
+
+    def create_table(self, table: str, **columns: str) -> None:
+        """
+        Creates a table (insecure)
+        :param table: The name of the table
+        :param columns: A sequence of columns, each in the form of name=type
+        """
+
+        self.cursor.execute(
+            f'CREATE TABLE {table} ({", ".join(" ".join(column) for column in columns.items())})'
+        )
 
     def document(self, document_id: int) -> Document:
         """
@@ -129,33 +129,33 @@ class Archive:
         self.cursor.execute(f'CREATE DATABASE {self._connect_options["database"]}')
         self._use()
 
-        self._create_table(
+        self.create_table(
             'declarations',
             id='INT AUTO_INCREMENT PRIMARY KEY',
             document='INT NOT NULL',
             element_type='INT NOT NULL',
         )
 
-        self._create_table(
+        self.create_table(
             'documents',
             id='INT AUTO_INCREMENT PRIMARY KEY',
             name='VARCHAR(255) NOT NULL',
         )
 
-        self._create_table(
+        self.create_table(
             'element_type_properties',
             id='INT AUTO_INCREMENT PRIMARY KEY',
             element_type='INT NOT NULL',
             name='VARCHAR(255) NOT NULL',
         )
 
-        self._create_table(
+        self.create_table(
             'element_types',
             id='INT AUTO_INCREMENT PRIMARY KEY',
             name='VARCHAR(255) NOT NULL',
         )
 
-        self._create_table(
+        self.create_table(
             'relation_type_properties',
             id='INT AUTO_INCREMENT PRIMARY KEY',
             relation_type='INT NOT NULL',
@@ -164,7 +164,7 @@ class Archive:
             target_element_property='INT NOT NULL',
         )
 
-        self._create_table(
+        self.create_table(
             'relation_types',
             id='INT AUTO_INCREMENT PRIMARY KEY',
             element_type='INT NOT NULL',
@@ -172,7 +172,7 @@ class Archive:
             target_element_type='INT NOT NULL',
         )
 
-        self._create_table(
+        self.create_table(
             'relations',
             id='INT AUTO_INCREMENT PRIMARY KEY',
             declaration='INT NOT NULL',
@@ -180,7 +180,7 @@ class Archive:
             target_declaration='INT NOT NULL',
         )
 
-        self._create_table(
+        self.create_table(
             'descriptions',
             id='INT AUTO_INCREMENT PRIMARY KEY',
             declaration='INT NOT NULL',
