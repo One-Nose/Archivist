@@ -321,3 +321,19 @@ class ElementType(ArchiveProxy):
 
 class RelationType(ArchiveProxy):
     """Allows access to a relation type"""
+
+    def add_property(
+        self,
+        element_property: ElementTypeProperty,
+        property_type: RelationPropertyType,
+        target_property: ElementTypeProperty,
+    ):
+        """Adds a property to the relation type"""
+
+        self._archive.insert(
+            'relation_type_properties',
+            relation_type=self.id,
+            element_property=element_property.id,
+            type=property_type,
+            target_element_property=target_property.id,
+        )
