@@ -199,6 +199,25 @@ class Archive:
         self.insert('element_types', name=name)
         return ElementType(self, self.last_id())
 
+    def new_relation_type(
+        self, description: str, element1_type: ElementType, element2_type: ElementType
+    ) -> RelationType:
+        """
+        Creates a new type of relation between two elements
+        :param description: The relation type's description, with %1 and %2 for the elements
+        :param element1_type: The type of the first element
+        :param element2_type: The type of the second element
+        :return: A relation type object to access the newly created relation type
+        """
+
+        self.insert(
+            'relation_types',
+            description=description,
+            element1_type=element1_type.id,
+            element2_type=element2_type.id,
+        )
+        return RelationType(self, self.last_id())
+
     def reset(self) -> None:
         """Completely resets the database"""
 
