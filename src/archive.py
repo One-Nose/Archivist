@@ -114,16 +114,16 @@ class Archive:
         )
 
         self._create_table(
-            'element_types',
-            id='INT AUTO_INCREMENT PRIMARY KEY',
-            name='VARCHAR(255) NOT NULL',
-        )
-
-        self._create_table(
             'element_type_properties',
             id='INT AUTO_INCREMENT PRIMARY KEY',
             element_type='INT NOT NULL',
             name='VARCHAR(255)',
+        )
+
+        self._create_table(
+            'element_types',
+            id='INT AUTO_INCREMENT PRIMARY KEY',
+            name='VARCHAR(255) NOT NULL',
         )
 
     def insert(self, table: str, **values: ...) -> None:
