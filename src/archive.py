@@ -57,6 +57,11 @@ class Archive:
             f'CREATE TABLE {table} ({", ".join(" ".join(column) for column in columns.items())})'
         )
 
+    def _last_id(self) -> int:
+        """Gets the ID of the last inserted row"""
+        self._cursor.execute('SELECT LAST_INSERT_ID()')
+        return self._cursor.fetchone()[0]
+
     def _use(self) -> None:
         """Sets the database as the connected database"""
         self._cursor.execute(f'USE {self._connect_options["database"]}')
