@@ -223,3 +223,11 @@ class Document(ArchiveProxy):
 
 class ElementType(ArchiveProxy):
     """Allows access to an element type"""
+
+    def add_property(self, name: str) -> None:
+        """
+        Adds a property to the element type
+        :param name: The property's name
+        """
+
+        self._archive.insert('element_type_properties', element_type=self.id, name=name)
