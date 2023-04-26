@@ -149,6 +149,7 @@ class Archive:
             id='INT UNSIGNED AUTO_INCREMENT PRIMARY KEY',
             element_type='INT UNSIGNED NOT NULL',
             name='VARCHAR(255) NOT NULL',
+            type='INT UNSIGNED NOT NULL',
         )
 
         self.create_table(
@@ -298,14 +299,21 @@ class ElementTypeProperty(ArchiveProxy):
 class ElementType(ArchiveProxy):
     """Allows access to an element type"""
 
-    def new_property(self, name: str) -> ElementTypeProperty:
+    def new_property(
+        self, name: str, property_type: ElementType | None = None
+    ) -> ElementTypeProperty:
         """
         Adds a property to the element type
         :param name: The property's name
         :return: An element type property object to access the newly created property
         """
 
-        self._archive.insert('element_type_properties', element_type=self.id, name=name)
+        self._archive.insert(
+            'element_type_properties',
+            element_type=self.id,
+            name=name,
+            property_type=property_type.id if property_type else 0,
+        )
         return ElementTypeProperty(self._archive, self._archive.cursor.lastrowid)
 
     def new_relation_type(
