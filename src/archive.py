@@ -275,6 +275,10 @@ class Document(ArchiveProxy):
         return Declaration(self._archive, self._archive.cursor.lastrowid)
 
 
+class ElementTypeProperty(ArchiveProxy):
+    """Allows access to an element type property"""
+
+
 class ElementType(ArchiveProxy):
     """Allows access to an element type"""
 
