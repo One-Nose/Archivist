@@ -144,7 +144,7 @@ class Archive:
         )
 
         self._create_table(
-            'relations',
+            'relation_types',
             id='INT AUTO_INCREMENT PRIMARY KEY',
             description='VARCHAR(255) NOT NULL',
             element_type1='INT NOT NULL',
