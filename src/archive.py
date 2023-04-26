@@ -177,10 +177,10 @@ class Archive:
         )
 
         self._create_table(
-            'titles',
+            'descriptions',
             id='INT AUTO_INCREMENT PRIMARY KEY',
             declaration='INT NOT NULL',
-            title='VARCHAR(255) NOT NULL',
+            description='TEXT NOT NULL',
         )
 
     def insert(self, table: str, **values: ...) -> None:
@@ -245,13 +245,15 @@ class ArchiveProxy:
 class Declaration(ArchiveProxy):
     """Allows access to a declaration"""
 
-    def add_title(self, title: str) -> None:
+    def add_description(self, description: str) -> None:
         """
-        Adds a title to the declaration
-        :param title: The title to add
+        Adds a description to the declaration
+        :param description: The description to add
         """
 
-        self._archive.insert('titles', declaration=self.id, title=title)
+        self._archive.insert(
+            'descriptions', declaration=self.id, description=description
+        )
 
     def add_relation(self, relation_type: RelationType, target: Declaration) -> None:
         """
