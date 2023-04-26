@@ -34,7 +34,7 @@ class Archive:
 
     _connect_options: ConnectionConfig
     _connection: Connection
-    _cursor: Cursor
+    cursor: Cursor
 
     def __init__(self, config: ArchiveConfig) -> None:
         """
@@ -55,19 +55,19 @@ class Archive:
         :param columns: A sequence of columns, each in the form of name=type
         """
 
-        self._cursor.execute(
+        self.cursor.execute(
             f'CREATE TABLE {table} ({", ".join(" ".join(column) for column in columns.items())})'
         )
 
     def _use(self) -> None:
         """Sets the database as the connected database"""
 
-        self._cursor.execute(f'USE {self._connect_options["database"]}')
+        self.cursor.execute(f'USE {self._connect_options["database"]}')
 
     def close(self) -> None:
         """Closes the connection"""
 
-        self._cursor.close()
+        self.cursor.close()
         self._connection.close()
 
     def commit(self) -> None:
@@ -82,7 +82,7 @@ class Archive:
             user=self._connect_options['user'],
             password=self._connect_options['password'],
         )
-        self._cursor = self._connection.cursor()
+        self.cursor = self._connection.cursor()
         try:
             self._use()
         except ProgrammingError:
@@ -100,7 +100,7 @@ class Archive:
     def drop(self) -> None:
         """Deletes the database"""
 
-        self._cursor.execute(f'DROP DATABASE {self._connect_options["database"]}')
+        self.cursor.execute(f'DROP DATABASE {self._connect_options["database"]}')
 
     def element_type(self, type_id: int) -> ElementType:
         """
@@ -114,7 +114,7 @@ class Archive:
     def init(self) -> None:
         """Creates the database and initializes it"""
 
-        self._cursor.execute(f'CREATE DATABASE {self._connect_options["database"]}')
+        self.cursor.execute(f'CREATE DATABASE {self._connect_options["database"]}')
         self._use()
 
         self._create_table(
@@ -173,19 +173,10 @@ class Archive:
         :param values: The values to insert in the form of column=value
         """
 
-        self._cursor.execute(
+        self.cursor.execute(
             f'INSERT INTO {table} ({", ".join(values)}) VALUES ({", ".join("?" for _ in values)})',
             tuple(values.values()),
         )
-
-    def last_id(self) -> int:
-        """
-        Gets the ID of the last inserted row
-        :return: The row's ID
-        """
-
-        self._cursor.execute('SELECT LAST_INSERT_ID()')
-        return self._cursor.fetchone()[0]
 
     def new_document(self, name: str) -> Document:
         """
@@ -195,7 +186,7 @@ class Archive:
         """
 
         self.insert('documents', name=name)
-        return Document(self, self.last_id())
+        return Document(self, self.cursor.lastrowid)
 
     def new_element_type(self, name: str) -> ElementType:
         """
@@ -205,7 +196,7 @@ class Archive:
         """
 
         self.insert('element_types', name=name)
-        return ElementType(self, self.last_id())
+        return ElementType(self, self.cursor.lastrowid)
 
     def reset(self) -> None:
         """Completely resets the database"""
@@ -272,7 +263,7 @@ class Document(ArchiveProxy):
         self._archive.insert(
             'declarations', document=self.id, element_type=element_type.id
         )
-        return Declaration(self._archive, self._archive.last_id())
+        return Declaration(self._archive, self._archive.cursor.lastrowid)
 
 
 class ElementType(ArchiveProxy):
@@ -302,7 +293,7 @@ class ElementType(ArchiveProxy):
             description=description,
             target_element_type=target_element_type.id,
         )
-        return RelationType(self._archive, self._archive.last_id())
+        return RelationType(self._archive, self._archive.cursor.lastrowid)
 
 
 class RelationType(ArchiveProxy):
