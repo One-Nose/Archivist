@@ -7,6 +7,8 @@ from typing import TypedDict
 from mariadb import Connection, ProgrammingError, connect
 from mariadb.cursors import Cursor
 
+from .analyzer import Analyzer
+
 
 class ArchiveConfig(TypedDict):
     """
@@ -40,6 +42,7 @@ class RelationPropertyType(StrEnum):
 class Archive:
     """Allows access to the database"""
 
+    _analyzer: Analyzer
     _connect_options: ConnectionConfig
     _connection: Connection
     cursor: Cursor
@@ -52,6 +55,7 @@ class Archive:
 
         self._connect_options = config['connect']
         self.connect()
+        self._analyzer = Analyzer(self)
 
     def __repr__(self) -> str:
         return f'{self.__class__.__name__}({repr(self._connect_options["database"])})'
