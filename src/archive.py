@@ -133,59 +133,59 @@ class Archive:
 
         self.create_table(
             'declarations',
-            id='INT AUTO_INCREMENT PRIMARY KEY',
-            document='INT NOT NULL',
-            element_type='INT NOT NULL',
+            id='INT UNSIGNED AUTO_INCREMENT PRIMARY KEY',
+            document='INT UNSIGNED NOT NULL',
+            element_type='INT UNSIGNED NOT NULL',
         )
 
         self.create_table(
             'documents',
-            id='INT AUTO_INCREMENT PRIMARY KEY',
+            id='INT UNSIGNED AUTO_INCREMENT PRIMARY KEY',
             name='VARCHAR(255) NOT NULL',
         )
 
         self.create_table(
             'element_type_properties',
-            id='INT AUTO_INCREMENT PRIMARY KEY',
-            element_type='INT NOT NULL',
+            id='INT UNSIGNED AUTO_INCREMENT PRIMARY KEY',
+            element_type='INT UNSIGNED NOT NULL',
             name='VARCHAR(255) NOT NULL',
         )
 
         self.create_table(
             'element_types',
-            id='INT AUTO_INCREMENT PRIMARY KEY',
+            id='INT UNSIGNED AUTO_INCREMENT PRIMARY KEY',
             name='VARCHAR(255) NOT NULL',
         )
 
         self.create_table(
             'relation_type_properties',
-            id='INT AUTO_INCREMENT PRIMARY KEY',
-            relation_type='INT NOT NULL',
-            element_property='INT NOT NULL',
+            id='INT UNSIGNED AUTO_INCREMENT PRIMARY KEY',
+            relation_type='INT UNSIGNED NOT NULL',
+            element_property='INT UNSIGNED NOT NULL',
             type=f'ENUM({", ".join(repr(str(t)) for t in RelationPropertyType)}) NOT NULL',
-            target_element_property='INT NOT NULL',
+            target_element_property='INT UNSIGNED NOT NULL',
         )
 
         self.create_table(
             'relation_types',
-            id='INT AUTO_INCREMENT PRIMARY KEY',
-            element_type='INT NOT NULL',
+            id='INT UNSIGNED AUTO_INCREMENT PRIMARY KEY',
+            element_type='INT UNSIGNED NOT NULL',
             description='VARCHAR(255) NOT NULL',
-            target_element_type='INT NOT NULL',
+            target_element_type='INT UNSIGNED NOT NULL',
         )
 
         self.create_table(
             'relations',
-            id='INT AUTO_INCREMENT PRIMARY KEY',
-            declaration='INT NOT NULL',
-            type='INT NOT NULL',
-            target_declaration='INT NOT NULL',
+            id='INT UNSIGNED AUTO_INCREMENT PRIMARY KEY',
+            declaration='INT UNSIGNED NOT NULL',
+            type='INT UNSIGNED NOT NULL',
+            target_declaration='INT UNSIGNED NOT NULL',
         )
 
         self.create_table(
             'descriptions',
-            id='INT AUTO_INCREMENT PRIMARY KEY',
-            declaration='INT NOT NULL',
+            id='INT UNSIGNED AUTO_INCREMENT PRIMARY KEY',
+            declaration='INT UNSIGNED NOT NULL',
             description='TEXT NOT NULL',
         )
 

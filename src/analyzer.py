@@ -24,6 +24,6 @@ class Analyzer:
 
         self._archive.create_table(
             'elements',
-            id='INT AUTO_INCREMENT PRIMARY KEY',
-            type='INT NOT NULL',
+            id='INT UNSIGNED AUTO_INCREMENT PRIMARY KEY',
+            type='INT UNSIGNED NOT NULL',
         )
