@@ -13,6 +13,7 @@ if __name__ == '__main__':
     period = archive.new_category('Period')
     beginning = period.new_property('Beginning')
     end = period.new_property('End')
+    archive.add_rule(BuiltInCategory.GREATER, end, beginning)
 
     event = archive.new_category('Event')
     date = event.new_property('Date')
