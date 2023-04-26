@@ -14,6 +14,9 @@ if __name__ == '__main__':
     period.add_property('Beginning')
     period.add_property('End')
 
+    event = archive.new_element_type('Event')
+    event.add_property('Date')
+
     episode4 = archive.new_document('Star Wars Episode IV: A New Hope')
     civil_war = episode4.declare(period)
     civil_war.add_title('Civil War')
