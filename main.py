@@ -25,6 +25,7 @@ if __name__ == '__main__':
     civil_war.add_title('Civil War')
 
     rebel_victory = episode4.declare(event)
+    rebel_victory.add_relation(during, civil_war)
 
     archive.commit()
     archive.close()
