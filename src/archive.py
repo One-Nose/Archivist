@@ -146,9 +146,9 @@ class Archive:
         self._create_table(
             'relation_types',
             id='INT AUTO_INCREMENT PRIMARY KEY',
+            element_type='INT NOT NULL',
             description='VARCHAR(255) NOT NULL',
-            element1_type='INT NOT NULL',
-            element2_type='INT NOT NULL',
+            target_element_type='INT NOT NULL',
         )
 
         self._create_table(
@@ -198,25 +198,6 @@ class Archive:
 
         self.insert('element_types', name=name)
         return ElementType(self, self.last_id())
-
-    def new_relation_type(
-        self, description: str, element1_type: ElementType, element2_type: ElementType
-    ) -> RelationType:
-        """
-        Creates a new type of relation between two elements
-        :param description: The relation type's description, with %1 and %2 for the elements
-        :param element1_type: The type of the first element
-        :param element2_type: The type of the second element
-        :return: A relation type object to access the newly created relation type
-        """
-
-        self.insert(
-            'relation_types',
-            description=description,
-            element1_type=element1_type.id,
-            element2_type=element2_type.id,
-        )
-        return RelationType(self, self.last_id())
 
     def reset(self) -> None:
         """Completely resets the database"""
@@ -282,6 +263,24 @@ class ElementType(ArchiveProxy):
         """
 
         self._archive.insert('element_type_properties', element_type=self.id, name=name)
+
+    def new_relation_type(
+        self, description: str, target_element_type: ElementType
+    ) -> RelationType:
+        """
+        Creates a new type of relation between an element of this type and a target element
+        :param description: The relation type's description, with %% for the target element
+        :param target_element_type: The type of the target element
+        :return: A relation type object to access the newly created relation type
+        """
+
+        self._archive.insert(
+            'relation_types',
+            element_type=self.id,
+            description=description,
+            target_element_type=target_element_type.id,
+        )
+        return RelationType(self._archive, self._archive.last_id())
 
 
 class RelationType(ArchiveProxy):
