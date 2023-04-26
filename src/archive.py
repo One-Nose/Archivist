@@ -59,15 +59,6 @@ class Archive:
             f'CREATE TABLE {table} ({", ".join(" ".join(column) for column in columns.items())})'
         )
 
-    def _last_id(self) -> int:
-        """
-        Gets the ID of the last inserted row
-        :return: The row's ID
-        """
-
-        self._cursor.execute('SELECT LAST_INSERT_ID()')
-        return self._cursor.fetchone()[0]
-
     def _use(self) -> None:
         """Sets the database as the connected database"""
 
@@ -171,6 +162,15 @@ class Archive:
             tuple(values.values()),
         )
 
+    def last_id(self) -> int:
+        """
+        Gets the ID of the last inserted row
+        :return: The row's ID
+        """
+
+        self._cursor.execute('SELECT LAST_INSERT_ID()')
+        return self._cursor.fetchone()[0]
+
     def new_document(self, name: str) -> Document:
         """
         Creates a new document
@@ -179,7 +179,7 @@ class Archive:
         """
 
         self.insert('documents', name=name)
-        return Document(self, self._last_id())
+        return Document(self, self.last_id())
 
     def new_element_type(self, name: str) -> ElementType:
         """
@@ -189,7 +189,7 @@ class Archive:
         """
 
         self.insert('element_types', name=name)
-        return ElementType(self, self._last_id())
+        return ElementType(self, self.last_id())
 
     def reset(self) -> None:
         """Completely resets the database"""
