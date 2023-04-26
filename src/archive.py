@@ -129,6 +129,8 @@ class Archive:
         self.cursor.execute(f'CREATE DATABASE {self._connect_options["database"]}')
         self._use()
 
+        self._analyzer.init()
+
         self.create_table(
             'declarations',
             id='INT AUTO_INCREMENT PRIMARY KEY',

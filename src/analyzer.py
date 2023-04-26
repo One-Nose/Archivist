@@ -18,3 +18,12 @@ class Analyzer:
         :param archive: The archive to analyze
         """
         self._archive = archive
+
+    def init(self) -> None:
+        """Creates the tables for analyzing"""
+
+        self._archive.create_table(
+            'elements',
+            id='INT AUTO_INCREMENT PRIMARY KEY',
+            type='INT NOT NULL',
+        )
