@@ -152,6 +152,13 @@ class Archive:
             name='VARCHAR(255) NOT NULL',
         )
 
+        self._create_table(
+            'titles',
+            id='INT AUTO_INCREMENT PRIMARY KEY',
+            declaration='INT NOT NULL',
+            title='VARCHAR(255)',
+        )
+
     def insert(self, table: str, **values: ...) -> None:
         """
         Inserts values into a table (insecure)
