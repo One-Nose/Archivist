@@ -1,10 +1,20 @@
 """Access the database and make queries"""
 from __future__ import annotations
 
+from enum import StrEnum, auto
 from typing import TypedDict
 
 from mariadb import Connection, ProgrammingError, connect
 from mariadb.cursors import Cursor
+
+
+class ArchiveConfig(TypedDict):
+    """
+    Configuration of the database
+    - connect: Configuration of the connection to the database
+    """
+
+    connect: ConnectionConfig
 
 
 class ConnectionConfig(TypedDict):
@@ -20,13 +30,11 @@ class ConnectionConfig(TypedDict):
     database: str
 
 
-class ArchiveConfig(TypedDict):
-    """
-    Configuration of the database
-    - connect: Configuration of the connection to the database
-    """
+class RelationPropertyType(StrEnum):
+    """A string enum for valid relation type property types"""
 
-    connect: ConnectionConfig
+    GREATER = auto()
+    LESS = auto()
 
 
 class Archive:
