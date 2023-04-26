@@ -8,4 +8,14 @@ if __name__ == '__main__':
         config = load(file)
 
     archive = Archive(config)
+    archive.reset()
+
+    period = archive.new_element_type('Period')
+    period.add_property('Beginning')
+    period.add_property('End')
+
+    episode4 = archive.new_document('Star Wars Episode IV: A New Hope')
+    episode4.declare(period)
+
+    archive.commit()
     archive.close()
