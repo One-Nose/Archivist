@@ -134,7 +134,7 @@ class Archive:
             'element_type_properties',
             id='INT AUTO_INCREMENT PRIMARY KEY',
             element_type='INT NOT NULL',
-            name='VARCHAR(255)',
+            name='VARCHAR(255) NOT NULL',
         )
 
         self._create_table(
@@ -147,7 +147,7 @@ class Archive:
             'titles',
             id='INT AUTO_INCREMENT PRIMARY KEY',
             declaration='INT NOT NULL',
-            title='VARCHAR(255)',
+            title='VARCHAR(255) NOT NULL',
         )
 
     def insert(self, table: str, **values: ...) -> None:
