@@ -156,7 +156,7 @@ class Archive:
             id='INT AUTO_INCREMENT PRIMARY KEY',
             relation_type='INT NOT NULL',
             element_property='INT NOT NULL',
-            type='ENUM("greater", "less")',
+            type=f'ENUM({", ".join(repr(str(t)) for t in RelationPropertyType)}) NOT NULL',
             target_element_property='INT NOT NULL',
         )
 
