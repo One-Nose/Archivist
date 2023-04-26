@@ -15,7 +15,8 @@ if __name__ == '__main__':
     period.add_property('End')
 
     episode4 = archive.new_document('Star Wars Episode IV: A New Hope')
-    episode4.declare(period)
+    civil_war = episode4.declare(period)
+    civil_war.add_title('Civil War')
 
     archive.commit()
     archive.close()
