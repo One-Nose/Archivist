@@ -218,6 +218,10 @@ class ArchiveProxy:
         return f'{self.__class__.__name__}({repr(self.id)})'
 
 
+class Declaration(ArchiveProxy):
+    """Allows access to a declaration"""
+
+
 class Document(ArchiveProxy):
     """Allows access to a document"""
 
