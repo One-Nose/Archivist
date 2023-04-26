@@ -282,13 +282,15 @@ class ElementTypeProperty(ArchiveProxy):
 class ElementType(ArchiveProxy):
     """Allows access to an element type"""
 
-    def add_property(self, name: str) -> None:
+    def new_property(self, name: str) -> ElementTypeProperty:
         """
         Adds a property to the element type
         :param name: The property's name
+        :return: An element type property object to access the newly created property
         """
 
         self._archive.insert('element_type_properties', element_type=self.id, name=name)
+        return ElementTypeProperty(self._archive, self._archive.cursor.lastrowid)
 
     def new_relation_type(
         self, description: str, target_element_type: ElementType

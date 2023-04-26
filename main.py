@@ -11,11 +11,11 @@ if __name__ == '__main__':
     archive.reset()
 
     period = archive.new_element_type('Period')
-    period.add_property('Beginning')
-    period.add_property('End')
+    period.new_property('Beginning')
+    period.new_property('End')
 
     event = archive.new_element_type('Event')
-    event.add_property('Date')
+    event.new_property('Date')
 
     during = event.new_relation_type('During %%', period)
 
