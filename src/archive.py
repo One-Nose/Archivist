@@ -111,6 +111,15 @@ class Archive:
 
         self._cursor.execute(f'DROP DATABASE {self._connect_options["database"]}')
 
+    def element_type(self, type_id: int) -> ElementType:
+        """
+        Creates an element type object to access an existing element type
+        :param type_id: The element type's numeral ID
+        :return: An element type object that allows access to the element type
+        """
+
+        return ElementType(self, type_id)
+
     def init(self) -> None:
         """Creates the database and initializes it"""
 
