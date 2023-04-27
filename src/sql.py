@@ -12,3 +12,12 @@ class Database:
     def use(self) -> str:
         """Retuns a USE statement"""
         return f'USE {self._name}'
+
+
+class Table:
+    """Represents an SQL table"""
+
+    _name: str
+
+    def __init__(self, name: str) -> None:
+        self._name = name
