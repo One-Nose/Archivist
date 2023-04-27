@@ -7,7 +7,7 @@ from typing import TypedDict
 from mariadb import Connection, ProgrammingError, connect
 from mariadb.cursors import Cursor
 
-from .sql import Column, Database
+from .database import Column, Database
 from .analyzer import Analyzer
 
 

@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from .sql import Column
+from .database import Column
 
 if TYPE_CHECKING:
     from .archive import Archive, Declaration
