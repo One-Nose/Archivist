@@ -31,5 +31,5 @@ class Analyzer:
         self._archive.create_table(
             'elements',
             id='INT UNSIGNED AUTO_INCREMENT PRIMARY KEY',
-            category='INT UNSIGNED NOT NULL',
+            category='INT NOT NULL',
         )

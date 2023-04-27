@@ -180,7 +180,7 @@ class Archive:
 
         self.create_table(
             'categories',
-            id='INT UNSIGNED AUTO_INCREMENT PRIMARY KEY',
+            id='INT AUTO_INCREMENT PRIMARY KEY',
             name='VARCHAR(255) NOT NULL',
         )
 
@@ -188,7 +188,7 @@ class Archive:
             'declarations',
             id='INT UNSIGNED AUTO_INCREMENT PRIMARY KEY',
             document='INT UNSIGNED NOT NULL',
-            category='INT UNSIGNED NOT NULL',
+            category='INT NOT NULL',
         )
 
         self.create_table(
@@ -207,9 +207,9 @@ class Archive:
         self.create_table(
             'properties',
             id='INT UNSIGNED AUTO_INCREMENT PRIMARY KEY',
-            parent='INT UNSIGNED NOT NULL',
+            parent='INT NOT NULL',
             name='VARCHAR(255) NOT NULL',
-            category='INT UNSIGNED NOT NULL',
+            category='INT NOT NULL',
         )
 
         self.create_table(
