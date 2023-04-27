@@ -1,6 +1,15 @@
 """Utility functions for generating SQL statements"""
 
 
+class Column:
+    """Represents an SQL table column"""
+
+    type: str
+
+    def __init__(self, column_type: str) -> None:
+        self.type = column_type
+
+
 class Database:
     """Represents an SQL database"""
 
