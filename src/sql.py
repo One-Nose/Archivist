@@ -26,7 +26,12 @@ class Database:
 class Table:
     """Represents an SQL table"""
 
+    _columns: dict[str, Column]
     _name: str
 
-    def __init__(self, name: str) -> None:
+    def __init__(self, name: str, **columns: Column) -> None:
         self._name = name
+        self._columns = columns
+
+    def __getattr__(self, name: str) -> Column:
+        return self._columns[name]
