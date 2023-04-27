@@ -38,3 +38,11 @@ class Table:
 
     def __getattr__(self, name: str) -> Column:
         return self._columns[name]
+
+    def create(self) -> str:
+        """Returns a CREATE TABLE statement"""
+
+        return (
+            f'CREATE TABLE {self._name}'
+            f' ({", ".join(f"{name} {column}" for name, column in self._columns.items())})'
+        )
