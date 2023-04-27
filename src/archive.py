@@ -7,6 +7,7 @@ from typing import TypedDict
 from mariadb import Connection, ProgrammingError, connect
 from mariadb.cursors import Cursor
 
+from .sql import Statement, Use
 from .analyzer import Analyzer
 
 
@@ -67,10 +68,15 @@ class Archive:
     def __repr__(self) -> str:
         return f'{self.__class__.__name__}({repr(self._connect_options["database"])})'
 
+    def _execute(self, statement: Statement) -> None:
+        """Executes an SQL statement"""
+
+        self.cursor.execute(str(statement))
+
     def _use(self) -> None:
         """Sets the database as the connected database"""
 
-        self.cursor.execute(f'USE {self._connect_options["database"]}')
+        self._execute(Use(self._connect_options['database']))
 
     def add_rule(
         self,
