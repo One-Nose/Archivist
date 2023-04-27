@@ -9,6 +9,9 @@ class Column:
     def __init__(self, column_type: str) -> None:
         self.type = column_type
 
+    def __repr__(self) -> str:
+        return self.type
+
 
 class Database:
     """Represents an SQL database"""
