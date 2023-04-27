@@ -1,19 +1,14 @@
 """Utility functions for generating SQL statements"""
 
 
-class Statement:
-    """Interface for representing an SQL statement"""
+class Database:
+    """Represents an SQL database"""
 
+    _name: str
 
-class Use(Statement):
-    """This statement sets the current database to a chosen one"""
+    def __init__(self, name: str) -> None:
+        self._name = name
 
-    _database: str
-
-    def __init__(self, database: str) -> None:
-        super().__init__()
-
-        self._database = database
-
-    def __repr__(self) -> str:
-        return f'USE {self._database}'
+    def use(self) -> str:
+        """Retuns a USE statement"""
+        return f'USE {self._name}'

@@ -7,7 +7,7 @@ from typing import TypedDict
 from mariadb import Connection, ProgrammingError, connect
 from mariadb.cursors import Cursor
 
-from .sql import Statement, Use
+from .sql import Database
 from .analyzer import Analyzer
 
 
@@ -53,6 +53,7 @@ class Archive:
     _analyzer: Analyzer
     _connect_options: ConnectionConfig
     _connection: Connection
+    _database: Database
     cursor: Cursor
 
     def __init__(self, config: ArchiveConfig) -> None:
@@ -62,21 +63,17 @@ class Archive:
         """
 
         self._connect_options = config['connect']
+        self._database = Database(self._connect_options['database'])
         self.connect()
         self._analyzer = Analyzer(self)
 
     def __repr__(self) -> str:
         return f'{self.__class__.__name__}({repr(self._connect_options["database"])})'
 
-    def _execute(self, statement: Statement) -> None:
-        """Executes an SQL statement"""
-
-        self.cursor.execute(str(statement))
-
     def _use(self) -> None:
         """Sets the database as the connected database"""
 
-        self._execute(Use(self._connect_options['database']))
+        self.cursor.execute(self._database.use())
 
     def add_rule(
         self,
