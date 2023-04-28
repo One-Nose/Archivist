@@ -38,6 +38,10 @@ class Table(dict[str, Column]):
     _name: str
 
     def __init__(self, table_name: str, **columns: str) -> None:
+        """
+        :param table_name: The name of the table
+        :param columns: The table's columns, in the form of name=type
+        """
 
         self._name = table_name
         self.update({name: Column(name, type) for name, type in columns.items()})
