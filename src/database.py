@@ -1,6 +1,10 @@
 """Provides database operations"""
 
 
+from mariadb import Cursor, ProgrammingError, connect
+from mariadb.connections import Connection
+
+
 class Column:
     """Represents an SQL table column"""
 
@@ -38,14 +42,16 @@ class Table(dict[str, Column]):
 class Database(dict[str, Table]):
     """Represents an SQL database"""
 
-    _name: str
+    _connection: Connection
     _password: str
     _username: str
+    cursor: Cursor
+    name: str
 
     def __init__(self, username: str, password: str, database: str) -> None:
         self._username = username
         self._password = password
-        self._name = database
+        self.name = database
 
         self.update(
             {
@@ -105,7 +111,42 @@ class Database(dict[str, Table]):
             }
         )
 
+        self._connect()
+
+    def _connect(self) -> None:
+        """Connects to the database, creates a cursor, and saves the connection and the cursor"""
+
+        self._connection = connect(
+            user=self._username,
+            password=self._password,
+        )
+        self.cursor = self._connection.cursor()
+        try:
+            self.use()
+        except ProgrammingError:
+            self.init()
+
+    def init(self) -> None:
+        """Creates the database and initializes it"""
+
+        self.cursor.execute(f'CREATE DATABASE {self.name}')
+        self.cursor.execute(self.use())
+
+        for table in self.values():
+            self.cursor.execute(table.create())
+
+    def close(self) -> None:
+        """Closes the connection"""
+
+        self.cursor.close()
+        self._connection.close()
+
+    def commit(self) -> None:
+        """Commits the changes to the database"""
+
+        self._connection.commit()
+
     def use(self) -> str:
         """Retuns a USE statement"""
 
-        return f'USE {self._name}'
+        return f'USE {self.name}'

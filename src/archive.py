@@ -4,9 +4,6 @@ from __future__ import annotations
 from enum import IntEnum, auto
 from typing import TypedDict
 
-from mariadb import Connection, ProgrammingError, connect
-from mariadb.cursors import Cursor
-
 from .analyzer import Analyzer
 from .database import Database
 
@@ -23,12 +20,12 @@ class ArchiveConfig(TypedDict):
 class ConnectionConfig(TypedDict):
     """
     Configuration of the connection to the database
-    - user: The username to connect to the database
+    - username: The username to connect to the database
     - password: The password to connect to the database
     - database: The database to connect to (insecure)
     """
 
-    user: str
+    username: str
     password: str
     database: str
 
@@ -51,10 +48,7 @@ class Archive:
     """Allows access to the database"""
 
     _analyzer: Analyzer
-    _connect_options: ConnectionConfig
-    _connection: Connection
-    _database: Database
-    cursor: Cursor
+    database: Database
 
     def __init__(self, config: ArchiveConfig) -> None:
         """
@@ -62,22 +56,11 @@ class Archive:
         :param config: An object containing the config options
         """
 
-        self._connect_options = config['connect']
-        self._database = Database(
-            self._connect_options['user'],
-            self._connect_options['password'],
-            self._connect_options['database'],
-        )
-        self.connect()
+        self.database = Database(**config['connect'])
         self._analyzer = Analyzer(self)
 
     def __repr__(self) -> str:
-        return f'{self.__class__.__name__}({repr(self._connect_options["database"])})'
-
-    def _use(self) -> None:
-        """Sets the database as the connected database"""
-
-        self.cursor.execute(self._database.use())
+        return f'{self.__class__.__name__}({repr(self.database.name)})'
 
     def add_rule(
         self,
@@ -125,26 +108,12 @@ class Archive:
     def close(self) -> None:
         """Closes the connection"""
 
-        self.cursor.close()
-        self._connection.close()
+        self.database.close()
 
     def commit(self) -> None:
         """Commits the changes to the database"""
 
-        self._connection.commit()
-
-    def connect(self) -> None:
-        """Connects to the database, creates a cursor, and saves the connection and the cursor"""
-
-        self._connection = connect(
-            user=self._connect_options['user'],
-            password=self._connect_options['password'],
-        )
-        self.cursor = self._connection.cursor()
-        try:
-            self._use()
-        except ProgrammingError:
-            self.init()
+        self.database.commit()
 
     def document(self, document_id: int) -> Document:
         """
@@ -158,16 +127,7 @@ class Archive:
     def drop(self) -> None:
         """Deletes the database"""
 
-        self.cursor.execute(f'DROP DATABASE {self._connect_options["database"]}')
-
-    def init(self) -> None:
-        """Creates the database and initializes it"""
-
-        self.cursor.execute(f'CREATE DATABASE {self._connect_options["database"]}')
-        self._use()
-
-        for table in self._database.values():
-            self.cursor.execute(table.create())
+        self.database.cursor.execute(f'DROP DATABASE {self.database.name}')
 
     def insert(self, table: str, **values: ...) -> None:
         """
@@ -176,7 +136,7 @@ class Archive:
         :param values: The values to insert in the form of column=value
         """
 
-        self.cursor.execute(
+        self.database.cursor.execute(
             f'INSERT INTO {table} ({", ".join(values)}) VALUES ({", ".join("?" for _ in values)})',
             tuple(values.values()),
         )
@@ -189,7 +149,7 @@ class Archive:
         """
 
         self.insert('categories', name=name)
-        return Category(self, self.cursor.lastrowid)
+        return Category(self, self.database.cursor.lastrowid)
 
     def new_document(self, name: str) -> Document:
         """
@@ -199,13 +159,13 @@ class Archive:
         """
 
         self.insert('documents', name=name)
-        return Document(self, self.cursor.lastrowid)
+        return Document(self, self.database.cursor.lastrowid)
 
     def reset(self) -> None:
         """Completely resets the database"""
 
         self.drop()
-        self.init()
+        self.database.init()
 
 
 class ArchiveProxy:
@@ -250,7 +210,9 @@ class Category(ArchiveProxy):
             name=name,
             category=category.id if category else 0,
         )
-        return Property(self._archive, self._archive.cursor.lastrowid, self, category)
+        return Property(
+            self._archive, self._archive.database.cursor.lastrowid, self, category
+        )
 
 
 class Declaration(ArchiveProxy):
@@ -292,7 +254,7 @@ class Document(ArchiveProxy):
         """
 
         self._archive.insert('declarations', document=self.id, category=category.id)
-        return Declaration(self._archive, self._archive.cursor.lastrowid)
+        return Declaration(self._archive, self._archive.database.cursor.lastrowid)
 
 
 class Property(ArchiveProxy):

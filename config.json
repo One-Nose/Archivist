@@ -1,6 +1,6 @@
 {
   "connect": {
-    "user": "root",
+    "username": "root",
     "password": "root",
     "database": "archivist"
   }
