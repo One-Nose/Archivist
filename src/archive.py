@@ -1,4 +1,4 @@
-"""Access the database and make queries"""
+"""Provides archive user operationss"""
 from __future__ import annotations
 
 from enum import IntEnum, auto
