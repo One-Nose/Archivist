@@ -107,4 +107,5 @@ class Database(dict[str, Table]):
 
     def use(self) -> str:
         """Retuns a USE statement"""
+
         return f'USE {self._name}'
