@@ -1,4 +1,4 @@
-"""Utility functions for generating SQL statements"""
+"""Provides database operations"""
 
 
 class Column:
