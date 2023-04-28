@@ -24,12 +24,3 @@ class Analyzer:
         Analyzes a declaration and saves the result in the database
         :param declaration: The declaration to analyze
         """
-
-    def init(self) -> None:
-        """Creates the tables for analyzing"""
-
-        self._archive.create_table(
-            'elements',
-            id='INT UNSIGNED AUTO_INCREMENT PRIMARY KEY',
-            category='INT NOT NULL',
-        )
