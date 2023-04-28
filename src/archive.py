@@ -8,7 +8,7 @@ from mariadb import Connection, ProgrammingError, connect
 from mariadb.cursors import Cursor
 
 from .analyzer import Analyzer
-from .database import Database, Table
+from .database import Database
 
 
 class ArchiveConfig(TypedDict):
@@ -145,15 +145,6 @@ class Archive:
             self._use()
         except ProgrammingError:
             self.init()
-
-    def create_table(self, table: str, **columns: str) -> None:
-        """
-        Creates a table (insecure)
-        :param table: The name of the table
-        :param columns: A sequence of columns, each in the form of name=type
-        """
-
-        self.cursor.execute(Table(table, **columns).create())
 
     def document(self, document_id: int) -> Document:
         """
