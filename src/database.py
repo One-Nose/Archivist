@@ -17,9 +17,13 @@ class Database:
     """Represents an SQL database"""
 
     _name: str
+    _password: str
+    _username: str
 
-    def __init__(self, name: str) -> None:
-        self._name = name
+    def __init__(self, username: str, password: str, database: str) -> None:
+        self._username = username
+        self._password = password
+        self._name = database
 
     def use(self) -> str:
         """Retuns a USE statement"""

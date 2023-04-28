@@ -63,7 +63,11 @@ class Archive:
         """
 
         self._connect_options = config['connect']
-        self._database = Database(self._connect_options['database'])
+        self._database = Database(
+            self._connect_options['user'],
+            self._connect_options['password'],
+            self._connect_options['database'],
+        )
         self.connect()
         self._analyzer = Analyzer(self)
 
