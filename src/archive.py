@@ -7,8 +7,8 @@ from typing import TypedDict
 from mariadb import Connection, ProgrammingError, connect
 from mariadb.cursors import Cursor
 
-from .database import Column, Database
 from .analyzer import Analyzer
+from .database import Column, Database
 
 
 class ArchiveConfig(TypedDict):
