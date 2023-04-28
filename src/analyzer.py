@@ -3,8 +3,6 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from .database import Column
-
 if TYPE_CHECKING:
     from .archive import Archive, Declaration
 
@@ -32,6 +30,6 @@ class Analyzer:
 
         self._archive.create_table(
             'elements',
-            id=Column('INT UNSIGNED AUTO_INCREMENT PRIMARY KEY'),
-            category=Column('INT NOT NULL'),
+            id='INT UNSIGNED AUTO_INCREMENT PRIMARY KEY',
+            category='INT NOT NULL',
         )

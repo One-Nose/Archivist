@@ -8,7 +8,7 @@ from mariadb import Connection, ProgrammingError, connect
 from mariadb.cursors import Cursor
 
 from .analyzer import Analyzer
-from .database import Column, Database
+from .database import Database, Table
 
 
 class ArchiveConfig(TypedDict):
@@ -146,17 +146,14 @@ class Archive:
         except ProgrammingError:
             self.init()
 
-    def create_table(self, table: str, **columns: Column) -> None:
+    def create_table(self, table: str, **columns: str) -> None:
         """
         Creates a table (insecure)
         :param table: The name of the table
-        :param columns: A sequence of columns, each in the form of name=column
+        :param columns: A sequence of columns, each in the form of name=type
         """
 
-        self.cursor.execute(
-            f'CREATE TABLE {table}'
-            f'({", ".join(f"{name} {column.type}" for name, column in columns.items())})'
-        )
+        self.cursor.execute(Table(table, **columns).create())
 
     def document(self, document_id: int) -> Document:
         """
@@ -182,54 +179,54 @@ class Archive:
 
         self.create_table(
             'categories',
-            id=Column('INT AUTO_INCREMENT PRIMARY KEY'),
-            name=Column('VARCHAR(255) NOT NULL'),
+            id='INT AUTO_INCREMENT PRIMARY KEY',
+            name='VARCHAR(255) NOT NULL',
         )
 
         self.create_table(
             'declarations',
-            id=Column('INT UNSIGNED AUTO_INCREMENT PRIMARY KEY'),
-            document=Column('INT UNSIGNED NOT NULL'),
-            category=Column('INT NOT NULL'),
+            id='INT UNSIGNED AUTO_INCREMENT PRIMARY KEY',
+            document='INT UNSIGNED NOT NULL',
+            category='INT NOT NULL',
         )
 
         self.create_table(
             'descriptions',
-            id=Column('INT UNSIGNED AUTO_INCREMENT PRIMARY KEY'),
-            declaration=Column('INT UNSIGNED NOT NULL'),
-            description=Column('TEXT NOT NULL'),
+            id='INT UNSIGNED AUTO_INCREMENT PRIMARY KEY',
+            declaration='INT UNSIGNED NOT NULL',
+            description='TEXT NOT NULL',
         )
 
         self.create_table(
             'documents',
-            id=Column('INT UNSIGNED AUTO_INCREMENT PRIMARY KEY'),
-            name=Column('VARCHAR(255) NOT NULL'),
+            id='INT UNSIGNED AUTO_INCREMENT PRIMARY KEY',
+            name='VARCHAR(255) NOT NULL',
         )
 
         self.create_table(
             'properties',
-            id=Column('INT UNSIGNED AUTO_INCREMENT PRIMARY KEY'),
-            parent=Column('INT NOT NULL'),
-            name=Column('VARCHAR(255) NOT NULL'),
-            category=Column('INT NOT NULL'),
+            id='INT UNSIGNED AUTO_INCREMENT PRIMARY KEY',
+            parent='INT NOT NULL',
+            name='VARCHAR(255) NOT NULL',
+            category='INT NOT NULL',
         )
 
         self.create_table(
             'property_declarations',
-            id=Column('INT UNSIGNED AUTO_INCREMENT PRIMARY KEY'),
-            declaration=Column('INT UNSIGNED NOT NULL'),
-            property=Column('INT UNSIGNED NOT NULL'),
-            value=Column('INT UNSIGNED NOT NULL'),
+            id='INT UNSIGNED AUTO_INCREMENT PRIMARY KEY',
+            declaration='INT UNSIGNED NOT NULL',
+            property='INT UNSIGNED NOT NULL',
+            value='INT UNSIGNED NOT NULL',
         )
 
         self.create_table(
             'rules',
-            id=Column('INT UNSIGNED AUTO_INCREMENT PRIMARY KEY'),
-            category=Column('INT NOT NULL'),
-            property1=Column('INT UNSIGNED NOT NULL'),
-            subproperty1=Column('INT UNSIGNED NOT NULL'),
-            property2=Column('INT UNSIGNED NOT NULL'),
-            subproperty2=Column('INT UNSIGNED NOT NULL'),
+            id='INT UNSIGNED AUTO_INCREMENT PRIMARY KEY',
+            category='INT NOT NULL',
+            property1='INT UNSIGNED NOT NULL',
+            subproperty1='INT UNSIGNED NOT NULL',
+            property2='INT UNSIGNED NOT NULL',
+            subproperty2='INT UNSIGNED NOT NULL',
         )
 
     def insert(self, table: str, **values: ...) -> None:

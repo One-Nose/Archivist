@@ -4,13 +4,15 @@
 class Column:
     """Represents an SQL table column"""
 
-    type: str
+    _name: str
+    _type: str
 
-    def __init__(self, column_type: str) -> None:
-        self.type = column_type
+    def __init__(self, name: str, column_type: str) -> None:
+        self._name = name
+        self._type = column_type
 
     def __repr__(self) -> str:
-        return self.type
+        return f'{self._name} {self._type}'
 
 
 class Database:
@@ -30,23 +32,17 @@ class Database:
         return f'USE {self._name}'
 
 
-class Table:
+class Table(dict[str, Column]):
     """Represents an SQL table"""
 
-    _columns: dict[str, Column]
     _name: str
 
-    def __init__(self, name: str, **columns: Column) -> None:
-        self._name = name
-        self._columns = columns
+    def __init__(self, table_name: str, **columns: str) -> None:
 
-    def __getattr__(self, name: str) -> Column:
-        return self._columns[name]
+        self._name = table_name
+        self.update({name: Column(name, type) for name, type in columns.items()})
 
     def create(self) -> str:
         """Returns a CREATE TABLE statement"""
 
-        return (
-            f'CREATE TABLE {self._name}'
-            f' ({", ".join(f"{name} {column}" for name, column in self._columns.items())})'
-        )
+        return f'CREATE TABLE {self._name} ({", ".join(map(str, self.values()))})'
