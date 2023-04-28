@@ -35,7 +35,7 @@ class Database:
 class Table(dict[str, Column]):
     """Represents an SQL table"""
 
-    _name: str
+    name: str
 
     def __init__(self, table_name: str, **columns: str) -> None:
         """
@@ -43,10 +43,10 @@ class Table(dict[str, Column]):
         :param columns: The table's columns, in the form of name=type
         """
 
-        self._name = table_name
+        self.name = table_name
         self.update({name: Column(name, type) for name, type in columns.items()})
 
     def create(self) -> str:
         """Returns a CREATE TABLE statement"""
 
-        return f'CREATE TABLE {self._name} ({", ".join(map(str, self.values()))})'
+        return f'CREATE TABLE {self.name} ({", ".join(map(str, self.values()))})'
