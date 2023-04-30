@@ -24,6 +24,15 @@ class Column:
         return f'{self._name} {self._type}'
 
 
+class ColumnType:
+    """Represents a column type"""
+
+    _type: str
+
+    def __init__(self, column_type: str) -> None:
+        self._type = column_type
+
+
 class Table(dict[str, Column]):
     """Represents an SQL table"""
 
