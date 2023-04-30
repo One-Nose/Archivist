@@ -51,6 +51,27 @@ class ColumnType:
         return type(self)(f'{self._type} AUTO_INCREMENT PRIMARY KEY', nullable=True)
 
 
+class Statement:
+    """Represents an SQL statement"""
+
+    _database: Database
+    _statement: str
+
+    def __init__(self, database: Database, statement: str) -> None:
+        """
+        :param cursor: The statement's database
+        :param statement: The SQL statement
+        """
+
+        self._database = database
+        self._statement = statement
+
+    def execute(self) -> None:
+        """Executes the statement"""
+
+        self._database.cursor.execute(self._statement)
+
+
 class Table(dict[str, Column]):
     """Represents an SQL table"""
 
