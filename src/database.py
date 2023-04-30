@@ -1,5 +1,8 @@
 """Provides database operations"""
 
+from __future__ import annotations
+
+from typing import Self
 
 from mariadb import Cursor, ProgrammingError, connect
 from mariadb.connections import Connection
@@ -9,9 +12,9 @@ class Column:
     """Represents an SQL table column"""
 
     _name: str
-    _type: str
+    _type: ColumnType
 
-    def __init__(self, name: str, column_type: str) -> None:
+    def __init__(self, name: str, column_type: ColumnType) -> None:
         """
         :param name: The column's name
         :param column_type: The colum's type
@@ -28,9 +31,24 @@ class ColumnType:
     """Represents a column type"""
 
     _type: str
+    _is_nullable: bool
 
-    def __init__(self, column_type: str) -> None:
+    def __init__(self, column_type: str, nullable: bool = False) -> None:
         self._type = column_type
+        self._is_nullable = nullable
+
+    def __repr__(self) -> str:
+        return self._type + ('' if self._is_nullable else ' NOT NULL')
+
+    def nullable(self) -> Self:
+        """Returns a nullable version of the column type"""
+
+        return type(self)(self._type, nullable=True)
+
+    def primary_key(self) -> Self:
+        """Returns an auto-increment primary key version of the column type"""
+
+        return type(self)(f'{self._type} AUTO_INCREMENT PRIMARY KEY', nullable=True)
 
 
 class Table(dict[str, Column]):
@@ -38,7 +56,7 @@ class Table(dict[str, Column]):
 
     name: str
 
-    def __init__(self, table_name: str, **columns: str) -> None:
+    def __init__(self, table_name: str, **columns: ColumnType) -> None:
         """
         :param table_name: The name of the table
         :param columns: The table's columns, in the form of name=type
@@ -67,59 +85,70 @@ class Database(dict[str, Table]):
         self._password = password
         self.name = database
 
+        category = ColumnType('INT')
+        declaration = ColumnType('INT UNSIGNED')
+        description = ColumnType('INT UNSIGNED')
+        document = ColumnType('INT UNSIGNED')
+        element = ColumnType('INT UNSIGNED')
+        property_declaration = ColumnType('INT UNSIGNED')
+        property_definition = ColumnType('INT UNSIGNED')
+        rule = ColumnType('INT UNSIGNED')
+        text = ColumnType('TEXT')
+        varchar = ColumnType('VARCHAR(255)')
+
         self.update(
             {
                 table.name: table
                 for table in (
                     Table(
                         'categories',
-                        id='INT AUTO_INCREMENT PRIMARY KEY',
-                        name='VARCHAR(255) NOT NULL',
+                        id=category.primary_key(),
+                        name=varchar,
                     ),
                     Table(
                         'declarations',
-                        id='INT UNSIGNED AUTO_INCREMENT PRIMARY KEY',
-                        document='INT UNSIGNED NOT NULL',
-                        category='INT NOT NULL',
+                        id=declaration.primary_key(),
+                        document=document,
+                        category=category,
                     ),
                     Table(
                         'descriptions',
-                        id='INT UNSIGNED AUTO_INCREMENT PRIMARY KEY',
-                        declaration='INT UNSIGNED NOT NULL',
-                        description='TEXT NOT NULL',
+                        id=description.primary_key(),
+                        declaration=declaration,
+                        description=text,
                     ),
                     Table(
                         'documents',
-                        id='INT UNSIGNED AUTO_INCREMENT PRIMARY KEY',
-                        name='VARCHAR(255) NOT NULL',
+                        id=document.primary_key(),
+                        name=varchar,
                     ),
                     Table(
                         'elements',
-                        id='INT UNSIGNED AUTO_INCREMENT PRIMARY KEY',
-                        category='INT NOT NULL',
+                        id=element.primary_key(),
+                        category=category,
                     ),
                     Table(
                         'properties',
-                        id='INT UNSIGNED AUTO_INCREMENT PRIMARY KEY',
-                        parent='INT NOT NULL',
-                        name='VARCHAR(255) NOT NULL',
-                        category='INT NOT NULL',
+                        id=property_definition.primary_key(),
+                        parent=category,
+                        name=varchar,
+                        category=category,
                     ),
                     Table(
                         'property_declarations',
-                        id='INT UNSIGNED AUTO_INCREMENT PRIMARY KEY',
-                        declaration='INT UNSIGNED NOT NULL',
-                        property='INT UNSIGNED NOT NULL',
-                        value='INT UNSIGNED NOT NULL',
+                        id=property_declaration.primary_key(),
+                        declaration=declaration,
+                        property=property_definition,
+                        value=declaration,
                     ),
                     Table(
                         'rules',
-                        id='INT UNSIGNED AUTO_INCREMENT PRIMARY KEY',
-                        category='INT NOT NULL',
-                        property1='INT UNSIGNED NOT NULL',
-                        subproperty1='INT UNSIGNED NOT NULL',
-                        property2='INT UNSIGNED NOT NULL',
-                        subproperty2='INT UNSIGNED NOT NULL',
+                        id=rule.primary_key(),
+                        category=category,
+                        property1=property_definition,
+                        subproperty1=property_definition,
+                        property2=property_definition,
+                        subproperty2=property_definition,
                     ),
                 )
             }
