@@ -93,7 +93,7 @@ class Archive:
             subproperty1=property1[1].id if property1[1] else 0,
             property2=property2[0].id,
             subproperty2=property2[1].id if property2[1] else 0,
-        )
+        ).execute()
 
     def category(self, category_id: int) -> Category:
         """
@@ -135,7 +135,7 @@ class Archive:
         :return: A category object to access the newly created category
         """
 
-        self.database['categories'].insert(name=name)
+        self.database['categories'].insert(name=name).execute()
         return Category(self, self.database.cursor.lastrowid)
 
     def new_document(self, name: str) -> Document:
@@ -145,7 +145,7 @@ class Archive:
         :return: A document object to access the newly created document
         """
 
-        self.database['documents'].insert(name=name)
+        self.database['documents'].insert(name=name).execute()
         return Document(self, self.database.cursor.lastrowid)
 
     def reset(self) -> None:
@@ -195,7 +195,7 @@ class Category(ArchiveProxy):
             parent=self.id,
             name=name,
             category=category.id if category else 0,
-        )
+        ).execute()
         return Property(
             self._archive, self._archive.database.cursor.lastrowid, self, category
         )
@@ -212,7 +212,7 @@ class Declaration(ArchiveProxy):
 
         self._archive.database['descriptions'].insert(
             declaration=self.id, description=description
-        )
+        ).execute()
 
     def declare_property(self, declared_property: Property, value: Declaration) -> None:
         """
@@ -223,7 +223,7 @@ class Declaration(ArchiveProxy):
 
         self._archive.database['property_declarations'].insert(
             declaration=self.id, property=declared_property.id, value=value.id
-        )
+        ).execute()
 
 
 class Document(ArchiveProxy):
@@ -238,7 +238,7 @@ class Document(ArchiveProxy):
 
         self._archive.database['declarations'].insert(
             document=self.id, category=category.id
-        )
+        ).execute()
         return Declaration(self._archive, self._archive.database.cursor.lastrowid)
 
 
