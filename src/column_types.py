@@ -1,28 +1,47 @@
 """Types of columns in tables"""
 
+from __future__ import annotations
 
-from typing import Self
+from typing import ClassVar
 
 
 class ColumnType:
     """Parent class for column types"""
 
-    _type: str
-    _is_nullable: bool
+    _SQL: ClassVar[str]
 
-    def __init__(self, column_type: str, nullable: bool = False) -> None:
-        self._type = column_type
-        self._is_nullable = nullable
+    @classmethod
+    def sql(cls) -> str:
+        """Returns the type's SQL representation"""
 
-    def __repr__(self) -> str:
-        return self._type + ('' if self._is_nullable else ' NOT NULL')
+        return f'{cls._SQL} NOT NULL'
 
-    def nullable(self) -> Self:
-        """Returns a nullable version of the column type"""
+    @classmethod
+    def primary_key(cls: type[ColumnType]) -> type[ColumnType]:
+        """
+        Returns a primary key version of a column type
+        :return: The result column type
+        """
 
-        return type(self)(self._type, nullable=True)
+        class PrimaryKey(cls):
+            """A primary key column type"""
 
-    def primary_key(self) -> Self:
-        """Returns an auto-increment primary key version of the column type"""
+            @classmethod
+            def sql(cls) -> str:
+                """Returns the type's SQL representation"""
 
-        return type(self)(f'{self._type} AUTO_INCREMENT PRIMARY KEY', nullable=True)
+                return f'{cls._SQL} AUTO_INCREMENT PRIMARY KEY'
+
+        return PrimaryKey
+
+
+class Rule(ColumnType):
+    """Represents a category rule"""
+
+    _SQL = 'INT UNSIGNED'
+
+
+class ShortText(ColumnType):
+    """Represents a VARCHAR(255) short text"""
+
+    _SQL = 'VARCHAR(255)'
