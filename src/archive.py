@@ -87,8 +87,7 @@ class Archive:
 
         assert property1[0].parent == property2[0].parent
 
-        self.insert(
-            'rules',
+        self.database['rules'].insert(
             category=category,
             property1=property1[0].id,
             subproperty1=property1[1].id if property1[1] else 0,
@@ -148,7 +147,7 @@ class Archive:
         :return: A category object to access the newly created category
         """
 
-        self.insert('categories', name=name)
+        self.database['categories'].insert(name=name)
         return Category(self, self.database.cursor.lastrowid)
 
     def new_document(self, name: str) -> Document:
@@ -158,7 +157,7 @@ class Archive:
         :return: A document object to access the newly created document
         """
 
-        self.insert('documents', name=name)
+        self.database['documents'].insert(name=name)
         return Document(self, self.database.cursor.lastrowid)
 
     def reset(self) -> None:
@@ -204,8 +203,7 @@ class Category(ArchiveProxy):
         :return: A property object to access the newly created property
         """
 
-        self._archive.insert(
-            'properties',
+        self._archive.database['properties'].insert(
             parent=self.id,
             name=name,
             category=category.id if category else 0,
@@ -224,8 +222,8 @@ class Declaration(ArchiveProxy):
         :param description: The description to add
         """
 
-        self._archive.insert(
-            'descriptions', declaration=self.id, description=description
+        self._archive.database['descriptions'].insert(
+            declaration=self.id, description=description
         )
 
     def declare_property(self, declared_property: Property, value: Declaration) -> None:
@@ -235,11 +233,8 @@ class Declaration(ArchiveProxy):
         :param value: The value to declare the property as
         """
 
-        self._archive.insert(
-            'property_declarations',
-            declaration=self.id,
-            property=declared_property.id,
-            value=value.id,
+        self._archive.database['property_declarations'].insert(
+            declaration=self.id, property=declared_property.id, value=value.id
         )
 
 
@@ -253,7 +248,9 @@ class Document(ArchiveProxy):
         :return: A declaration object to access the declaration
         """
 
-        self._archive.insert('declarations', document=self.id, category=category.id)
+        self._archive.database['declarations'].insert(
+            document=self.id, category=category.id
+        )
         return Declaration(self._archive, self._archive.database.cursor.lastrowid)
 
 
