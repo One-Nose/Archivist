@@ -60,7 +60,7 @@ class Archive:
         self._analyzer = Analyzer(self)
 
     def __repr__(self) -> str:
-        return f'{self.__class__.__name__}({repr(self.database.name)})'
+        return f'{type(self).__name__}({repr(self.database.name)})'
 
     def add_rule(
         self,
