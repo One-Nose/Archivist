@@ -227,14 +227,15 @@ class Database(dict[str, Table]):
 
         return self.statement(f'USE {self.name}')
 
-    def statement(self, statement: str) -> Statement:
+    def statement(self, statement: str, params: Sequence[Any] = ()) -> Statement:
         """
         Creates a statement object
         :param statement: The SQL statement
+        :param params: The statement's parameters
         :return: A statement object
         """
 
-        return Statement(self, statement)
+        return Statement(self, statement, params)
 
     def table(self, table_name: str, **columns: ColumnType) -> Table:
         """
