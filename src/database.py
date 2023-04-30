@@ -75,14 +75,19 @@ class Statement:
 class Table(dict[str, Column]):
     """Represents an SQL table"""
 
+    _database: Database
     name: str
 
-    def __init__(self, table_name: str, **columns: ColumnType) -> None:
+    def __init__(
+        self, database: Database, table_name: str, **columns: ColumnType
+    ) -> None:
         """
+        :param database: The table's database
         :param table_name: The name of the table
         :param columns: The table's columns, in the form of name=type
         """
 
+        self._database = database
         self.name = table_name
         self.update({name: Column(name, type) for name, type in columns.items()})
 
@@ -121,48 +126,48 @@ class Database(dict[str, Table]):
             {
                 table.name: table
                 for table in (
-                    Table(
+                    self.table(
                         'categories',
                         id=category.primary_key(),
                         name=varchar,
                     ),
-                    Table(
+                    self.table(
                         'declarations',
                         id=declaration.primary_key(),
                         document=document,
                         category=category,
                     ),
-                    Table(
+                    self.table(
                         'descriptions',
                         id=description.primary_key(),
                         declaration=declaration,
                         description=text,
                     ),
-                    Table(
+                    self.table(
                         'documents',
                         id=document.primary_key(),
                         name=varchar,
                     ),
-                    Table(
+                    self.table(
                         'elements',
                         id=element.primary_key(),
                         category=category,
                     ),
-                    Table(
+                    self.table(
                         'properties',
                         id=property_definition.primary_key(),
                         parent=category,
                         name=varchar,
                         category=category,
                     ),
-                    Table(
+                    self.table(
                         'property_declarations',
                         id=property_declaration.primary_key(),
                         declaration=declaration,
                         property=property_definition,
                         value=declaration,
                     ),
-                    Table(
+                    self.table(
                         'rules',
                         id=rule.primary_key(),
                         category=category,
@@ -194,7 +199,7 @@ class Database(dict[str, Table]):
         """Creates the database and initializes it"""
 
         self.cursor.execute(f'CREATE DATABASE {self.name}')
-        self.cursor.execute(self.use())
+        self.use().execute()
 
         for table in self.values():
             self.cursor.execute(table.create())
@@ -210,7 +215,26 @@ class Database(dict[str, Table]):
 
         self._connection.commit()
 
-    def use(self) -> str:
+    def use(self) -> Statement:
         """Retuns a USE statement"""
 
-        return f'USE {self.name}'
+        return self.statement(f'USE {self.name}')
+
+    def statement(self, statement: str) -> Statement:
+        """
+        Creates a statement object
+        :param statement: The SQL statement
+        :return: A statement object
+        """
+
+        return Statement(self, statement)
+
+    def table(self, table_name: str, **columns: ColumnType) -> Table:
+        """
+        Creates table object
+        :param table_name: The name of the table
+        :param columns: The table's columns, in the form of name=type
+        :return: A table object
+        """
+
+        return Table(self, table_name, **columns)
