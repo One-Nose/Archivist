@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Self
+from typing import Any, Self, Sequence
 
 from mariadb import Cursor, ProgrammingError, connect
 from mariadb.connections import Connection
@@ -55,9 +55,12 @@ class Statement:
     """Represents an SQL statement"""
 
     _database: Database
+    _params: tuple[Any, ...]
     _statement: str
 
-    def __init__(self, database: Database, statement: str) -> None:
+    def __init__(
+        self, database: Database, statement: str, params: Sequence[Any] = ()
+    ) -> None:
         """
         :param cursor: The statement's database
         :param statement: The SQL statement
@@ -65,6 +68,7 @@ class Statement:
 
         self._database = database
         self._statement = statement
+        self._params = tuple(params)
 
     def execute(self) -> None:
         """Executes the statement"""
