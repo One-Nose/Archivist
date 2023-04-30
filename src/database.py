@@ -74,7 +74,7 @@ class Statement:
     def execute(self) -> None:
         """Executes the statement"""
 
-        self._database.cursor.execute(self._statement)
+        self._database.cursor.execute(self._statement, self._params)
 
 
 class Table(dict[str, Column]):
