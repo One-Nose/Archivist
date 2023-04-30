@@ -12,6 +12,11 @@ class Column:
     _type: str
 
     def __init__(self, name: str, column_type: str) -> None:
+        """
+        :param name: The column's name
+        :param column_type: The colum's type
+        """
+
         self._name = name
         self._type = column_type
 
