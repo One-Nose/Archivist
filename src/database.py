@@ -91,10 +91,12 @@ class Table(dict[str, Column]):
         self.name = table_name
         self.update({name: Column(name, type) for name, type in columns.items()})
 
-    def create(self) -> str:
+    def create(self) -> Statement:
         """Returns a CREATE TABLE statement"""
 
-        return f'CREATE TABLE {self.name} ({", ".join(map(str, self.values()))})'
+        return self._database.statement(
+            f'CREATE TABLE {self.name} ({", ".join(map(str, self.values()))})'
+        )
 
 
 class Database(dict[str, Table]):
@@ -202,7 +204,7 @@ class Database(dict[str, Table]):
         self.use().execute()
 
         for table in self.values():
-            self.cursor.execute(table.create())
+            table.create().execute()
 
     def close(self) -> None:
         """Closes the connection"""
