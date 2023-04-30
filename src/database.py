@@ -103,6 +103,19 @@ class Table(dict[str, Column]):
             f'CREATE TABLE {self.name} ({", ".join(map(str, self.values()))})'
         )
 
+    def insert(self, **values: ...) -> Statement:
+        """
+        Inserts values into the table (insecure)
+        :param values: The values to insert in the form of column=value
+        :return: An INSERT statement
+        """
+
+        return self._database.statement(
+            f'INSERT INTO {self.name} ({", ".join(values)}) VALUES'
+            f' ({", ".join("?" * len(values))})',
+            tuple(values.values()),
+        )
+
 
 class Database(dict[str, Table]):
     """Represents an SQL database"""
