@@ -31,7 +31,7 @@ class Column:
     def __init__(self, name: str, column_type: str) -> None:
         """
         :param name: The column's name
-        :param column_type: The colum's type
+        :param column_type: The column's type
         """
 
         self._name = name
