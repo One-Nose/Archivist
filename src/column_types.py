@@ -35,6 +35,54 @@ class ColumnType:
         return PrimaryKey
 
 
+class Category(ColumnType):
+    """Represents a category"""
+
+    _SQL = 'INT'
+
+
+class Declaration(ColumnType):
+    """Represents an element declaration"""
+
+    _SQL = 'INT UNSIGNED'
+
+
+class Description(ColumnType):
+    """Represents an element description"""
+
+    _SQL = 'INT UNSIGNED'
+
+
+class Document(ColumnType):
+    """Represents a document"""
+
+    _SQL = 'INT UNSIGNED'
+
+
+class Element(ColumnType):
+    """Represents an element"""
+
+    _SQL = 'INT UNSIGNED'
+
+
+class LongText(ColumnType):
+    """Represents a TEXT long text"""
+
+    _SQL = 'TEXT'
+
+
+class Property(ColumnType):
+    """Represents a category property"""
+
+    _SQL = 'INT UNSIGNED'
+
+
+class PropertyDeclaration(ColumnType):
+    """Represents a property declaration"""
+
+    _SQL = 'INT UNSIGNED'
+
+
 class Rule(ColumnType):
     """Represents a category rule"""
 
