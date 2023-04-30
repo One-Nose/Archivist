@@ -128,18 +128,6 @@ class Archive:
 
         self.database.cursor.execute(f'DROP DATABASE {self.database.name}')
 
-    def insert(self, table: str, **values: ...) -> None:
-        """
-        Inserts values into a table (insecure)
-        :param table: The table to insert to
-        :param values: The values to insert in the form of column=value
-        """
-
-        self.database.cursor.execute(
-            f'INSERT INTO {table} ({", ".join(values)}) VALUES ({", ".join("?" for _ in values)})',
-            tuple(values.values()),
-        )
-
     def new_category(self, name: str) -> Category:
         """
         Creates a new category
