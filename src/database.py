@@ -2,19 +2,33 @@
 
 from __future__ import annotations
 
-from typing import Any, Self, Sequence
+from typing import Any, Sequence
 
 from mariadb import Cursor, ProgrammingError, connect
 from mariadb.connections import Connection
+
+from .column_types import (
+    Category,
+    ColumnType,
+    Declaration,
+    Description,
+    Document,
+    Element,
+    LongText,
+    Property,
+    PropertyDeclaration,
+    Rule,
+    ShortText,
+)
 
 
 class Column:
     """Represents an SQL table column"""
 
     _name: str
-    _type: ColumnType
+    _type: str
 
-    def __init__(self, name: str, column_type: ColumnType) -> None:
+    def __init__(self, name: str, column_type: str) -> None:
         """
         :param name: The column's name
         :param column_type: The colum's type
@@ -25,30 +39,6 @@ class Column:
 
     def __repr__(self) -> str:
         return f'{self._name} {self._type}'
-
-
-class ColumnType:
-    """Represents a column type"""
-
-    _type: str
-    _is_nullable: bool
-
-    def __init__(self, column_type: str, nullable: bool = False) -> None:
-        self._type = column_type
-        self._is_nullable = nullable
-
-    def __repr__(self) -> str:
-        return self._type + ('' if self._is_nullable else ' NOT NULL')
-
-    def nullable(self) -> Self:
-        """Returns a nullable version of the column type"""
-
-        return type(self)(self._type, nullable=True)
-
-    def primary_key(self) -> Self:
-        """Returns an auto-increment primary key version of the column type"""
-
-        return type(self)(f'{self._type} AUTO_INCREMENT PRIMARY KEY', nullable=True)
 
 
 class Statement:
@@ -84,7 +74,7 @@ class Table(dict[str, Column]):
     name: str
 
     def __init__(
-        self, database: Database, table_name: str, **columns: ColumnType
+        self, database: Database, table_name: str, **columns: type[ColumnType]
     ) -> None:
         """
         :param database: The table's database
@@ -94,7 +84,7 @@ class Table(dict[str, Column]):
 
         self._database = database
         self.name = table_name
-        self.update({name: Column(name, type) for name, type in columns.items()})
+        self.update({name: Column(name, type.sql()) for name, type in columns.items()})
 
     def create(self) -> Statement:
         """Returns a CREATE TABLE statement"""
@@ -131,70 +121,59 @@ class Database(dict[str, Table]):
         self._password = password
         self.name = database
 
-        category = ColumnType('INT')
-        declaration = ColumnType('INT UNSIGNED')
-        description = ColumnType('INT UNSIGNED')
-        document = ColumnType('INT UNSIGNED')
-        element = ColumnType('INT UNSIGNED')
-        property_declaration = ColumnType('INT UNSIGNED')
-        property_definition = ColumnType('INT UNSIGNED')
-        rule = ColumnType('INT UNSIGNED')
-        text = ColumnType('TEXT')
-        varchar = ColumnType('VARCHAR(255)')
-
         self.update(
             {
                 table.name: table
                 for table in (
                     self.table(
                         'categories',
-                        id=category.primary_key(),
-                        name=varchar,
+                        id=Category.primary_key(),
+                        name=ShortText,
                     ),
                     self.table(
                         'declarations',
-                        id=declaration.primary_key(),
-                        document=document,
-                        category=category,
+                        id=Declaration.primary_key(),
+                        document=Document,
+                        category=Category,
                     ),
                     self.table(
                         'descriptions',
-                        id=description.primary_key(),
-                        declaration=declaration,
-                        description=text,
+                        id=Description.primary_key(),
+                        declaration=Declaration,
+                        description=LongText,
                     ),
                     self.table(
                         'documents',
-                        id=document.primary_key(),
-                        name=varchar,
+                        id=Document.primary_key(),
+                        name=ShortText,
                     ),
                     self.table(
                         'elements',
-                        id=element.primary_key(),
-                        category=category,
+                        id=Element.primary_key(),
+                        category=Category,
                     ),
                     self.table(
                         'properties',
-                        id=property_definition.primary_key(),
-                        parent=category,
-                        name=varchar,
-                        category=category,
+                        id=Property.primary_key(),
+                        parent=Category,
+                        name=ShortText,
+                        category=Category,
                     ),
                     self.table(
                         'property_declarations',
-                        id=property_declaration.primary_key(),
-                        declaration=declaration,
-                        property=property_definition,
-                        value=declaration,
+                        id=PropertyDeclaration.primary_key(),
+                        declaration=Declaration,
+                        property=Property,
+                        value=Declaration,
                     ),
                     self.table(
                         'rules',
-                        id=rule.primary_key(),
-                        category=category,
-                        property1=property_definition,
-                        subproperty1=property_definition,
-                        property2=property_definition,
-                        subproperty2=property_definition,
+                        id=Rule.primary_key(),
+                        category=Category,
+                        property1=Property,
+                        subproperty1=Property,
+                        property2=Property,
+                        subproperty2=Property,
                     ),
                 )
             }
@@ -250,7 +229,7 @@ class Database(dict[str, Table]):
 
         return Statement(self, statement, params)
 
-    def table(self, table_name: str, **columns: ColumnType) -> Table:
+    def table(self, table_name: str, **columns: type[ColumnType]) -> Table:
         """
         Creates table object
         :param table_name: The name of the table
