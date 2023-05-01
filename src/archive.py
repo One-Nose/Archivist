@@ -155,7 +155,7 @@ class Archive:
         self.database.init()
 
 
-class ArchiveProxy:
+class Row:
     """Interface to allow access to part of an archive"""
 
     _archive: Archive
@@ -172,7 +172,7 @@ class ArchiveProxy:
         self.id = identifier
 
     def __eq__(self, __value: object) -> bool:
-        if isinstance(__value, ArchiveProxy):
+        if isinstance(__value, Row):
             return self.id == __value.id
         return False
 
@@ -180,7 +180,7 @@ class ArchiveProxy:
         return f'{self.__class__.__name__}({repr(self.id)})'
 
 
-class Category(ArchiveProxy):
+class Category(Row):
     """Allows access to a category"""
 
     def new_property(self, name: str, category: Category | None = None) -> Property:
@@ -199,7 +199,7 @@ class Category(ArchiveProxy):
         return Property(self._archive, self._archive.database.lastrowid, self, category)
 
 
-class Declaration(ArchiveProxy):
+class Declaration(Row):
     """Allows access to a declaration of an element"""
 
     def add_description(self, description: str) -> None:
@@ -224,7 +224,7 @@ class Declaration(ArchiveProxy):
         ).execute()
 
 
-class Document(ArchiveProxy):
+class Document(Row):
     """Allows access to a document"""
 
     def declare(self, category: Category) -> Declaration:
@@ -240,7 +240,7 @@ class Document(ArchiveProxy):
         return Declaration(self._archive, self._archive.database.lastrowid)
 
 
-class Property(ArchiveProxy):
+class Property(Row):
     """Allows access to an element type property"""
 
     category: Category | None
