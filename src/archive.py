@@ -136,7 +136,7 @@ class Archive:
         """
 
         self.database['categories'].insert(name=name).execute()
-        return Category(self, self.database.cursor.lastrowid)
+        return Category(self, self.database.lastrowid)
 
     def new_document(self, name: str) -> Document:
         """
@@ -146,7 +146,7 @@ class Archive:
         """
 
         self.database['documents'].insert(name=name).execute()
-        return Document(self, self.database.cursor.lastrowid)
+        return Document(self, self.database.lastrowid)
 
     def reset(self) -> None:
         """Completely resets the database"""
@@ -196,9 +196,7 @@ class Category(ArchiveProxy):
             name=name,
             category=category.id if category else 0,
         ).execute()
-        return Property(
-            self._archive, self._archive.database.cursor.lastrowid, self, category
-        )
+        return Property(self._archive, self._archive.database.lastrowid, self, category)
 
 
 class Declaration(ArchiveProxy):
@@ -239,7 +237,7 @@ class Document(ArchiveProxy):
         self._archive.database['declarations'].insert(
             document=self.id, category=category.id
         ).execute()
-        return Declaration(self._archive, self._archive.database.cursor.lastrowid)
+        return Declaration(self._archive, self._archive.database.lastrowid)
 
 
 class Property(ArchiveProxy):
