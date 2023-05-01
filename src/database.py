@@ -238,3 +238,11 @@ class Database(dict[str, Table]):
         """
 
         return Table(self, table_name, **columns)
+
+    @property
+    def lastrowid(self) -> int:
+        """
+        The ID generated for AUTO_INCREMENT if the last query was INSERT or UPDATE, otherwise 0
+        """
+
+        return self.cursor.lastrowid
