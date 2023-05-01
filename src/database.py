@@ -49,7 +49,7 @@ class Statement:
     _statement: str
 
     def __init__(
-        self, database: Database, statement: str, params: Sequence[Any] = ()
+            self, database: Database, statement: str, params: Sequence[Any] = ()
     ) -> None:
         """
         :param cursor: The statement's database
@@ -73,9 +73,7 @@ class Table(dict[str, Column]):
     _database: Database
     name: str
 
-    def __init__(
-        self, database: Database, table_name: str, **columns: type[ColumnType]
-    ) -> None:
+    def __init__(self, database: Database, table_name: str, **columns: type[ColumnType]) -> None:
         """
         :param database: The table's database
         :param table_name: The name of the table
@@ -125,57 +123,57 @@ class Database(dict[str, Table]):
             {
                 table.name: table
                 for table in (
-                    self.table(
-                        'categories',
-                        id=Category.primary_key(),
-                        name=ShortText,
-                    ),
-                    self.table(
-                        'declarations',
-                        id=Declaration.primary_key(),
-                        document=Document,
-                        category=Category,
-                    ),
-                    self.table(
-                        'descriptions',
-                        id=Description.primary_key(),
-                        declaration=Declaration,
-                        description=LongText,
-                    ),
-                    self.table(
-                        'documents',
-                        id=Document.primary_key(),
-                        name=ShortText,
-                    ),
-                    self.table(
-                        'elements',
-                        id=Element.primary_key(),
-                        category=Category,
-                    ),
-                    self.table(
-                        'properties',
-                        id=Property.primary_key(),
-                        parent=Category,
-                        name=ShortText,
-                        category=Category,
-                    ),
-                    self.table(
-                        'property_declarations',
-                        id=PropertyDeclaration.primary_key(),
-                        declaration=Declaration,
-                        property=Property,
-                        value=Declaration,
-                    ),
-                    self.table(
-                        'rules',
-                        id=Rule.primary_key(),
-                        category=Category,
-                        property1=Property,
-                        subproperty1=Property,
-                        property2=Property,
-                        subproperty2=Property,
-                    ),
-                )
+                self.table(
+                    'categories',
+                    id=Category.primary_key(),
+                    name=ShortText,
+                ),
+                self.table(
+                    'declarations',
+                    id=Declaration.primary_key(),
+                    document=Document,
+                    category=Category,
+                ),
+                self.table(
+                    'descriptions',
+                    id=Description.primary_key(),
+                    declaration=Declaration,
+                    description=LongText,
+                ),
+                self.table(
+                    'documents',
+                    id=Document.primary_key(),
+                    name=ShortText,
+                ),
+                self.table(
+                    'elements',
+                    id=Element.primary_key(),
+                    category=Category,
+                ),
+                self.table(
+                    'properties',
+                    id=Property.primary_key(),
+                    parent=Category,
+                    name=ShortText,
+                    category=Category,
+                ),
+                self.table(
+                    'property_declarations',
+                    id=PropertyDeclaration.primary_key(),
+                    declaration=Declaration,
+                    property=Property,
+                    value=Declaration,
+                ),
+                self.table(
+                    'rules',
+                    id=Rule.primary_key(),
+                    category=Category,
+                    property1=Property,
+                    subproperty1=Property,
+                    property2=Property,
+                    subproperty2=Property,
+                ),
+            )
             }
         )
 
