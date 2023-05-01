@@ -11,10 +11,16 @@ class ColumnType:
     _SQL: ClassVar[str]
 
     @classmethod
+    def _sql(cls) -> str:
+        """Returns the type's SQL representation without additional info"""
+
+        return cls._SQL
+
+    @classmethod
     def sql(cls) -> str:
         """Returns the type's SQL representation"""
 
-        return f'{cls._SQL} NOT NULL'
+        return f'{cls._sql()} NOT NULL'
 
     @classmethod
     def primary_key(cls: type[ColumnType]) -> type[ColumnType]:
@@ -30,7 +36,7 @@ class ColumnType:
             def sql(cls) -> str:
                 """Returns the type's SQL representation"""
 
-                return f'{cls._SQL} AUTO_INCREMENT PRIMARY KEY'
+                return f'{cls._sql()} AUTO_INCREMENT PRIMARY KEY'
 
         return PrimaryKey
 
