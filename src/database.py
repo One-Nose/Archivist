@@ -76,7 +76,7 @@ class Table(dict[str, Column]):
     def __init__(self, database: Database, table_name: str, **columns: type[ColumnType]) -> None:
         """
         :param database: The table's database
-        :param table_name: The name of the table
+        :param table_name: The table's name
         :param columns: The table's columns, in the form of name=type
         """
 
@@ -218,7 +218,10 @@ class Database(dict[str, Table]):
             table.create().execute()
 
     def use(self) -> Statement:
-        """Retuns a USE statement"""
+        """
+        Creates a USE statement
+        :return: The use statement
+        """
 
         return self.statement(f'USE {self.name}')
 
@@ -235,7 +238,7 @@ class Database(dict[str, Table]):
     def table(self, table_name: str, **columns: type[ColumnType]) -> Table:
         """
         Creates table object
-        :param table_name: The name of the table
+        :param table_name: The table's name
         :param columns: The table's columns, in the form of name=type
         :return: A table object
         """
