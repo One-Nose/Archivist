@@ -88,7 +88,7 @@ class Archive:
         assert property1[0].parent == property2[0].parent
 
         self.database['rules'].insert(
-            category=category,
+            category=category.id if isinstance(category, Category) else category,
             property1=property1[0].id,
             subproperty1=property1[1].id if property1[1] else 0,
             property2=property2[0].id,
