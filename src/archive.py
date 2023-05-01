@@ -1,14 +1,15 @@
 """Provides archive user operations"""
 from __future__ import annotations
 
-from typing import Generic, TypedDict, TypeVar
+from typing import ClassVar, Generic, TypedDict, TypeVar
 
 from .analyzer import Analyzer
 from .column_types import Category as _Category
 from .column_types import Declaration as _Declaration
 from .column_types import Document as _Document
-from .column_types import IntColumnType
+from .column_types import IntColumnType, LongText
 from .column_types import Property as _Property
+from .column_types import ShortText as ShortText
 from .database import Database
 
 
@@ -37,8 +38,10 @@ class ConnectionConfig(TypedDict):
 class Archive:
     """Allows access to the database"""
 
+    _NO_PROPERTY: ClassVar[_Property] = _Property(0)
+
     _analyzer: Analyzer
-    database: Database
+    _database: Database
     greater: Category
     less: Category
 
@@ -48,14 +51,14 @@ class Archive:
         :param config: An object containing the config options
         """
 
-        self.database = Database(**config['connect'])
+        self._database = Database(**config['connect'])
         self._analyzer = Analyzer(self)
 
-        self.greater = Category(self, _Category(-1))
-        self.less = Category(self, _Category(-2))
+        self.greater = Category(self._database, _Category(-1))
+        self.less = Category(self._database, _Category(-2))
 
     def __repr__(self) -> str:
-        return f'{type(self).__name__}({repr(self.database.name)})'
+        return f'{type(self).__name__}({repr(self._database.name)})'
 
     def add_rule(
         self,
@@ -79,12 +82,12 @@ class Archive:
         for prop in property1, property2:
             assert prop[1] is None or prop[1].parent == prop[0].category
 
-        self.database['rules'].insert(
-            category=category.id.value,
-            property1=property1[0].id.value,
-            subproperty1=property1[1].id.value if property1[1] else 0,
-            property2=property2[0].id.value,
-            subproperty2=property2[1].id.value if property2[1] else 0,
+        self._database['rules'].insert(
+            category=category.id,
+            property1=property1[0].id,
+            subproperty1=property1[1].id if property1[1] else self._NO_PROPERTY,
+            property2=property2[0].id,
+            subproperty2=property2[1].id if property2[1] else self._NO_PROPERTY,
         ).execute()
 
     def category(self, category_id: int) -> UserDefinedCategory:
@@ -94,17 +97,17 @@ class Archive:
         :return: A category object that allows access to the category
         """
 
-        return UserDefinedCategory(self, _Category(category_id))
+        return UserDefinedCategory(self._database, _Category(category_id))
 
     def close(self) -> None:
         """Closes the connection"""
 
-        self.database.close()
+        self._database.close()
 
     def commit(self) -> None:
         """Commits the changes to the database"""
 
-        self.database.commit()
+        self._database.commit()
 
     def document(self, document_id: int) -> Document:
         """
@@ -113,12 +116,12 @@ class Archive:
         :return: A document object that allows access to the document
         """
 
-        return Document(self, _Document(document_id))
+        return Document(self._database, _Document(document_id))
 
     def drop(self) -> None:
         """Deletes the database"""
 
-        self.database.drop()
+        self._database.drop()
 
     def new_category(self, name: str) -> UserDefinedCategory:
         """
@@ -127,8 +130,8 @@ class Archive:
         :return: A category object to access the newly created category
         """
 
-        self.database['categories'].insert(name=name).execute()
-        return UserDefinedCategory(self, _Category(self.database.last_row_id))
+        self._database['categories'].insert(name=ShortText(name)).execute()
+        return self.category(self._database.last_row_id)
 
     def new_document(self, name: str) -> Document:
         """
@@ -137,14 +140,14 @@ class Archive:
         :return: A document object to access the newly created document
         """
 
-        self.database['documents'].insert(name=name).execute()
-        return Document(self, _Document(self.database.last_row_id))
+        self._database['documents'].insert(name=ShortText(name)).execute()
+        return self.document(self._database.last_row_id)
 
     def reset(self) -> None:
         """Completely resets the database"""
 
         self.drop()
-        self.database.init()
+        self._database.init()
 
 
 PrimaryKey = TypeVar('PrimaryKey', bound=IntColumnType)
@@ -153,17 +156,17 @@ PrimaryKey = TypeVar('PrimaryKey', bound=IntColumnType)
 class Row(Generic[PrimaryKey]):
     """Interface to allow access to part of an archive"""
 
-    _archive: Archive
+    _database: Database
     id: PrimaryKey
 
-    def __init__(self, archive: Archive, identifier: PrimaryKey) -> None:
+    def __init__(self, database: Database, identifier: PrimaryKey) -> None:
         """
         Creates a proxy object to access a part of an archive
-        :param archive: The proxy's archive
+        :param database: The proxy's database
         :param identifier: The row's ID
         """
 
-        self._archive = archive
+        self._database = database
         self.id = identifier
 
     def __eq__(self, __value: object) -> bool:
@@ -182,6 +185,8 @@ class Category(Row[_Category]):
 class UserDefinedCategory(Category):
     """Allows access to a non-built-in category"""
 
+    _NO_CATEGORY: ClassVar[_Category] = _Category(0)
+
     def new_property(
         self, name: str, category: UserDefinedCategory | None = None
     ) -> Property:
@@ -192,14 +197,25 @@ class UserDefinedCategory(Category):
         :return: A property object to access the newly created property
         """
 
-        self._archive.database['properties'].insert(
-            parent=self.id.value,
-            name=name,
-            category=category.id.value if category else 0,
+        self._database['properties'].insert(
+            parent=self.id,
+            name=ShortText(name),
+            category=category.id if category else self._NO_CATEGORY,
         ).execute()
-        return Property(
-            self._archive, _Property(self._archive.database.last_row_id), self, category
-        )
+
+        return self.property(self._database.last_row_id, category)
+
+    def property(
+        self, identifier: int, category: UserDefinedCategory | None
+    ) -> Property:
+        """
+        Creates a property object to access a property of the category
+        :param identifier: The property's ID
+        :param category: The property's category
+        :return: The created property object
+        """
+
+        return Property(self, _Property(identifier), category)
 
 
 class Declaration(Row[_Declaration]):
@@ -211,8 +227,8 @@ class Declaration(Row[_Declaration]):
         :param description: The description to add
         """
 
-        self._archive.database['descriptions'].insert(
-            declaration=self.id.value, description=description
+        self._database['descriptions'].insert(
+            declaration=self.id, description=LongText(description)
         ).execute()
 
     def declare_property(self, declared_property: Property, value: Declaration) -> None:
@@ -222,10 +238,8 @@ class Declaration(Row[_Declaration]):
         :param value: The value to declare the property as
         """
 
-        self._archive.database['property_declarations'].insert(
-            declaration=self.id.value,
-            property=declared_property.id.value,
-            value=value.id.value,
+        self._database['property_declarations'].insert(
+            declaration=self.id, property=declared_property.id, value=value.id
         ).execute()
 
 
@@ -239,12 +253,11 @@ class Document(Row[_Document]):
         :return: A declaration object to access the declaration
         """
 
-        self._archive.database['declarations'].insert(
-            document=self.id.value, category=category.id.value
+        self._database['declarations'].insert(
+            document=self.id, category=category.id
         ).execute()
-        return Declaration(
-            self._archive, _Declaration(self._archive.database.last_row_id)
-        )
+
+        return Declaration(self._database, _Declaration(self._database.last_row_id))
 
 
 class Property(Row[_Property]):
@@ -255,12 +268,11 @@ class Property(Row[_Property]):
 
     def __init__(
         self,
-        archive: Archive,
-        identifier: _Property,
         parent: UserDefinedCategory,
+        identifier: _Property,
         category: UserDefinedCategory | None,
     ) -> None:
-        super().__init__(archive, identifier)
+        super().__init__(parent._database, identifier)
 
         self.parent = parent
         self.category = category
