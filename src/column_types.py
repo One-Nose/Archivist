@@ -36,6 +36,10 @@ class IntColumnType(ColumnType):
 
     _SQL = 'INT'
     _SIGNED: ClassVar[bool] = False
+    value: int
+
+    def __init__(self, value: int) -> None:
+        super().__init__(value)
 
     @classmethod
     def _sql(cls) -> str:
