@@ -26,9 +26,9 @@ class Column:
     """Represents an SQL table column"""
 
     _name: str
-    _type: str
+    _type: type[ColumnType]
 
-    def __init__(self, name: str, column_type: str) -> None:
+    def __init__(self, name: str, column_type: type[ColumnType]) -> None:
         """
         :param name: The column's name
         :param column_type: The column's type
@@ -38,7 +38,7 @@ class Column:
         self._type = column_type
 
     def __repr__(self) -> str:
-        return f'{self._name} {self._type}'
+        return f'{self._name} {self._type.sql()}'
 
 
 class Statement:
@@ -84,7 +84,7 @@ class Table(dict[str, Column]):
 
         self._database = database
         self.name = table_name
-        self.update({name: Column(name, type.sql()) for name, type in columns.items()})
+        self.update({name: Column(name, type) for name, type in columns.items()})
 
     def create(self) -> Statement:
         """Returns a CREATE TABLE statement"""
