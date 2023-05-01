@@ -4,7 +4,8 @@
     "--disable=relative-beyond-top-level",
     "--disable=too-few-public-methods",
     "--disable=useless-import-alias",
-    "--good-names=id"
+    "--good-names=id",
+    "--ignore-patterns=test_.*?py"
   ],
   "pylint.severity": {
     "convention": "Error",
