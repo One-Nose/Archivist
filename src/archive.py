@@ -126,7 +126,7 @@ class Archive:
     def drop(self) -> None:
         """Deletes the database"""
 
-        self.database.cursor.execute(f'DROP DATABASE {self.database.name}')
+        self.database.drop()
 
     def new_category(self, name: str) -> Category:
         """
