@@ -2,13 +2,21 @@
 
 from __future__ import annotations
 
-from typing import ClassVar
+from typing import Any, ClassVar
 
 
 class ColumnType:
     """Parent class for column types"""
 
     _SQL: ClassVar[str]
+    value: Any
+
+    def __init__(self, value: Any) -> None:
+        """
+        :param value: The object's value
+        """
+
+        self.value = value
 
     @classmethod
     def _sql(cls) -> str:
