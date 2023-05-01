@@ -2,9 +2,14 @@
 from __future__ import annotations
 
 from enum import IntEnum, auto
-from typing import TypedDict
+from typing import Generic, TypedDict, TypeVar
 
 from .analyzer import Analyzer
+from .column_types import Category as _Category
+from .column_types import Declaration as _Declaration
+from .column_types import Document as _Document
+from .column_types import IntColumnType
+from .column_types import Property as _Property
 from .database import Database
 
 
@@ -88,11 +93,11 @@ class Archive:
         assert property1[0].parent == property2[0].parent
 
         self.database['rules'].insert(
-            category=category.id if isinstance(category, Category) else category,
-            property1=property1[0].id,
-            subproperty1=property1[1].id if property1[1] else 0,
-            property2=property2[0].id,
-            subproperty2=property2[1].id if property2[1] else 0,
+            category=category.id.value if isinstance(category, Category) else category,
+            property1=property1[0].id.value,
+            subproperty1=property1[1].id.value if property1[1] else 0,
+            property2=property2[0].id.value,
+            subproperty2=property2[1].id.value if property2[1] else 0,
         ).execute()
 
     def category(self, category_id: int) -> Category:
@@ -102,7 +107,7 @@ class Archive:
         :return: A category object that allows access to the category
         """
 
-        return Category(self, category_id)
+        return Category(self, _Category(category_id))
 
     def close(self) -> None:
         """Closes the connection"""
@@ -121,7 +126,7 @@ class Archive:
         :return: A document object that allows access to the document
         """
 
-        return Document(self, document_id)
+        return Document(self, _Document(document_id))
 
     def drop(self) -> None:
         """Deletes the database"""
@@ -136,7 +141,7 @@ class Archive:
         """
 
         self.database['categories'].insert(name=name).execute()
-        return Category(self, self.database.lastrowid)
+        return Category(self, _Category(self.database.lastrowid))
 
     def new_document(self, name: str) -> Document:
         """
@@ -146,7 +151,7 @@ class Archive:
         """
 
         self.database['documents'].insert(name=name).execute()
-        return Document(self, self.database.lastrowid)
+        return Document(self, _Document(self.database.lastrowid))
 
     def reset(self) -> None:
         """Completely resets the database"""
@@ -155,17 +160,20 @@ class Archive:
         self.database.init()
 
 
-class Row:
+PrimaryKey = TypeVar('PrimaryKey', bound=IntColumnType)
+
+
+class Row(Generic[PrimaryKey]):
     """Interface to allow access to part of an archive"""
 
     _archive: Archive
-    id: int
+    id: PrimaryKey
 
-    def __init__(self, archive: Archive, identifier: int) -> None:
+    def __init__(self, archive: Archive, identifier: PrimaryKey) -> None:
         """
         Creates a proxy object to access a part of an archive
         :param archive: The proxy's archive
-        :param identifier: Numeral ID of the part the proxy points towards
+        :param identifier: The row's ID
         """
 
         self._archive = archive
@@ -177,10 +185,10 @@ class Row:
         return False
 
     def __repr__(self) -> str:
-        return f'{self.__class__.__name__}({repr(self.id)})'
+        return f'{self.__class__.__name__}({self.id.value})'
 
 
-class Category(Row):
+class Category(Row[_Category]):
     """Allows access to a category"""
 
     def new_property(self, name: str, category: Category | None = None) -> Property:
@@ -192,14 +200,16 @@ class Category(Row):
         """
 
         self._archive.database['properties'].insert(
-            parent=self.id,
+            parent=self.id.value,
             name=name,
-            category=category.id if category else 0,
+            category=category.id.value if category else 0,
         ).execute()
-        return Property(self._archive, self._archive.database.lastrowid, self, category)
+        return Property(
+            self._archive, _Property(self._archive.database.lastrowid), self, category
+        )
 
 
-class Declaration(Row):
+class Declaration(Row[_Declaration]):
     """Allows access to a declaration of an element"""
 
     def add_description(self, description: str) -> None:
@@ -209,7 +219,7 @@ class Declaration(Row):
         """
 
         self._archive.database['descriptions'].insert(
-            declaration=self.id, description=description
+            declaration=self.id.value, description=description
         ).execute()
 
     def declare_property(self, declared_property: Property, value: Declaration) -> None:
@@ -220,11 +230,13 @@ class Declaration(Row):
         """
 
         self._archive.database['property_declarations'].insert(
-            declaration=self.id, property=declared_property.id, value=value.id
+            declaration=self.id.value,
+            property=declared_property.id.value,
+            value=value.id.value,
         ).execute()
 
 
-class Document(Row):
+class Document(Row[_Document]):
     """Allows access to a document"""
 
     def declare(self, category: Category) -> Declaration:
@@ -235,12 +247,14 @@ class Document(Row):
         """
 
         self._archive.database['declarations'].insert(
-            document=self.id, category=category.id
+            document=self.id.value, category=category.id.value
         ).execute()
-        return Declaration(self._archive, self._archive.database.lastrowid)
+        return Declaration(
+            self._archive, _Declaration(self._archive.database.lastrowid)
+        )
 
 
-class Property(Row):
+class Property(Row[_Property]):
     """Allows access to an element type property"""
 
     category: Category | None
@@ -249,7 +263,7 @@ class Property(Row):
     def __init__(
         self,
         archive: Archive,
-        identifier: int,
+        identifier: _Property,
         parent: Category,
         category: Category | None,
     ) -> None:
