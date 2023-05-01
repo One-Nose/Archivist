@@ -80,6 +80,7 @@ class Table(dict[str, Column]):
         :param columns: The table's columns, in the form of name=type
         """
 
+        super().__init__()
         self._database = database
         self.name = table_name
         self.update({name: Column(name, type) for name, type in columns.items()})
@@ -115,6 +116,8 @@ class Database(dict[str, Table]):
     name: str
 
     def __init__(self, username: str, password: str, database: str) -> None:
+        super().__init__()
+
         self._username = username
         self._password = password
         self.name = database
