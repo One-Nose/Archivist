@@ -19,8 +19,8 @@ if __name__ == '__main__':
     date = event.new_property('Date')
 
     during = archive.new_category('During')
-    during_event = during.new_property('event', event)
-    during_period = during.new_property('period', period)
+    during_event = during.new_property('Event', event)
+    during_period = during.new_property('Period', period)
     archive.add_rule(
         BuiltInCategory.GREATER, (during_event, date), (during_period, beginning)
     )
