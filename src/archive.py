@@ -131,7 +131,7 @@ class Archive:
         """
 
         self.database['categories'].insert(name=name).execute()
-        return UserDefinedCategory(self, _Category(self.database.lastrowid))
+        return UserDefinedCategory(self, _Category(self.database.last_row_id))
 
     def new_document(self, name: str) -> Document:
         """
@@ -141,7 +141,7 @@ class Archive:
         """
 
         self.database['documents'].insert(name=name).execute()
-        return Document(self, _Document(self.database.lastrowid))
+        return Document(self, _Document(self.database.last_row_id))
 
     def reset(self) -> None:
         """Completely resets the database"""
@@ -201,7 +201,7 @@ class UserDefinedCategory(Category):
             category=category.id.value if category else 0,
         ).execute()
         return Property(
-            self._archive, _Property(self._archive.database.lastrowid), self, category
+            self._archive, _Property(self._archive.database.last_row_id), self, category
         )
 
 
@@ -246,7 +246,7 @@ class Document(Row[_Document]):
             document=self.id.value, category=category.id.value
         ).execute()
         return Declaration(
-            self._archive, _Declaration(self._archive.database.lastrowid)
+            self._archive, _Declaration(self._archive.database.last_row_id)
         )
 
 
