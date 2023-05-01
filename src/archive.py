@@ -251,7 +251,7 @@ class Document(Row[_Document]):
 
 
 class Property(Row[_Property]):
-    """Allows access to an element type property"""
+    """Allows access to a category property"""
 
     category: UserDefinedCategory | None
     parent: UserDefinedCategory
