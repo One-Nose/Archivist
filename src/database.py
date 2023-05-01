@@ -83,7 +83,7 @@ class Table(dict[str, Column]):
         super().__init__()
         self._database = database
         self.name = table_name
-        self.update({name: Column(name, type) for name, type in columns.items()})
+        self.update({name: Column(name, column_type) for name, column_type in columns.items()})
 
     def create(self) -> Statement:
         """Returns a CREATE TABLE statement"""
