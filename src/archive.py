@@ -72,15 +72,12 @@ class Archive:
 
         if isinstance(property1, Property):
             property1 = (property1, None)
-        elif property1[1]:
-            assert property1[1].parent == property1[0].category
-
         if isinstance(property2, Property):
             property2 = (property2, None)
-        elif property2[1]:
-            assert property2[1].parent == property2[0].category
 
         assert property1[0].parent == property2[0].parent
+        for prop in property1, property2:
+            assert prop[1] is None or prop[1].parent == prop[0].category
 
         self.database['rules'].insert(
             category=category.id.value,
