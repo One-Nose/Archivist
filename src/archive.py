@@ -180,7 +180,7 @@ class Row(Generic[PrimaryKey]):
         self.id = identifier
 
     def __eq__(self, __value: object) -> bool:
-        if isinstance(__value, Row):
+        if isinstance(__value, type(self)):
             return self.id == __value.id
         return False
 
