@@ -64,6 +64,15 @@ class IntColumnType(ColumnType):
         return PrimaryKey
 
 
+class StrColumnType(ColumnType):
+    """Represents a string column type"""
+
+    value: str
+
+    def __init__(self, value: str) -> None:
+        super().__init__(value)
+
+
 class Category(IntColumnType):
     """Represents a category"""
 
