@@ -1,4 +1,4 @@
-"""Provides archive user operationss"""
+"""Provides archive user operations"""
 from __future__ import annotations
 
 from typing import Generic, TypedDict, TypeVar
@@ -66,8 +66,8 @@ class Archive:
         """
         Adds a rule to the archive
         :param category: The category of the rule, may be built-in
-        :param property1: The rule's first argument, either as (property, subproperty) or property
-        :param property2: The rule's second argument, either as (property, subproperty) or property
+        :param property1: The rule's first argument, either as (property, sub-property) or property
+        :param property2: The rule's second argument, either as (property, sub-property) or property
         """
 
         if isinstance(property1, Property):
