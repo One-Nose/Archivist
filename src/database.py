@@ -205,6 +205,11 @@ class Database(dict[str, Table]):
 
         self._connection.commit()
 
+    def drop(self) -> None:
+        """Drops the database"""
+
+        self.cursor.execute(f'DROP DATABASE {self.name}')
+
     def init(self) -> None:
         """Creates the database and initializes it"""
 
