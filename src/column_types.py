@@ -22,8 +22,19 @@ class ColumnType:
 
         return f'{cls._sql()} NOT NULL'
 
+
+class IntColumnType(ColumnType):
+    """Represents an INT column type"""
+
+    _SQL = 'INT'
+    _SIGNED: ClassVar[bool] = False
+
     @classmethod
-    def primary_key(cls: type[ColumnType]) -> type[ColumnType]:
+    def _sql(cls) -> str:
+        return super()._sql() + ('' if cls._SIGNED else ' UNSIGNED')
+
+    @classmethod
+    def primary_key(cls: type[IntColumnType]) -> type[IntColumnType]:
         """
         Returns a primary key version of a column type
         :return: The result column type
@@ -41,34 +52,26 @@ class ColumnType:
         return PrimaryKey
 
 
-class Category(ColumnType):
+class Category(IntColumnType):
     """Represents a category"""
 
-    _SQL = 'INT'
+    _SIGNED = True
 
 
-class Declaration(ColumnType):
+class Declaration(IntColumnType):
     """Represents an element declaration"""
 
-    _SQL = 'INT UNSIGNED'
 
-
-class Description(ColumnType):
+class Description(IntColumnType):
     """Represents an element description"""
 
-    _SQL = 'INT UNSIGNED'
 
-
-class Document(ColumnType):
+class Document(IntColumnType):
     """Represents a document"""
 
-    _SQL = 'INT UNSIGNED'
 
-
-class Element(ColumnType):
+class Element(IntColumnType):
     """Represents an element"""
-
-    _SQL = 'INT UNSIGNED'
 
 
 class LongText(ColumnType):
@@ -77,22 +80,16 @@ class LongText(ColumnType):
     _SQL = 'TEXT'
 
 
-class Property(ColumnType):
+class Property(IntColumnType):
     """Represents a category property"""
 
-    _SQL = 'INT UNSIGNED'
 
-
-class PropertyDeclaration(ColumnType):
+class PropertyDeclaration(IntColumnType):
     """Represents a property declaration"""
 
-    _SQL = 'INT UNSIGNED'
 
-
-class Rule(ColumnType):
+class Rule(IntColumnType):
     """Represents a category rule"""
-
-    _SQL = 'INT UNSIGNED'
 
 
 class ShortText(ColumnType):
