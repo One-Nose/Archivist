@@ -194,15 +194,6 @@ class Database(dict[str, Table]):
         except ProgrammingError:
             self.init()
 
-    def init(self) -> None:
-        """Creates the database and initializes it"""
-
-        self.cursor.execute(f'CREATE DATABASE {self.name}')
-        self.use().execute()
-
-        for table in self.values():
-            table.create().execute()
-
     def close(self) -> None:
         """Closes the connection"""
 
@@ -213,6 +204,15 @@ class Database(dict[str, Table]):
         """Commits the changes to the database"""
 
         self._connection.commit()
+
+    def init(self) -> None:
+        """Creates the database and initializes it"""
+
+        self.cursor.execute(f'CREATE DATABASE {self.name}')
+        self.use().execute()
+
+        for table in self.values():
+            table.create().execute()
 
     def use(self) -> Statement:
         """Retuns a USE statement"""
