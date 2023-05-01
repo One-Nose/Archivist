@@ -18,6 +18,9 @@ class ColumnType:
 
         self.value = value
 
+    def __str__(self) -> str:
+        return str(self.value)
+
     @classmethod
     def _sql(cls) -> str:
         """Returns the type's SQL representation without additional info"""
