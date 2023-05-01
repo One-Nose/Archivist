@@ -58,10 +58,10 @@ class Archive:
         return f'{type(self).__name__}({repr(self.database.name)})'
 
     def add_rule(
-            self,
-            category: Category,
-            property1: tuple[Property, Property | None] | Property,
-            property2: tuple[Property, Property | None] | Property,
+        self,
+        category: Category,
+        property1: tuple[Property, Property | None] | Property,
+        property2: tuple[Property, Property | None] | Property,
     ) -> None:
         """
         Adds a rule to the archive
@@ -186,7 +186,7 @@ class UserDefinedCategory(Category):
     """Allows access to a non-built-in category"""
 
     def new_property(
-            self, name: str, category: UserDefinedCategory | None = None
+        self, name: str, category: UserDefinedCategory | None = None
     ) -> Property:
         """
         Adds a property to the category
@@ -257,11 +257,11 @@ class Property(Row[_Property]):
     parent: UserDefinedCategory
 
     def __init__(
-            self,
-            archive: Archive,
-            identifier: _Property,
-            parent: UserDefinedCategory,
-            category: UserDefinedCategory | None,
+        self,
+        archive: Archive,
+        identifier: _Property,
+        parent: UserDefinedCategory,
+        category: UserDefinedCategory | None,
     ) -> None:
         super().__init__(archive, identifier)
 
