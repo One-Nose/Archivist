@@ -41,6 +41,11 @@ class IntColumnType(ColumnType):
     def __init__(self, value: int) -> None:
         super().__init__(value)
 
+    def __eq__(self, __value: object) -> bool:
+        if isinstance(__value, type(self)):
+            return self.value == __value.value
+        return False
+
     @classmethod
     def _sql(cls) -> str:
         return super()._sql() + ('' if cls._SIGNED else ' UNSIGNED')
