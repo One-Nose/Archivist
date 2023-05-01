@@ -107,13 +107,13 @@ class Rule(IntColumnType):
     """Represents a category rule"""
 
 
-class LongText(ColumnType):
+class LongText(StrColumnType):
     """Represents a TEXT long text"""
 
     _SQL = 'TEXT'
 
 
-class ShortText(ColumnType):
+class ShortText(StrColumnType):
     """Represents a VARCHAR(255) short text"""
 
     _SQL = 'VARCHAR(255)'
