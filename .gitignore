@@ -1,2 +1,4 @@
 __pycache__/
 typings/
+coverage.xml
+.coverage
