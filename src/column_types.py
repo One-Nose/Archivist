@@ -74,12 +74,6 @@ class Element(IntColumnType):
     """Represents an element"""
 
 
-class LongText(ColumnType):
-    """Represents a TEXT long text"""
-
-    _SQL = 'TEXT'
-
-
 class Property(IntColumnType):
     """Represents a category property"""
 
@@ -90,6 +84,12 @@ class PropertyDeclaration(IntColumnType):
 
 class Rule(IntColumnType):
     """Represents a category rule"""
+
+
+class LongText(ColumnType):
+    """Represents a TEXT long text"""
+
+    _SQL = 'TEXT'
 
 
 class ShortText(ColumnType):
