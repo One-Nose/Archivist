@@ -1,7 +1,7 @@
 """The root file of the program"""
 from json import load
 
-from src.archive import Archive, BuiltInCategory
+from src.archive import Archive
 
 if __name__ == '__main__':
     with open('config.json', encoding='utf-8') as file:
@@ -13,7 +13,7 @@ if __name__ == '__main__':
     period = archive.new_category('Period')
     beginning = period.new_property('Beginning')
     end = period.new_property('End')
-    archive.add_rule(BuiltInCategory.GREATER, end, beginning)
+    archive.add_rule(archive.greater, end, beginning)
 
     event = archive.new_category('Event')
     date = event.new_property('Date')
@@ -21,10 +21,8 @@ if __name__ == '__main__':
     during = archive.new_category('During')
     during_event = during.new_property('Event', event)
     during_period = during.new_property('Period', period)
-    archive.add_rule(
-        BuiltInCategory.GREATER, (during_event, date), (during_period, beginning)
-    )
-    archive.add_rule(BuiltInCategory.LESS, (during_event, date), (during_period, end))
+    archive.add_rule(archive.greater, (during_event, date), (during_period, beginning))
+    archive.add_rule(archive.less, (during_event, date), (during_period, end))
 
     episode4 = archive.new_document('Star Wars Episode IV: A New Hope')
 

@@ -1,7 +1,6 @@
 """Provides archive user operationss"""
 from __future__ import annotations
 
-from enum import IntEnum, auto
 from typing import Generic, TypedDict, TypeVar
 
 from .analyzer import Analyzer
@@ -35,25 +34,13 @@ class ConnectionConfig(TypedDict):
     database: str
 
 
-class BuiltInCategory(IntEnum):
-    """A negative integer enum for built-in rule categories"""
-
-    @staticmethod
-    def _generate_next_value_(
-        name: str, start: int, count: int, last_values: list[int]
-    ) -> int:
-        del name, start, last_values
-        return -count - 1
-
-    GREATER = auto()
-    LESS = auto()
-
-
 class Archive:
     """Allows access to the database"""
 
     _analyzer: Analyzer
     database: Database
+    greater: Category
+    less: Category
 
     def __init__(self, config: ArchiveConfig) -> None:
         """
@@ -64,12 +51,15 @@ class Archive:
         self.database = Database(**config['connect'])
         self._analyzer = Analyzer(self)
 
+        self.greater = Category(self, _Category(-1))
+        self.less = Category(self, _Category(-2))
+
     def __repr__(self) -> str:
         return f'{type(self).__name__}({repr(self.database.name)})'
 
     def add_rule(
         self,
-        category: Category | BuiltInCategory,
+        category: Category,
         property1: tuple[Property, Property | None] | Property,
         property2: tuple[Property, Property | None] | Property,
     ) -> None:
@@ -93,21 +83,21 @@ class Archive:
         assert property1[0].parent == property2[0].parent
 
         self.database['rules'].insert(
-            category=category.id.value if isinstance(category, Category) else category,
+            category=category.id.value,
             property1=property1[0].id.value,
             subproperty1=property1[1].id.value if property1[1] else 0,
             property2=property2[0].id.value,
             subproperty2=property2[1].id.value if property2[1] else 0,
         ).execute()
 
-    def category(self, category_id: int) -> Category:
+    def category(self, category_id: int) -> UserDefinedCategory:
         """
         Creates a category object to access an existing category
         :param type_id: The category's numeral ID
         :return: A category object that allows access to the category
         """
 
-        return Category(self, _Category(category_id))
+        return UserDefinedCategory(self, _Category(category_id))
 
     def close(self) -> None:
         """Closes the connection"""
@@ -133,7 +123,7 @@ class Archive:
 
         self.database.drop()
 
-    def new_category(self, name: str) -> Category:
+    def new_category(self, name: str) -> UserDefinedCategory:
         """
         Creates a new category
         :param name: The name of the category
@@ -141,7 +131,7 @@ class Archive:
         """
 
         self.database['categories'].insert(name=name).execute()
-        return Category(self, _Category(self.database.lastrowid))
+        return UserDefinedCategory(self, _Category(self.database.lastrowid))
 
     def new_document(self, name: str) -> Document:
         """
@@ -191,7 +181,13 @@ class Row(Generic[PrimaryKey]):
 class Category(Row[_Category]):
     """Allows access to a category"""
 
-    def new_property(self, name: str, category: Category | None = None) -> Property:
+
+class UserDefinedCategory(Category):
+    """Allows access to a non-built-in category"""
+
+    def new_property(
+        self, name: str, category: UserDefinedCategory | None = None
+    ) -> Property:
         """
         Adds a property to the category
         :param name: The property's name
@@ -239,7 +235,7 @@ class Declaration(Row[_Declaration]):
 class Document(Row[_Document]):
     """Allows access to a document"""
 
-    def declare(self, category: Category) -> Declaration:
+    def declare(self, category: UserDefinedCategory) -> Declaration:
         """
         Adds a declaration of an element to the document
         :param category: The category of the declared element
@@ -257,15 +253,15 @@ class Document(Row[_Document]):
 class Property(Row[_Property]):
     """Allows access to an element type property"""
 
-    category: Category | None
-    parent: Category
+    category: UserDefinedCategory | None
+    parent: UserDefinedCategory
 
     def __init__(
         self,
         archive: Archive,
         identifier: _Property,
-        parent: Category,
-        category: Category | None,
+        parent: UserDefinedCategory,
+        category: UserDefinedCategory | None,
     ) -> None:
         super().__init__(archive, identifier)
 
