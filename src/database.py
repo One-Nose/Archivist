@@ -52,7 +52,7 @@ class Statement:
             self, database: Database, statement: str, params: Sequence[Any] = ()
     ) -> None:
         """
-        :param cursor: The statement's database
+        :param database: The statement's database
         :param statement: The SQL statement
         :param params: The parameters to pass to the execute command
         """

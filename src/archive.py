@@ -93,7 +93,7 @@ class Archive:
     def category(self, category_id: int) -> UserDefinedCategory:
         """
         Creates a category object to access an existing category
-        :param type_id: The category's numeral ID
+        :param category_id: The category's numeral ID
         :return: A category object that allows access to the category
         """
 
