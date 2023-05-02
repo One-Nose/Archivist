@@ -218,7 +218,7 @@ class Database(dict[str, Table]):
         )
         self.cursor = self._connection.cursor()
         try:
-            self.use()
+            self.use().execute()
         except ProgrammingError:
             self.init()
 
