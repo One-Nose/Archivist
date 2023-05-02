@@ -184,9 +184,18 @@ class Database(dict[str, Table]):
             }
         )
 
-        self._connect()
+    def close(self) -> None:
+        """Closes the connection"""
 
-    def _connect(self) -> None:
+        self.cursor.close()
+        self._connection.close()
+
+    def commit(self) -> None:
+        """Commits the changes to the database"""
+
+        self._connection.commit()
+
+    def connect(self) -> None:
         """Connects to the database, creates a cursor, and saves the connection and the cursor"""
 
         self._connection = connect(
@@ -198,17 +207,6 @@ class Database(dict[str, Table]):
             self.use()
         except ProgrammingError:
             self.init()
-
-    def close(self) -> None:
-        """Closes the connection"""
-
-        self.cursor.close()
-        self._connection.close()
-
-    def commit(self) -> None:
-        """Commits the changes to the database"""
-
-        self._connection.commit()
 
     def drop(self) -> None:
         """Drops the database"""

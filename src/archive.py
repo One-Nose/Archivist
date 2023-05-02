@@ -52,6 +52,7 @@ class Archive:
         """
 
         self._database = Database(**config['connect'])
+        self._database.connect()
         self._analyzer = Analyzer(self)
 
         self.greater = Category(self._database, _Category(-1))
