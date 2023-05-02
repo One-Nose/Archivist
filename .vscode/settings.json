@@ -30,7 +30,6 @@
     "-v",
     "--cov=src/",
     "--cov-report=xml",
-    "--pdb",
     "tests/"
   ],
   "python.testing.autoTestDiscoverOnSaveEnabled": false
