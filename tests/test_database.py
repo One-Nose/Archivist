@@ -8,26 +8,22 @@ from src.column_types import Category, Declaration, Document, ShortText
 from src.database import Column, Database, Statement, Table
 
 
-@fixture
+@fixture(scope='module')
 def connect_options():
     with open('config.json') as file:
         return load(file)['connect']
 
 
-@fixture
-def connected_database(database: Database):
+@fixture(scope='module')
+def database(connect_options: dict[str, str]):
+    database = Database(**connect_options)
     database.connect()
     yield database
     database.close()
 
 
-@fixture
-def database(connect_options: dict[str, str]):
-    return Database(**connect_options)
-
-
 class TestColumn:
-    @fixture
+    @fixture(scope='module')
     def column(self):
         return Column('column', Category)
 
@@ -44,7 +40,7 @@ class TestColumn:
 
 class TestStatement:
     class Test__init__:
-        @fixture
+        @fixture(scope='module')
         def statement(self, database: Database):
             return Statement(database, 'NOOP', ['param1', 'param2'])
 
@@ -57,13 +53,13 @@ class TestStatement:
         def test_params(self, statement: Statement):
             assert getattr(statement, '_params') == ('param1', 'param2')
 
-    def test_execute(self, connected_database: Database):
-        Statement(connected_database, 'SELECT ?', (1,)).execute()
-        assert connected_database.cursor.fetchall() == [(1,)]
+    def test_execute(self, database: Database):
+        Statement(database, 'SELECT ?', (1,)).execute()
+        assert database.cursor.fetchall() == [(1,)]
 
 
 class TestTable:
-    @fixture
+    @fixture(scope='module')
     def table(self, database: Database):
         return Table(database, 'table', column1=Category, column2=Declaration)
 
@@ -87,7 +83,7 @@ class TestTable:
             assert getattr(table['column2'], '_type') is Declaration
 
     class TestCreate:
-        @fixture
+        @fixture(scope='module')
         def statement(self, table: Table):
             return table.create()
 
@@ -104,7 +100,7 @@ class TestTable:
             assert getattr(statement, '_params') == ()
 
     class TestInsert:
-        @fixture
+        @fixture(scope='module')
         def statement(self, table: Table):
             return table.insert(column1=Category(123), column2=Declaration(456))
 
@@ -121,7 +117,7 @@ class TestTable:
             assert getattr(statement, '_params') == (123, 456)
 
     class TestSelect:
-        @fixture
+        @fixture(scope='module')
         def statement(self, table: Table):
             return table.select(
                 'column1', 'column2', column1=Category(123), column2=Declaration(456)
@@ -141,6 +137,12 @@ class TestTable:
 
 
 class TestDatabase:
+    @fixture
+    def dropped_database(self, database: Database):
+        database.drop()
+        yield database
+        database.init()
+
     class Test__init__:
         def test_username(self, database: Database, connect_options: ConnectionConfig):
             assert getattr(database, '_username') == connect_options['username']
@@ -155,11 +157,11 @@ class TestDatabase:
             assert len(database) == 8
 
     class TestClose:
-        @fixture
+        @fixture(scope='class')
         def database(self, database: Database):
-            database.connect()
             database.close()
-            return database
+            yield database
+            database.connect()
 
         def test_cursor(self, database: Database):
             assert database.cursor.closed
@@ -168,47 +170,40 @@ class TestDatabase:
             with raises(InterfaceError):
                 getattr(database, '_connection').ping()
 
-    def test_commit(self, connected_database: Database):
-        connected_database['documents'].insert(name=ShortText('Document')).execute()
-        document_id = connected_database.last_row_id
-        connected_database.commit()
-        connected_database.close()
+    def test_commit(self, database: Database):
+        database['documents'].insert(name=ShortText('Document')).execute()
+        document_id = database.last_row_id
+        database.commit()
+        database.close()
 
-        connected_database.connect()
-        connected_database['documents'].select(
-            'name', id=Document(document_id)
-        ).execute()
-        assert connected_database.cursor.fetchall() == [('Document',)]
+        database.connect()
+        database['documents'].select('name', id=Document(document_id)).execute()
+        assert database.cursor.fetchall() == [('Document',)]
 
     class TestConnect:
-        def test_exists(self, connected_database: Database):
-            assert getattr(connected_database, '_connection').ping() is None
+        def test_exists(self, database: Database):
+            assert getattr(database, '_connection').ping() is None
 
-        def test_abscent(self, connected_database: Database):
-            connected_database.drop()
-            connected_database.close()
+        def test_abscent(self, database: Database):
+            database.drop()
+            database.close()
 
-            connected_database.connect()
-            connected_database.cursor.execute('SHOW TABLES')
-            assert len(connected_database.cursor.fetchall()) == 8
+            database.connect()
+            database.cursor.execute('SHOW TABLES')
+            assert len(database.cursor.fetchall()) == 8
 
-    def test_drop(
-        self, connected_database: Database, connect_options: ConnectionConfig
-    ):
-        connected_database.drop()
-        connected_database.cursor.execute('SHOW DATABASES')
-        assert (
-            connect_options['database'],
-        ) not in connected_database.cursor.fetchall()
+    def test_drop(self, dropped_database: Database, connect_options: ConnectionConfig):
+        dropped_database.cursor.execute('SHOW DATABASES')
+        assert (connect_options['database'],) not in dropped_database.cursor.fetchall()
 
-    def test_init(self, connected_database: Database):
-        connected_database.drop()
-        connected_database.init()
-        connected_database.cursor.execute('SHOW TABLES')
-        assert len(connected_database.cursor.fetchall()) == 8
+    def test_init(self, database: Database):
+        database.drop()
+        database.init()
+        database.cursor.execute('SHOW TABLES')
+        assert len(database.cursor.fetchall()) == 8
 
     class TestUse:
-        @fixture
+        @fixture(scope='module')
         def statement(self, database: Database):
             return database.use()
 
@@ -226,7 +221,7 @@ class TestDatabase:
             assert getattr(statement, '_params') == ()
 
     class TestStatement:
-        @fixture
+        @fixture(scope='module')
         def statement(self, database: Database):
             return database.statement('NOOP', [123, 456])
 
@@ -240,7 +235,7 @@ class TestDatabase:
             assert getattr(statement, '_params') == (123, 456)
 
     class TestTable:
-        @fixture
+        @fixture(scope='module')
         def table(self, database: Database):
             return database.table('table', column1=Category, column2=Declaration)
 
@@ -262,8 +257,8 @@ class TestDatabase:
         def test_column2_type(self, table: Table):
             assert getattr(table['column2'], '_type') is Declaration
 
-    def test_last_row_id(self, connected_database: Database):
-        connected_database.drop()
-        connected_database.init()
-        connected_database['documents'].insert(name=ShortText('Document')).execute()
-        assert connected_database.last_row_id == 1
+    def test_last_row_id(self, database: Database):
+        database.drop()
+        database.init()
+        database['documents'].insert(name=ShortText('Document')).execute()
+        assert database.last_row_id == 1

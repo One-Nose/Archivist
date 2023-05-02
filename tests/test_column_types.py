@@ -7,11 +7,11 @@ class TestColumnType:
     class Empty(ColumnType):
         _SQL = 'EMPTY'
 
-    @fixture
+    @fixture(scope='module')
     def column_type(self):
         return ColumnType(123)
 
-    @fixture
+    @fixture(scope='module')
     def empty(self):
         return self.Empty(123)
 
@@ -33,7 +33,7 @@ class TestColumnType:
 
 
 class TestIntColumnType:
-    @fixture
+    @fixture(scope='module')
     def column_type(self):
         return IntColumnType(123)
 
