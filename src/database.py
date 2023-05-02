@@ -98,7 +98,7 @@ class Table(dict[str, Column]):
 
     def insert(self, **values: ColumnType) -> Statement:
         """
-        Inserts values into the table (insecure)
+        Creates an INSERT statement that inserts values into the table (insecure)
         :param values: The values to insert in the form of column=value
         :return: An INSERT statement
         """
