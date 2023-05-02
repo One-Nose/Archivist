@@ -109,6 +109,20 @@ class Table(dict[str, Column]):
             tuple(value.value for value in values.values()),
         )
 
+    def select(self, *columns: str, **where: ColumnType) -> Statement:
+        """
+        Creates a SELECT statement that selects data from the table
+        :param columns: The names of the columns to select from the table
+        :param where: Column conditions to filter selection in the form of column=value
+        :return: A SELECT statement
+        """
+
+        return self._database.statement(
+            f'SELECT {", ".join(columns)} FROM {self.name} WHERE'
+            f' {" AND ".join(f"{column} = ?" for column in where)}',
+            (value.value for value in where.values()),
+        )
+
 
 class Database(dict[str, Table]):
     """Represents an SQL database"""
