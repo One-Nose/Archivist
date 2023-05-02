@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Sequence
+from typing import Any, Iterable
 
 from mariadb import Cursor, ProgrammingError, connect
 from mariadb.connections import Connection
@@ -49,7 +49,7 @@ class Statement:
     _statement: str
 
     def __init__(
-        self, database: Database, statement: str, params: Sequence[Any] = ()
+        self, database: Database, statement: str, params: Iterable[Any] = ()
     ) -> None:
         """
         :param database: The statement's database
@@ -230,7 +230,7 @@ class Database(dict[str, Table]):
 
         return self.statement(f'USE {self.name}')
 
-    def statement(self, statement: str, params: Sequence[Any] = ()) -> Statement:
+    def statement(self, statement: str, params: Iterable[Any] = ()) -> Statement:
         """
         Creates a statement object
         :param statement: The SQL statement
