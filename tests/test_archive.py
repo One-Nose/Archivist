@@ -3,18 +3,22 @@ from json import load
 from pytest import fixture
 
 from src.analyzer import Analyzer
-from src.archive import Archive, Category
+from src.archive import Archive, ArchiveConfig, Category
 
 
 class TestArchive:
-    class Test__init__:
-        @fixture(scope='module')
-        def archive(self):
-            with open('config.json') as file:
-                archive = Archive(load(file))
-            yield archive
-            archive.close()
+    @fixture(scope='module')
+    def config(self):
+        with open('config.json') as file:
+            return load(file)
 
+    @fixture(scope='module')
+    def archive(self, config: ArchiveConfig):
+        archive = Archive(config)
+        yield archive
+        archive.close()
+
+    class Test__init__:
         def test_database(self, archive: Archive):
             assert getattr(getattr(archive, '_database'), '_connection').ping() is None
 
