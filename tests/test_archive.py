@@ -34,3 +34,7 @@ class TestArchive:
 
         def test_less(self, archive: Archive):
             assert (type(archive.less), archive.less.id.value) == (Category, -2)
+
+    def test___repr__(self, archive: Archive, config: ArchiveConfig):
+        assert repr(archive) == f'Archive({repr(config["connect"]["database"])})'
+
