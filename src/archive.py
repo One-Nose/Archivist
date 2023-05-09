@@ -9,7 +9,7 @@ from .column_types import Declaration as _Declaration
 from .column_types import Document as _Document
 from .column_types import IntColumnType, LongText
 from .column_types import Property as _Property
-from .column_types import ShortText as ShortText
+from .column_types import ShortText
 from .database import Database
 
 
