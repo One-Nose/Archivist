@@ -110,14 +110,14 @@ class Archive:
 
         self._database.commit()
 
-    def document(self, document_id: int) -> Document:
+    def document(self, identifier: int) -> Document:
         """
         Creates a document object to access an existing document
-        :param document_id: The document's numeral ID
+        :param identifier: The document's numeral ID
         :return: A document object that allows access to the document
         """
 
-        return Document(self._database, _Document(document_id))
+        return Document(self._database, _Document(identifier))
 
     def drop(self) -> None:
         """Deletes the database"""
