@@ -13,31 +13,22 @@ if __name__ == '__main__':
     period = archive.new_category('Period')
     beginning = period.new_property('Beginning')
     end = period.new_property('End')
-    archive.add_rule(archive.greater, end, beginning)
-
-    event = archive.new_category('Event')
-    date = event.new_property('Date')
-
-    during = archive.new_category('During')
-    during_event = during.new_property('Event', event)
-    during_period = during.new_property('Period', period)
-    archive.add_rule(archive.greater, (during_event, date), (during_period, beginning))
-    archive.add_rule(archive.less, (during_event, date), (during_period, end))
+    archive.add_order_rule(end, beginning)
 
     episode4 = archive.new_document('Star Wars Episode IV: A New Hope')
 
-    civil_war = episode4.declare(period)
-    civil_war.add_description('It is a period of civil war.')
+    civil_war = archive.new_element(period)
+    episode4.declare_description(civil_war, 'It is a period of civil war.')
 
-    rebel_victory = episode4.declare(event)
-    rebel_victory.add_description(
+    rebel_victory = archive.new_element(period)
+    episode4.declare_description(
+        rebel_victory,
         'Rebel spaceships, striking from a hidden base, have won their first'
-        ' victory against the evil Galactic Empire.'
+        ' victory against the evil Galactic Empire.',
     )
 
-    rebel_victory_during = episode4.declare(during)
-    rebel_victory_during.declare_property(during_event, rebel_victory)
-    rebel_victory_during.declare_property(during_period, civil_war)
+    episode4.declare_order((rebel_victory, beginning), (civil_war, beginning))
+    episode4.declare_order((civil_war, end), (rebel_victory, end))
 
     archive.commit()
     archive.close()

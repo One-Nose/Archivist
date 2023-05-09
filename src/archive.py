@@ -5,9 +5,9 @@ from typing import ClassVar, Generic, TypedDict, TypeVar
 
 from .analyzer import Analyzer
 from .column_types import Category as _Category
-from .column_types import Declaration as _Declaration
 from .column_types import Document as _Document
-from .column_types import IntColumnType, LongText
+from .column_types import Element as _Element
+from .column_types import LongText, PrimaryColumnType
 from .column_types import Property as _Property
 from .column_types import ShortText
 from .database import Database
@@ -38,12 +38,8 @@ class ConnectionConfig(TypedDict):
 class Archive:
     """Allows access to the database"""
 
-    _NO_PROPERTY: ClassVar[_Property] = _Property(0)
-
     _analyzer: Analyzer
     _database: Database
-    greater: Category
-    less: Category
 
     def __init__(self, config: ArchiveConfig) -> None:
         """
@@ -55,50 +51,27 @@ class Archive:
         self._database.connect()
         self._analyzer = Analyzer(self)
 
-        self.greater = Category(self._database, _Category(-1))
-        self.less = Category(self._database, _Category(-2))
-
     def __repr__(self) -> str:
         return f'{type(self).__name__}({repr(self._database.name)})'
 
-    def add_rule(
-        self,
-        category: Category,
-        property1: tuple[Property, Property | None] | Property,
-        property2: tuple[Property, Property | None] | Property,
-    ) -> None:
+    def add_order_rule(self, large: Property, small: Property) -> None:
         """
-        Adds a rule to the archive
-        :param category: The category of the rule, may be built-in
-        :param property1: The rule's first argument, either as (property, sub-property) or property
-        :param property2: The rule's second argument, either as (property, sub-property) or property
+        Adds a rule regarding the order of properties of a category
+        :param large: The property that must be larger
+        :param small: The property that must be smaller
         """
 
-        if isinstance(property1, Property):
-            property1 = (property1, None)
-        if isinstance(property2, Property):
-            property2 = (property2, None)
+        assert large.parent == small.parent
+        self._database['order_rules'].insert(large=large.id, small=small.id).execute()
 
-        assert property1[0].parent == property2[0].parent
-        for prop in property1, property2:
-            assert prop[1] is None or prop[1].parent == prop[0].category
-
-        self._database['rules'].insert(
-            category=category.id,
-            property1=property1[0].id,
-            subproperty1=property1[1].id if property1[1] else self._NO_PROPERTY,
-            property2=property2[0].id,
-            subproperty2=property2[1].id if property2[1] else self._NO_PROPERTY,
-        ).execute()
-
-    def category(self, category_id: int) -> UserDefinedCategory:
+    def category(self, category_id: int) -> Category:
         """
         Creates a category object to access an existing category
         :param category_id: The category's numeral ID
         :return: A category object that allows access to the category
         """
 
-        return UserDefinedCategory(self._database, _Category(category_id))
+        return Category(self._database, _Category(category_id))
 
     def close(self) -> None:
         """Closes the connection"""
@@ -124,7 +97,16 @@ class Archive:
 
         self._database.drop()
 
-    def new_category(self, name: str) -> UserDefinedCategory:
+    def element(self, identifier: int) -> Element:
+        """
+        Creates an element object to access an existing element
+        :param identifier: The element's numeral ID
+        :return: An element object to access the element
+        """
+
+        return Element(self._database, _Element(identifier))
+
+    def new_category(self, name: str) -> Category:
         """
         Creates a new category
         :param name: The name of the category
@@ -144,6 +126,16 @@ class Archive:
         self._database['documents'].insert(name=ShortText(name)).execute()
         return self.document(self._database.last_row_id)
 
+    def new_element(self, category: Category) -> Element:
+        """
+        Creates a new element
+        :param category: The element's category
+        :return: An element object to access the newly created element
+        """
+
+        self._database['elements'].insert(category=category.id).execute()
+        return self.element(self._database.last_row_id)
+
     def reset(self) -> None:
         """Completely resets the database"""
 
@@ -151,7 +143,7 @@ class Archive:
         self._database.init()
 
 
-PrimaryKey = TypeVar('PrimaryKey', bound=IntColumnType)
+PrimaryKey = TypeVar('PrimaryKey', bound=PrimaryColumnType)
 
 
 class Row(Generic[PrimaryKey]):
@@ -182,15 +174,9 @@ class Row(Generic[PrimaryKey]):
 class Category(Row[_Category]):
     """Allows access to a category"""
 
-
-class UserDefinedCategory(Category):
-    """Allows access to a non-built-in category"""
-
     _NO_CATEGORY: ClassVar[_Category] = _Category(0)
 
-    def new_property(
-        self, name: str, category: UserDefinedCategory | None = None
-    ) -> Property:
+    def new_property(self, name: str) -> Property:
         """
         Adds a property to the category
         :param name: The property's name
@@ -199,16 +185,13 @@ class UserDefinedCategory(Category):
         """
 
         self._database['properties'].insert(
-            parent=self.id,
+            category=self.id,
             name=ShortText(name),
-            category=category.id if category else self._NO_CATEGORY,
         ).execute()
 
-        return self.property(self._database.last_row_id, category)
+        return self.property(self._database.last_row_id)
 
-    def property(
-        self, identifier: int, category: UserDefinedCategory | None
-    ) -> Property:
+    def property(self, identifier: int) -> Property:
         """
         Creates a property object to access a property of the category
         :param identifier: The property's ID
@@ -216,64 +199,47 @@ class UserDefinedCategory(Category):
         :return: The created property object
         """
 
-        return Property(self, _Property(identifier), category)
-
-
-class Declaration(Row[_Declaration]):
-    """Allows access to a declaration of an element"""
-
-    def add_description(self, description: str) -> None:
-        """
-        Adds a description to the declaration
-        :param description: The description to add
-        """
-
-        self._database['descriptions'].insert(
-            declaration=self.id, description=LongText(description)
-        ).execute()
-
-    def declare_property(self, declared_property: Property, value: Declaration) -> None:
-        """
-        Declares a property of the declared element
-        :param declared_property: The property to declare
-        :param value: The value to declare the property as
-        """
-
-        self._database['property_declarations'].insert(
-            declaration=self.id, property=declared_property.id, value=value.id
-        ).execute()
+        return Property(self, _Property(identifier))
 
 
 class Document(Row[_Document]):
     """Allows access to a document"""
 
-    def declare(self, category: UserDefinedCategory) -> Declaration:
-        """
-        Adds a declaration of an element to the document
-        :param category: The category of the declared element
-        :return: A declaration object to access the declaration
-        """
+    def declare_description(self, element: Element, description: str) -> None:
+        """Adds a declaration of a description of an element to the document"""
 
-        self._database['declarations'].insert(
-            document=self.id, category=category.id
+        self._database['descriptions'].insert(
+            document=self.id, element=element.id, description=LongText(description)
         ).execute()
 
-        return Declaration(self._database, _Declaration(self._database.last_row_id))
+    def declare_order(
+        self, large: tuple[Element, Property], small: tuple[Element, Property]
+    ) -> None:
+        """
+        Declares an order of two properties of elements
+        :param large: The property that must be larger, in the form of (element, property)
+        :param smaller: The property that must be smaller, in the form of (element, property)
+        """
+
+        self._database['orders'].insert(
+            document=self.id,
+            large_element=large[0].id,
+            large_property=large[1].id,
+            small_element=small[0].id,
+            small_property=small[1].id,
+        ).execute()
+
+
+class Element(Row[_Element]):
+    """Allows access to an element"""
 
 
 class Property(Row[_Property]):
     """Allows access to a category property"""
 
-    category: UserDefinedCategory | None
-    parent: UserDefinedCategory
+    parent: Category
 
-    def __init__(
-        self,
-        parent: UserDefinedCategory,
-        identifier: _Property,
-        category: UserDefinedCategory | None,
-    ) -> None:
+    def __init__(self, parent: Category, identifier: _Property) -> None:
         super().__init__(parent._database, identifier)
 
         self.parent = parent
-        self.category = category

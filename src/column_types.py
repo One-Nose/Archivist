@@ -22,23 +22,17 @@ class ColumnType:
         return str(self.value)
 
     @classmethod
-    def _sql(cls) -> str:
-        """Returns the type's SQL representation without additional info"""
-
-        return cls._SQL
-
-    @classmethod
     def sql(cls) -> str:
         """Returns the type's SQL representation"""
 
-        return f'{cls._sql()} NOT NULL'
+        return f'{cls._SQL} NOT NULL'
 
 
-class IntColumnType(ColumnType):
+class PrimaryColumnType(ColumnType):
     """Represents an INT column type"""
 
-    _SQL = 'INT'
-    _SIGNED: ClassVar[bool] = False
+    _SQL = 'INT UNSIGNED'
+    _TABLE: ClassVar[str]
     value: int
 
     def __init__(self, value: int) -> None:
@@ -50,11 +44,7 @@ class IntColumnType(ColumnType):
         return False
 
     @classmethod
-    def _sql(cls) -> str:
-        return super()._sql() + ('' if cls._SIGNED else ' UNSIGNED')
-
-    @classmethod
-    def primary_key(cls: type[IntColumnType]) -> type[IntColumnType]:
+    def primary_key(cls: type[PrimaryColumnType]) -> type[PrimaryColumnType]:
         """
         Returns a primary key version of a column type
         :return: The result column type
@@ -67,9 +57,13 @@ class IntColumnType(ColumnType):
             def sql(cls) -> str:
                 """Returns the type's SQL representation"""
 
-                return f'{cls._sql()} AUTO_INCREMENT PRIMARY KEY'
+                return f'{cls._SQL} AUTO_INCREMENT PRIMARY KEY'
 
         return PrimaryKey
+
+    @classmethod
+    def sql(cls) -> str:
+        return super().sql() + f' REFERENCES {cls._TABLE}(id)'
 
 
 class StrColumnType(ColumnType):
@@ -81,38 +75,46 @@ class StrColumnType(ColumnType):
         super().__init__(value)
 
 
-class Category(IntColumnType):
+class Category(PrimaryColumnType):
     """Represents a category"""
 
-    _SIGNED = True
+    _TABLE = 'categories'
 
 
-class Declaration(IntColumnType):
-    """Represents an element declaration"""
-
-
-class Description(IntColumnType):
+class Description(PrimaryColumnType):
     """Represents an element description"""
 
+    _TABLE = 'descriptions'
 
-class Document(IntColumnType):
+
+class Document(PrimaryColumnType):
     """Represents a document"""
 
+    _TABLE = 'documents'
 
-class Element(IntColumnType):
+
+class Element(PrimaryColumnType):
     """Represents an element"""
 
+    _TABLE = 'elements'
 
-class Property(IntColumnType):
+
+class Order(PrimaryColumnType):
+    """Represents an order declaration"""
+
+    _TABLE = 'orders'
+
+
+class OrderRule(PrimaryColumnType):
+    """Represents an order rule"""
+
+    _TABLE = 'order_rules'
+
+
+class Property(PrimaryColumnType):
     """Represents a category property"""
 
-
-class PropertyDeclaration(IntColumnType):
-    """Represents a property declaration"""
-
-
-class Rule(IntColumnType):
-    """Represents a category rule"""
+    _TABLE = 'properties'
 
 
 class LongText(StrColumnType):
