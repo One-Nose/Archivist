@@ -208,26 +208,24 @@ class Database(dict[str, Table]):
                         name=ShortText,
                     ),
                     self.table(
+                        'points',
+                        id=Point.primary_key(),
+                        element=Element,
+                        property=Property,
+                        previous=Point.nullable(),
+                    ),
+                    self.table(
                         'orders',
                         id=Order.primary_key(),
                         document=Document,
-                        large_element=Element,
-                        large_property=Property,
-                        small_element=Element,
-                        small_property=Property,
+                        large=Point,
+                        small=Point,
                     ),
                     self.table(
                         'order_rules',
                         id=OrderRule.primary_key(),
                         large=Property,
                         small=Property,
-                    ),
-                    self.table(
-                        'points',
-                        id=Point.primary_key(),
-                        element=Element,
-                        property=Property,
-                        previous=Point,
                     ),
                 )
             }

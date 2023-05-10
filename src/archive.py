@@ -137,7 +137,22 @@ class Archive:
         """
 
         self._database['elements'].insert(category=category.id).execute()
-        return self.element(self._database.last_row_id)
+        element_id = self._database.last_row_id
+
+        self._database['properties'].select(element_id, 'id').where(
+            category=category.id
+        ).into('points', ('element', 'property')).execute()
+
+        return self.element(element_id)
+
+    def point(self, identifier: int) -> Point:
+        """
+        Creates a point object to access an existing point
+        :param identifier: The point's numeral ID
+        :return: The newly created point object
+        """
+
+        return Point(self._database, _Point(identifier))
 
     def reset(self) -> None:
         """Completely resets the database"""
@@ -214,9 +229,7 @@ class Document(Row[_Document]):
             document=self.id, element=element.id, description=LongText(description)
         ).execute()
 
-    def declare_order(
-        self, large: tuple[Element, Property], small: tuple[Element, Property]
-    ) -> None:
+    def declare_order(self, large: Point, small: Point) -> None:
         """
         Declares an order of two properties of elements
         :param large: The property that must be larger, in the form of (element, property)
@@ -224,11 +237,7 @@ class Document(Row[_Document]):
         """
 
         self._database['orders'].insert(
-            document=self.id,
-            large_element=large[0].id,
-            large_property=large[1].id,
-            small_element=small[0].id,
-            small_property=small[1].id,
+            document=self.id, large=large.id, small=small.id
         ).execute()
 
 

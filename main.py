@@ -27,8 +27,8 @@ if __name__ == '__main__':
         ' victory against the evil Galactic Empire.',
     )
 
-    episode4.declare_order((rebel_victory, beginning), (civil_war, beginning))
-    episode4.declare_order((civil_war, end), (rebel_victory, end))
+    episode4.declare_order(archive.point(4), archive.point(1))
+    episode4.declare_order(archive.point(2), archive.point(5))
 
     archive.commit()
     archive.close()
