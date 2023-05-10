@@ -31,6 +31,22 @@ class Cell:
         return f'{cls._SQL} NOT NULL'
 
     @classmethod
+    def nullable(cls: type[Cell]) -> type[Cell]:
+        """
+        Returns a nullable version of the cell
+        :return: The result cell
+        """
+
+        class Nullable(cls):
+            """A nullable cell"""
+
+            @classmethod
+            def _sql(cls) -> str:
+                return cls._SQL
+
+        return Nullable
+
+    @classmethod
     def sql(cls) -> str:
         """Returns the type's SQL representation"""
 
