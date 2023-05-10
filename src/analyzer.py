@@ -19,3 +19,6 @@ class Analyzer:
         """
 
         self._database = database
+
+    def analyze(self) -> None:
+        """Analyzes the database and saves the results in the database"""
