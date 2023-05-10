@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Iterable
+from typing import Any, Iterable, Self
 
 from mariadb import Cursor, ProgrammingError, connect
 from mariadb.connections import Connection
@@ -65,6 +65,37 @@ class Statement:
         """Executes the statement"""
 
         self._database.cursor.execute(self._statement, self._params)
+
+
+class Select(Statement):
+    """Represents a SELECT statement"""
+
+    def into(self, table: str, columns: Iterable[str]) -> Statement:
+        """
+        Creates an INSERT INTO ... SELECT version of the SELECT statement
+        :param table: The table to insert the selected values to
+        :param columns: A list of columns to insert the selection into
+        :return: An INSERT...SELECT statement
+        """
+
+        return Statement(
+            self._database,
+            f'INSERT INTO {table} ({", ".join(columns)}) {self._statement}',
+            self._params,
+        )
+
+    def where(self, **conditions: Cell) -> Self:
+        """
+        Creates a version of the SELECT statement with a WHERE clause
+        :param conditions: The conditions that must be met, in the form of column=value
+        :return: The new SELECT statement
+        """
+
+        return self.__class__(
+            self._database,
+            f'{self._statement} WHERE {" AND ".join(f"{column} = ?" for column in conditions)}',
+            self._params + tuple(value.value for value in conditions.values()),
+        )
 
 
 class Table(dict[str, Column]):
