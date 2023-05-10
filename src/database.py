@@ -7,9 +7,9 @@ from typing import Any, Iterable
 from mariadb import Cursor, ProgrammingError, connect
 from mariadb.connections import Connection
 
-from .column_types import (
+from .cells import (
     Category,
-    ColumnType,
+    Cell,
     Description,
     Document,
     Element,
@@ -26,12 +26,12 @@ class Column:
     """Represents an SQL table column"""
 
     _name: str
-    _type: type[ColumnType]
+    _type: type[Cell]
 
-    def __init__(self, name: str, column_type: type[ColumnType]) -> None:
+    def __init__(self, name: str, column_type: type[Cell]) -> None:
         """
         :param name: The column's name
-        :param column_type: The column's type
+        :param column_type: The column's cell type
         """
 
         self._name = name
@@ -74,7 +74,7 @@ class Table(dict[str, Column]):
     name: str
 
     def __init__(
-        self, database: Database, table_name: str, **columns: type[ColumnType]
+        self, database: Database, table_name: str, **columns: type[Cell]
     ) -> None:
         """
         :param database: The table's database
@@ -96,7 +96,7 @@ class Table(dict[str, Column]):
             f'CREATE TABLE {self.name} ({", ".join(map(str, self.values()))})'
         )
 
-    def insert(self, **values: ColumnType) -> Statement:
+    def insert(self, **values: Cell) -> Statement:
         """
         Creates an INSERT statement that inserts values into the table (insecure)
         :param values: The values to insert in the form of column=value
@@ -109,7 +109,7 @@ class Table(dict[str, Column]):
             tuple(value.value for value in values.values()),
         )
 
-    def select(self, *columns: str, **where: ColumnType) -> Statement:
+    def select(self, *columns: str, **where: Cell) -> Statement:
         """
         Creates a SELECT statement that selects data from the table
         :param columns: The names of the columns to select from the table
@@ -254,7 +254,7 @@ class Database(dict[str, Table]):
 
         return Statement(self, statement, params)
 
-    def table(self, table_name: str, **columns: type[ColumnType]) -> Table:
+    def table(self, table_name: str, **columns: type[Cell]) -> Table:
         """
         Creates table object
         :param table_name: The table's name

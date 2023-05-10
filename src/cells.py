@@ -5,8 +5,8 @@ from __future__ import annotations
 from typing import Any, ClassVar
 
 
-class ColumnType:
-    """Parent class for column types"""
+class Cell:
+    """Parent class for cells"""
 
     _SQL: ClassVar[str]
     value: Any
@@ -28,8 +28,8 @@ class ColumnType:
         return f'{cls._SQL} NOT NULL'
 
 
-class PrimaryColumnType(ColumnType):
-    """Represents an INT column type"""
+class KeyCell(Cell):
+    """Represents an ID cell"""
 
     _SQL = 'INT UNSIGNED'
     _TABLE: ClassVar[str]
@@ -44,14 +44,14 @@ class PrimaryColumnType(ColumnType):
         return False
 
     @classmethod
-    def primary_key(cls: type[PrimaryColumnType]) -> type[PrimaryColumnType]:
+    def primary_key(cls: type[KeyCell]) -> type[KeyCell]:
         """
-        Returns a primary key version of a column type
-        :return: The result column type
+        Returns a primary key version of a cell
+        :return: The result cell
         """
 
         class PrimaryKey(cls):
-            """A primary key column type"""
+            """A primary key cell"""
 
             @classmethod
             def sql(cls) -> str:
@@ -66,8 +66,8 @@ class PrimaryColumnType(ColumnType):
         return super().sql() + f' REFERENCES {cls._TABLE}(id)'
 
 
-class StrColumnType(ColumnType):
-    """Represents a string column type"""
+class StrCell(Cell):
+    """Represents a string cell"""
 
     value: str
 
@@ -75,61 +75,61 @@ class StrColumnType(ColumnType):
         super().__init__(value)
 
 
-class Category(PrimaryColumnType):
+class Category(KeyCell):
     """Represents a category"""
 
     _TABLE = 'categories'
 
 
-class Description(PrimaryColumnType):
+class Description(KeyCell):
     """Represents an element description"""
 
     _TABLE = 'descriptions'
 
 
-class Document(PrimaryColumnType):
+class Document(KeyCell):
     """Represents a document"""
 
     _TABLE = 'documents'
 
 
-class Element(PrimaryColumnType):
+class Element(KeyCell):
     """Represents an element"""
 
     _TABLE = 'elements'
 
 
-class Point(PrimaryColumnType):
+class Point(KeyCell):
     """Represents a point in an axis"""
 
     _TABLE = 'points'
 
 
-class Order(PrimaryColumnType):
+class Order(KeyCell):
     """Represents an order declaration"""
 
     _TABLE = 'orders'
 
 
-class OrderRule(PrimaryColumnType):
+class OrderRule(KeyCell):
     """Represents an order rule"""
 
     _TABLE = 'order_rules'
 
 
-class Property(PrimaryColumnType):
+class Property(KeyCell):
     """Represents a category property"""
 
     _TABLE = 'properties'
 
 
-class LongText(StrColumnType):
+class LongText(StrCell):
     """Represents a TEXT long text"""
 
     _SQL = 'TEXT'
 
 
-class ShortText(StrColumnType):
+class ShortText(StrCell):
     """Represents a VARCHAR(255) short text"""
 
     _SQL = 'VARCHAR(255)'

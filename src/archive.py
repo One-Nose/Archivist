@@ -4,12 +4,12 @@ from __future__ import annotations
 from typing import ClassVar, Generic, TypedDict, TypeVar
 
 from .analyzer import Analyzer
-from .column_types import Category as _Category
-from .column_types import Document as _Document
-from .column_types import Element as _Element
-from .column_types import LongText, PrimaryColumnType
-from .column_types import Property as _Property
-from .column_types import ShortText
+from .cells import Category as _Category
+from .cells import Document as _Document
+from .cells import Element as _Element
+from .cells import LongText, KeyCell
+from .cells import Property as _Property
+from .cells import ShortText
 from .database import Database
 
 
@@ -143,7 +143,7 @@ class Archive:
         self._database.init()
 
 
-PrimaryKey = TypeVar('PrimaryKey', bound=PrimaryColumnType)
+PrimaryKey = TypeVar('PrimaryKey', bound=KeyCell)
 
 
 class Row(Generic[PrimaryKey]):
