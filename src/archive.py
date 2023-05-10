@@ -7,7 +7,7 @@ from .analyzer import Analyzer
 from .cells import Category as _Category
 from .cells import Document as _Document
 from .cells import Element as _Element
-from .cells import LongText, KeyCell
+from .cells import KeyCell, LongText
 from .cells import Property as _Property
 from .cells import ShortText
 from .database import Database
