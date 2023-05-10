@@ -8,6 +8,7 @@ from .cells import Category as _Category
 from .cells import Document as _Document
 from .cells import Element as _Element
 from .cells import KeyCell, LongText
+from .cells import Point as _Point
 from .cells import Property as _Property
 from .cells import ShortText
 from .database import Database
@@ -231,6 +232,10 @@ class Document(Row[_Document]):
 
 class Element(Row[_Element]):
     """Allows access to an element"""
+
+
+class Point(Row[_Point]):
+    """Allows access to a point"""
 
 
 class Property(Row[_Property]):
