@@ -233,6 +233,11 @@ class Database(dict[str, Table]):
             }
         )
 
+    def analyze(self) -> None:
+        """Analyzesthe database and saves the results in the database"""
+
+        self._analyzer.analyze()
+
     def close(self) -> None:
         """Closes the connection"""
 
