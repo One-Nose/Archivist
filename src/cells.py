@@ -22,10 +22,19 @@ class Cell:
         return str(self.value)
 
     @classmethod
+    def _sql(cls) -> str:
+        """
+        Returns the cell's non-final SQL representation
+        :return: The cell's SQL representation
+        """
+
+        return f'{cls._SQL} NOT NULL'
+
+    @classmethod
     def sql(cls) -> str:
         """Returns the type's SQL representation"""
 
-        return f'{cls._SQL} NOT NULL'
+        return cls._sql()
 
 
 class KeyCell(Cell):
@@ -57,13 +66,13 @@ class KeyCell(Cell):
             def sql(cls) -> str:
                 """Returns the type's SQL representation"""
 
-                return f'{cls._SQL} AUTO_INCREMENT PRIMARY KEY'
+                return f'{cls._sql()} AUTO_INCREMENT PRIMARY KEY'
 
         return PrimaryKey
 
     @classmethod
     def sql(cls) -> str:
-        return super().sql() + f' REFERENCES {cls._TABLE}(id)'
+        return f'{cls._sql()} REFERENCES {cls._TABLE}(id)'
 
 
 class StrCell(Cell):
