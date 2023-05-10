@@ -7,7 +7,6 @@ from typing import Any, Iterable, Self
 from mariadb import Cursor, ProgrammingError, connect
 from mariadb.connections import Connection
 
-from .analyzer import Analyzer
 from .cells import (
     Category,
     Cell,
@@ -162,7 +161,6 @@ class Table(dict[str, Column]):
 class Database(dict[str, Table]):
     """Represents an SQL database"""
 
-    _analyzer: Analyzer
     _connection: Connection
     _password: str
     _username: str
@@ -175,8 +173,6 @@ class Database(dict[str, Table]):
         self._username = username
         self._password = password
         self.name = database
-
-        self._analyzer = Analyzer(self)
 
         self.update(
             {
