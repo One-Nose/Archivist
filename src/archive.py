@@ -3,7 +3,6 @@ from __future__ import annotations
 
 from typing import ClassVar, Generic, TypedDict, TypeVar
 
-from .analyzer import Analyzer
 from .cells import Category as _Category
 from .cells import Document as _Document
 from .cells import Element as _Element
@@ -39,7 +38,6 @@ class ConnectionConfig(TypedDict):
 class Archive:
     """Allows access to the database"""
 
-    _analyzer: Analyzer
     _database: Database
 
     def __init__(self, config: ArchiveConfig) -> None:
@@ -50,7 +48,6 @@ class Archive:
 
         self._database = Database(**config['connect'])
         self._database.connect()
-        self._analyzer = Analyzer(self)
 
     def __repr__(self) -> str:
         return f'{type(self).__name__}({repr(self._database.name)})'

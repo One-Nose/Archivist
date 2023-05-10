@@ -4,17 +4,18 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from .archive import Archive
+    from .database import Database
 
 
 class Analyzer:
     """Analyzes an archive"""
 
-    _archive: Archive
+    _database: Database
 
-    def __init__(self, archive: Archive) -> None:
+    def __init__(self, database: Database) -> None:
         """
         Creates an analyzer for an archive
-        :param archive: The archive to analyze
+        :param database: The database to analyze
         """
-        self._archive = archive
+
+        self._database = database
