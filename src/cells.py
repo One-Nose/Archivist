@@ -74,7 +74,7 @@ class KeyCell(Cell):
     @classmethod
     def primary_key(cls: type[KeyCell]) -> type[KeyCell]:
         """
-        Returns a primary key version of a cell
+        Returns a primary key version of the cell
         :return: The result cell
         """
 
