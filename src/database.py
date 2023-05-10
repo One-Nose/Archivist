@@ -16,6 +16,7 @@ from .column_types import (
     LongText,
     Order,
     OrderRule,
+    Point,
     Property,
     ShortText,
 )
@@ -185,6 +186,13 @@ class Database(dict[str, Table]):
                         id=OrderRule.primary_key(),
                         large=Property,
                         small=Property,
+                    ),
+                    self.table(
+                        'points',
+                        id=Point.primary_key(),
+                        element=Element,
+                        property=Property,
+                        previous=Point,
                     ),
                 )
             }

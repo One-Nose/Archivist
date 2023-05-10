@@ -99,6 +99,12 @@ class Element(PrimaryColumnType):
     _TABLE = 'elements'
 
 
+class Point(PrimaryColumnType):
+    """Represents a point in an axis"""
+
+    _TABLE = 'points'
+
+
 class Order(PrimaryColumnType):
     """Represents an order declaration"""
 
