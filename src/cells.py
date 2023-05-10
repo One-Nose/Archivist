@@ -48,7 +48,10 @@ class Cell:
 
     @classmethod
     def sql(cls) -> str:
-        """Returns the type's SQL representation"""
+        """
+        Returns the cell's SQL representation
+        :return: The cell's SQL representation
+        """
 
         return cls._sql()
 
