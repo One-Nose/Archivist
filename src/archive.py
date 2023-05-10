@@ -62,6 +62,11 @@ class Archive:
         assert large.parent == small.parent
         self._database['order_rules'].insert(large=large.id, small=small.id).execute()
 
+    def analyze(self) -> None:
+        """Analyzes the archive"""
+
+        self._database.analyze()
+
     def category(self, category_id: int) -> Category:
         """
         Creates a category object to access an existing category
