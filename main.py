@@ -30,7 +30,5 @@ if __name__ == '__main__':
     episode4.declare_order(archive.point(4), archive.point(1))
     episode4.declare_order(archive.point(2), archive.point(5))
 
-    archive.analyze()
-
     archive.commit()
     archive.close()
