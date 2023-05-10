@@ -62,6 +62,9 @@ class Statement:
         self._statement = statement
         self._params = tuple(params)
 
+    def __repr__(self) -> str:
+        return f'{type(self).__name__}({repr(self._statement)})'
+
     def execute(self) -> None:
         """Executes the statement"""
 
