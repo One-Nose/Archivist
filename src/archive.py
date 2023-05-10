@@ -185,8 +185,7 @@ class Category(Row[_Category]):
         """
 
         self._database['properties'].insert(
-            category=self.id,
-            name=ShortText(name),
+            category=self.id, name=ShortText(name)
         ).execute()
 
         return self.property(self._database.last_row_id)
