@@ -89,19 +89,26 @@ class TableReferences:
 class Table(TableReferences, dict[str, Column]):
     """Represents an SQL table"""
 
+    _unique: tuple[str, ...]
     name: str
 
     def __init__(
-        self, database: Database, table_name: str, **columns: type[Cell[Any]]
+        self,
+        database: Database,
+        table_name: str,
+        unique: tuple[str, ...] | None,
+        **columns: type[Cell[Any]],
     ) -> None:
         """
         :param database: The table's database
         :param table_name: The table's name
+        :param unique: An optional list of columns to form a unique index
         :param columns: The table's columns, in the form of name=type
         """
         super().__init__(database, [table_name])
 
         self.name = table_name
+        self._unique = unique if unique else ()
         self.update(
             {name: Column(name, column_type) for name, column_type in columns.items()}
         )
@@ -110,7 +117,9 @@ class Table(TableReferences, dict[str, Column]):
         """Returns a CREATE TABLE statement"""
 
         return self._database.statement(
-            f'CREATE TABLE {self.name} ({", ".join(map(str, self.values()))})'
+            f'CREATE TABLE {self.name} ({", ".join(map(str, self.values()))}'
+            + (f', UNIQUE ({", ".join(self._unique)})' if self._unique else '')
+            + ')'
         )
 
     def insert(self, **values: Cell[Any]) -> Statement:
@@ -290,15 +299,21 @@ class Database(dict[str, Table]):
 
         return Statement(self, statement, params)
 
-    def table(self, table_name: str, **columns: type[Cell[Any]]) -> Table:
+    def table(
+        self,
+        table_name: str,
+        unique: tuple[str, ...] | None = None,
+        **columns: type[Cell[Any]],
+    ) -> Table:
         """
         Creates table object
         :param table_name: The table's name
+        :param unique: An optional list of columns to form a unique index
         :param columns: The table's columns, in the form of name=type
         :return: A table object
         """
 
-        return Table(self, table_name, **columns)
+        return Table(self, table_name, unique, **columns)
 
     def table_refrences(self, *references: str) -> TableReferences:
         """
