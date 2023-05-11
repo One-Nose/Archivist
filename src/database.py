@@ -10,6 +10,7 @@ from mariadb.connections import Connection
 
 from .analyzer import Analyzer
 from .cells import (
+    Analysis,
     Axis,
     Boolean,
     Category,
@@ -202,6 +203,7 @@ class Database(dict[str, Table]):
                     ),
                     self.table(
                         'analysis',
+                        id=Analysis.primary_key(),
                         point=Point,
                         axis=Axis,
                         value=UnsignedInt,
