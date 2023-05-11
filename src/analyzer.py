@@ -51,19 +51,21 @@ class Analyzer:
         :return: A list of unanalyzed orders, each in the form of (large, small)
         """
 
-        self._database.table_refrences(
-            'points AS large', 'points AS small', 'order_rules'
-        ).select('large.id', 'small.id').where(
-            **{
-                'large.analyzed': Boolean(False),
-                'small.analyzed': Boolean(False),
-                'large.element': 'small.element',
-                'large.property': 'order_rules.large',
-                'small.property': 'order_rules.small',
-            }
-        ).execute()
+        results = (
+            self._database.table_refrences(
+                'points AS large', 'points AS small', 'order_rules'
+            )
+            .select('large.id', 'small.id')
+            .where(
+                **{
+                    'large.analyzed': Boolean(False),
+                    'small.analyzed': Boolean(False),
+                    'large.element': 'small.element',
+                    'large.property': 'order_rules.large',
+                    'small.property': 'order_rules.small',
+                }
+            )
+            .execute()
+        )
 
-        return [
-            tuple(Point(id) for id in points)
-            for points in self._database.cursor.fetchall()
-        ]
+        return [tuple(Point(id) for id in points) for points in results]

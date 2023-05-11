@@ -121,6 +121,11 @@ class Select(DataStatement):
             self._params,
         )
 
+    def execute(self) -> list[tuple[Any, ...]]:
+        super().execute()
+
+        return self._database.cursor.fetchall()
+
 
 class TableReferences:
     """Table refrences that can be used with FROM clauses"""
