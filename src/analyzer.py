@@ -1,8 +1,12 @@
 """Data analyzing of the archive"""
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from .cells import Axis, Boolean, Point, UnsignedInt
-from .database import Database
+
+if TYPE_CHECKING:
+    from .database import Database
 
 
 class Analyzer:

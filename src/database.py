@@ -8,6 +8,7 @@ from typing import Any, Self
 from mariadb import Cursor, ProgrammingError, connect
 from mariadb.connections import Connection
 
+from .analyzer import Analyzer
 from .cells import (
     Axis,
     Boolean,
@@ -222,6 +223,7 @@ class Database(dict[str, Table]):
     _connection: Connection
     _password: str
     _username: str
+    analyzer: Analyzer
     cursor: Cursor
     name: str
 
@@ -231,6 +233,8 @@ class Database(dict[str, Table]):
         self._username = username
         self._password = password
         self.name = database
+
+        self.analyzer = Analyzer(self)
 
         self.update(
             {
