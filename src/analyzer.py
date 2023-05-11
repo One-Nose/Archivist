@@ -12,6 +12,8 @@ if TYPE_CHECKING:
 class Analyzer:
     """Analyzes an archive"""
 
+    LARGEST_VALUE = 2**32 - 1
+
     _database: Database
 
     def __init__(self, database: Database) -> None:
@@ -33,7 +35,7 @@ class Analyzer:
         axis = Axis(self._database.last_row_id)
         self._database['analysis'].insert_many(
             ('point', 'axis', 'value'),
-            (large, axis, UnsignedInt(2**32 - 1)),
+            (large, axis, UnsignedInt(self.LARGEST_VALUE)),
             (small, axis, UnsignedInt(0)),
         ).execute()
 
