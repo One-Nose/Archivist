@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from collections.abc import Collection, Iterable
+from collections.abc import Collection, Iterable, Sequence
 from typing import Any, Self
 
 from mariadb import Cursor, ProgrammingError, connect
@@ -72,7 +72,7 @@ class Statement:
     def execute(self) -> None:
         """Executes the statement"""
 
-        self._database.cursor.execute(self._statement, self._params)
+        self._database.execute(self._statement, self._params)
 
 
 class DataStatement(Statement):
@@ -124,7 +124,7 @@ class Select(DataStatement):
     def execute(self) -> list[tuple[Any, ...]]:
         super().execute()
 
-        return self._database.cursor.fetchall()
+        return self._database.fetch()
 
 
 class TableReferences:
@@ -227,10 +227,10 @@ class Database(dict[str, Table]):
     """Represents an SQL database"""
 
     _connection: Connection
+    _cursor: Cursor
     _password: str
     _username: str
     analyzer: Analyzer
-    cursor: Cursor
     name: str
 
     def __init__(self, username: str, password: str, database: str) -> None:
@@ -311,7 +311,7 @@ class Database(dict[str, Table]):
     def close(self) -> None:
         """Closes the connection"""
 
-        self.cursor.close()
+        self._cursor.close()
         self._connection.close()
 
     def commit(self) -> None:
@@ -326,7 +326,7 @@ class Database(dict[str, Table]):
             user=self._username,
             password=self._password,
         )
-        self.cursor = self._connection.cursor()
+        self._cursor = self._connection.cursor()
         try:
             self.use().execute()
         except ProgrammingError:
@@ -335,16 +335,33 @@ class Database(dict[str, Table]):
     def drop(self) -> None:
         """Drops the database"""
 
-        self.cursor.execute(f'DROP DATABASE {self.name}')
+        self.execute(f'DROP DATABASE {self.name}')
+
+    def execute(self, statement: str, params: Sequence[Any] = ()) -> None:
+        """
+        Executes an SQL statement
+        :param statement: The statement to execute
+        :param params: Params to pass to the database
+        """
+
+        self._cursor.execute(statement, params)
 
     def init(self) -> None:
         """Creates the database and initializes it"""
 
-        self.cursor.execute(f'CREATE DATABASE {self.name}')
+        self.execute(f'CREATE DATABASE {self.name}')
         self.use().execute()
 
         for table in self.values():
             table.create().execute()
+
+    def fetch(self) -> list[tuple[Any, ...]]:
+        """
+        Fetches all pending rows from the database
+        :return: A list of rows
+        """
+
+        return self._cursor.fetchall()
 
     def statement(self, statement: str, params: Iterable[Any] = ()) -> Statement:
         """
@@ -389,4 +406,4 @@ class Database(dict[str, Table]):
         The ID generated for AUTO_INCREMENT if the last query was INSERT or UPDATE, otherwise 0
         """
 
-        return self.cursor.lastrowid
+        return self._cursor.lastrowid
