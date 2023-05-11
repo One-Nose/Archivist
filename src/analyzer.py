@@ -86,13 +86,27 @@ class Analyzer:
         :param small: The smaller point
         """
 
-        self._database['axes'].insert().execute()
-        axis = _Axis(self._database.last_row_id)
-        self._database['analysis'].insert_many(
-            ('point', 'axis', 'value'),
-            (large, axis, UnsignedInt(self.LARGEST_VALUE)),
-            (small, axis, UnsignedInt(0)),
-        ).execute()
+        matches = (
+            self._database['analysis']
+            .select('axis', 'point')
+            .where_either(
+                {'point': large, 'value': UnsignedInt(0)},
+                {'point': small, 'value': UnsignedInt(LARGEST_VALUE)},
+            )
+            .execute()
+        )
+
+        large_matches = [match for match in matches if match['point'] == large.value]
+        small_matches = [match for match in matches if match['point'] == small.value]
+
+        if len(large_matches) == 1:
+            self._axis(large_matches[0]['axis']).add_before(small)
+
+        elif len(small_matches) == 1:
+            self._axis(small_matches[0]['axis']).add_after(large)
+
+        else:
+            self._add_axis(large, small)
 
     def analyze_rules(self) -> None:
         """
