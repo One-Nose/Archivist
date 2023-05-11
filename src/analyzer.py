@@ -58,6 +58,7 @@ class Analyzer:
                 'small.property': 'order_rules.small',
             }
         ).execute()
+
         return [
             tuple(Point(id) for id in points)
             for points in self._database.cursor.fetchall()
