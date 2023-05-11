@@ -71,3 +71,15 @@ class Analyzer:
         )
 
         return [tuple(Point(id) for id in points) for points in results]
+
+
+class Axis:
+    """Allows access to an axis"""
+
+    _database: Database
+    _id: int
+
+    def __init__(self, database: Database, identifier: int) -> None:
+        self._database = database
+        self._id = identifier
+
