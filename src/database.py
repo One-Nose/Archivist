@@ -78,28 +78,29 @@ class Statement:
 class DataStatement(Statement):
     """Represents a data manipulation/query statement"""
 
-    def where(self, **conditions: Cell[Any] | str) -> Self:
+    def where(self, **conditions: Cell[Any] | str | tuple[Cell[Any], ...]) -> Self:
         """
         Creates a version of the statement with a WHERE clause
         :param conditions: The conditions that must be met, in the form of column=value
+            value may be either a cell, a string or a tuple of cells to match at least one.
         :return: The new statement
         """
 
+        clauses: list[str] = []
+        params = list(self._params)
+
+        for column, value in conditions.items():
+            if isinstance(value, tuple):
+                clauses.append(f'{column} IN ({", ".join("?" * len(value))})')
+                params.extend(value.value for value in value)
+            elif isinstance(value, Cell):
+                clauses.append(f'{column} = ?')
+                params.append(value.value)
+            else:
+                clauses.append(f'{column} = {value}')
+
         return self.__class__(
-            self._database,
-            f'{self._statement} WHERE '
-            + " AND ".join(
-                f"{column} = " + ("?" if isinstance(value, Cell) else value)
-                for column, value in conditions.items()
-            ),
-            (
-                *self._params,
-                *(
-                    value.value
-                    for value in conditions.values()
-                    if isinstance(value, Cell)
-                ),
-            ),
+            self._database, f'{self._statement} WHERE {" AND ".join(clauses)}', params
         )
 
 
