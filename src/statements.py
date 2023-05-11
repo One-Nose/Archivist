@@ -174,7 +174,20 @@ class DataStatement(Statement):
 class Select(DataStatement):
     """Represents a SELECT statement"""
 
+    _columns: tuple[str | int]
     _into: str = ''
+
+    def __init__(
+        self, database: Database, references: str, columns: tuple[str | int, ...]
+    ) -> None:
+        super().__init__(
+            database,
+            f'SELECT {", ".join(column if isinstance(column, str) else "?" for column in columns)}'
+            f' FROM {references}',
+            (column for column in columns if isinstance(column, int)),
+        )
+
+        self._columns = columns
 
     def __str__(self) -> str:
         return self._into + super().__str__()
@@ -190,7 +203,14 @@ class Select(DataStatement):
         self._into = f'INSERT INTO {table} ({", ".join(columns)}) '
         return self
 
-    def execute(self) -> list[tuple[Any, ...]]:
+    def execute(self) -> list[dict[str | int, Any]]:
         super().execute()
 
-        return [] if self._into else self._database.fetch()
+        return (
+            []
+            if self._into
+            else [
+                {self._columns[i]: cell for i, cell in enumerate(row)}
+                for row in self._database.fetch()
+            ]
+        )

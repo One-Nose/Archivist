@@ -69,12 +69,7 @@ class TableReferences:
         :return: A SELECT statement
         """
 
-        return Select(
-            self._database,
-            f'SELECT {", ".join(column if isinstance(column, str) else "?" for column in columns)}'
-            f' FROM {self._references}',
-            (column for column in columns if isinstance(column, int)),
-        )
+        return Select(self._database, self._references, columns)
 
     def set(self, **columns: str) -> DataStatement:
         """

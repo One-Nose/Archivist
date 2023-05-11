@@ -35,10 +35,10 @@ class Analyzer:
 
         return Axis(self._database, identifier)
 
-    def _unanalyzed_orders(self) -> list[tuple[Point, Point]]:
+    def _unanalyzed_orders(self) -> list[dict[str, Point]]:
         """
         Fetches the order_rules ordering of unanalyzed points
-        :return: A list of unanalyzed orders, each in the form of (large, small)
+        :return: A list of unanalyzed orders, each in the form of {'large': point, 'small': Point}
         """
 
         results = (
@@ -58,7 +58,10 @@ class Analyzer:
             .execute()
         )
 
-        return [tuple(Point(id) for id in points) for points in results]
+        return [
+            {'large': Point(points['large.id']), 'small': Point(points['small.id'])}
+            for points in results
+        ]
 
     def analyze_order(self, large: Point, small: Point) -> None:
         """
@@ -81,7 +84,7 @@ class Analyzer:
         """
 
         for order in self._unanalyzed_orders():
-            self.analyze_order(*order)
+            self.analyze_order(**order)
 
 
 class Axis:
