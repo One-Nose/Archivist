@@ -3,7 +3,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from .cells import Axis, Boolean, Point, UnsignedInt
+from .cells import Axis as _Axis
+from .cells import Boolean, Point, UnsignedInt
 
 if TYPE_CHECKING:
     from .database import Database
@@ -24,28 +25,14 @@ class Analyzer:
 
         self._database = database
 
-    def analyze_order(self, large: Point, small: Point) -> None:
+    def _axis(self, identifier: int) -> Axis:
         """
-        Analyzes two points with a known order and saves the results in analysis
-        :param large: The larger point
-        :param small: The smaller point
-        """
-
-        self._database['axes'].insert().execute()
-        axis = Axis(self._database.last_row_id)
-        self._database['analysis'].insert_many(
-            ('point', 'axis', 'value'),
-            (large, axis, UnsignedInt(self.LARGEST_VALUE)),
-            (small, axis, UnsignedInt(0)),
-        ).execute()
-
-    def analyze_rules(self) -> None:
-        """
-        Analyzes the unanalyzed points according to order_rules and saves the results in analysis
+        Creates an axis object to access an axis
+        :param identifier: The axis's numeral ID
+        :return: An axis object
         """
 
-        for order in self._unanalyzed_orders():
-            self.analyze_order(*order)
+        return Axis(self._database, identifier)
 
     def _unanalyzed_orders(self) -> list[tuple[Point, Point]]:
         """
@@ -71,6 +58,29 @@ class Analyzer:
         )
 
         return [tuple(Point(id) for id in points) for points in results]
+
+    def analyze_order(self, large: Point, small: Point) -> None:
+        """
+        Analyzes two points with a known order and saves the results in analysis
+        :param large: The larger point
+        :param small: The smaller point
+        """
+
+        self._database['axes'].insert().execute()
+        axis = _Axis(self._database.last_row_id)
+        self._database['analysis'].insert_many(
+            ('point', 'axis', 'value'),
+            (large, axis, UnsignedInt(self.LARGEST_VALUE)),
+            (small, axis, UnsignedInt(0)),
+        ).execute()
+
+    def analyze_rules(self) -> None:
+        """
+        Analyzes the unanalyzed points according to order_rules and saves the results in analysis
+        """
+
+        for order in self._unanalyzed_orders():
+            self.analyze_order(*order)
 
 
 class Axis:
