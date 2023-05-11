@@ -113,6 +113,52 @@ class Axis:
         self._database = database
         self._id = _Axis(identifier)
 
+    def add_after(self, point: Point) -> None:
+        """
+        Adds a point after the last point in the axis
+        :param point: The point to add
+        """
+
+        largest, second_largest = (
+            self._database['analysis']
+            .select('id', 'value')
+            .where(axis=self._id)
+            .order_by('value', descending=True)
+            .limit(2)
+            .execute()
+        )
+
+        new_value: int = (largest['value'] + second_largest['value']) // 2
+
+        self._database['analysis'].set(value=UnsignedInt(new_value)).where(
+            id=UnsignedInt(largest['id'])
+        ).execute()
+
+        self._add_point(point, LARGEST_VALUE)
+
+    def add_before(self, point: Point) -> None:
+        """
+        Adds a point before the first point in the axis
+        :param point: The point to add
+        """
+
+        smallest, second_smallest = (
+            self._database['analysis']
+            .select('id', 'value')
+            .where(axis=self._id)
+            .order_by('value')
+            .limit(2)
+            .execute()
+        )
+
+        new_value: int = second_smallest['value'] // 2
+
+        self._database['analysis'].set(value=UnsignedInt(new_value)).where(
+            id=UnsignedInt(smallest['id'])
+        ).execute()
+
+        self._add_point(point, 0)
+
     def _add_point(self, point: Point, value: int) -> None:
         """
         Adds a new point to the axis
