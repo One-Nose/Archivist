@@ -99,23 +99,76 @@ class DataStatement(Statement):
         :return: This statement
         """
 
+        string, self._where_params = type(self)._multiple_conditions(**conditions)
+
+        self._where = f' WHERE {string}'
+
+        return self
+
+    def where_either(
+        self, *conditions: dict[str, Cell[Any] | str | tuple[Cell[Any], ...]]
+    ) -> Self:
+        """
+        Sets the statement's WHERE clause to either of several lists of conditions
+        :param conditions: A list of conditions of which at least one must be met
+            Each condition is in the form of {'column':value}
+        :return: This statement
+        """
+
+        clauses: list[str] = []
+        params: list[Any] = []
+
+        for condition in conditions:
+            string, parameters = type(self)._multiple_conditions(**condition)
+            clauses.append(f'({string})')
+            params.extend(parameters)
+
+        self._where = ' WHERE ' + ' OR '.join(clauses)
+        self._where_params = tuple(params)
+
+        return self
+
+    @staticmethod
+    def _condition(
+        column: str, value: Cell[Any] | str | tuple[Cell[Any], ...]
+    ) -> tuple[str, tuple[Any, ...]]:
+        """
+        Creates a condition string that can be used with a WHERE clause
+        :param column: The column that must meet the condition
+        :param value: The value the column must have or a tuple of values
+        :return: A tuple containing the string and the params
+        """
+
+        if isinstance(value, tuple):
+            return (
+                f'{column} IN ({", ".join("?" * len(value))})',
+                tuple(value.value for value in value),
+            )
+
+        elif isinstance(value, Cell):
+            return f'{column} = ?', (value.value,)
+
+        return f'{column} = {value}', ()
+
+    @classmethod
+    def _multiple_conditions(
+        cls, **conditions: Cell[Any] | str | tuple[Cell[Any], ...]
+    ) -> tuple[str, tuple[Any, ...]]:
+        """
+        Creates a condition string for meeting a list of conditions, using AND
+        :param conditions: The conditions, in the form of column=value
+        :return: A tuple containing the condition string the params
+        """
+
         clauses: list[str] = []
         params: list[Any] = []
 
         for column, value in conditions.items():
-            if isinstance(value, tuple):
-                clauses.append(f'{column} IN ({", ".join("?" * len(value))})')
-                params.extend(value.value for value in value)
-            elif isinstance(value, Cell):
-                clauses.append(f'{column} = ?')
-                params.append(value.value)
-            else:
-                clauses.append(f'{column} = {value}')
+            clause, new_params = cls._condition(column, value)
+            clauses.append(clause)
+            params.extend(new_params)
 
-        self._where = ' WHERE ' + ' AND '.join(clauses)
-        self._where_params = tuple(params)
-
-        return self
+        return ' AND '.join(clauses), tuple(params)
 
 
 class Select(DataStatement):
