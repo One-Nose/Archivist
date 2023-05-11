@@ -1,7 +1,7 @@
 """Provides archive user operations"""
 from __future__ import annotations
 
-from typing import ClassVar, Generic, TypedDict, TypeVar
+from typing import Generic, TypedDict, TypeVar
 
 from .cells import Category as _Category
 from .cells import Document as _Document
@@ -192,7 +192,7 @@ class Row(Generic[PrimaryKey]):
 class Category(Row[_Category]):
     """Allows access to a category"""
 
-    _NO_CATEGORY: ClassVar[_Category] = _Category(0)
+    _NO_CATEGORY = _Category(0)
 
     def new_property(self, name: str) -> Property:
         """

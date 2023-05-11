@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import ClassVar, Generic, TypeVar
+from typing import Generic, TypeVar
 
 CellValue = TypeVar('CellValue')
 
@@ -10,7 +10,7 @@ CellValue = TypeVar('CellValue')
 class Cell(Generic[CellValue]):
     """Parent class for cells"""
 
-    _SQL: ClassVar[str]
+    _SQL: str
     value: CellValue
 
     def __init__(self, value: CellValue) -> None:
@@ -92,7 +92,7 @@ class UnsignedInt(Cell[int]):
 class KeyCell(UnsignedInt):
     """Represents an ID cell"""
 
-    _TABLE: ClassVar[str]
+    _TABLE: str
 
     def __eq__(self, __value: object) -> bool:
         if isinstance(__value, type(self)):
