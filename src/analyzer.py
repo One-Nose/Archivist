@@ -10,10 +10,11 @@ if TYPE_CHECKING:
     from .database import Database
 
 
+LARGEST_VALUE = 2**32 - 1
+
+
 class Analyzer:
     """Analyzes an archive"""
-
-    LARGEST_VALUE = 2**32 - 1
 
     _database: Database
 
