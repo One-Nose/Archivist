@@ -102,6 +102,10 @@ class Analyzer:
         for order in self._unanalyzed_orders():
             self.analyze_order(**order)
 
+        self._database['points'].set(analyzed=Boolean(True)).where(
+            analyzed=Boolean(False)
+        ).execute()
+
 
 class Axis:
     """Allows access to an axis"""
