@@ -268,14 +268,6 @@ class Database(dict[str, Table]):
         for table in self.values():
             table.create().execute()
 
-    def use(self) -> Statement:
-        """
-        Creates a USE statement
-        :return: The use statement
-        """
-
-        return self.statement(f'USE {self.name}')
-
     def statement(self, statement: str, params: Iterable[Any] = ()) -> Statement:
         """
         Creates a statement object
@@ -295,6 +287,14 @@ class Database(dict[str, Table]):
         """
 
         return Table(self, table_name, **columns)
+
+    def use(self) -> Statement:
+        """
+        Creates a USE statement
+        :return: The use statement
+        """
+
+        return self.statement(f'USE {self.name}')
 
     @property
     def last_row_id(self) -> int:
