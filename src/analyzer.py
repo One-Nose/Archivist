@@ -113,3 +113,13 @@ class Axis:
         self._database = database
         self._id = _Axis(identifier)
 
+    def _add_point(self, point: Point, value: int) -> None:
+        """
+        Adds a new point to the axis
+        :param point: The point to add
+        :param value: The point's value within the axis
+        """
+
+        self._database['analysis'].insert(
+            point=point, axis=self._id, value=UnsignedInt(value)
+        ).execute()
