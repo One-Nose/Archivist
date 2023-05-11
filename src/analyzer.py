@@ -26,6 +26,22 @@ class Analyzer:
 
         self._database = database
 
+    def _add_axis(self, large: Point, small: Point) -> None:
+        """
+        Adds a new axis and adds two points to it
+        :param large: The larger point to add
+        :param small: The smaller point to add
+        """
+
+        self._database['axes'].insert().execute()
+        axis = _Axis(self._database.last_row_id)
+
+        self._database['analysis'].insert_many(
+            ('point', 'axis', 'value'),
+            (large, axis, UnsignedInt(LARGEST_VALUE)),
+            (small, axis, UnsignedInt(0)),
+        ).execute()
+
     def _axis(self, identifier: int) -> Axis:
         """
         Creates an axis object to access an axis
