@@ -240,6 +240,8 @@ class Document(Row[_Document]):
             document=self.id, large=large.id, small=small.id
         ).execute()
 
+        self._database.analyzer.analyze_order(large.id, small.id)
+
 
 class Element(Row[_Element]):
     """Allows access to an element"""
