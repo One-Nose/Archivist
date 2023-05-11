@@ -32,5 +32,8 @@
     "--cov-report=xml",
     "tests/"
   ],
-  "python.testing.autoTestDiscoverOnSaveEnabled": false
+  "python.testing.autoTestDiscoverOnSaveEnabled": false,
+  "python.analysis.diagnosticSeverityOverrides": {
+    "reportIncompatibleMethodOverride": "none"
+  }
 }
