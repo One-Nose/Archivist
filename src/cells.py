@@ -122,6 +122,12 @@ class KeyCell(UnsignedInt):
         return f'{cls._sql()} REFERENCES {cls._TABLE}(id)'
 
 
+class Analysis(KeyCell):
+    """Represents a placing of a point on an axis"""
+
+    _TABLE = 'analysis'
+
+
 class Axis(KeyCell):
     """Represents an axis"""
 
