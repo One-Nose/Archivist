@@ -216,6 +216,7 @@ class Database(dict[str, Table]):
                         point=Point,
                         axis=Axis,
                         value=UnsignedInt,
+                        unique=('axis', 'value'),
                     ),
                     self.table(
                         'order_rules',
