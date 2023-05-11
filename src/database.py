@@ -2,12 +2,15 @@
 
 from __future__ import annotations
 
-from typing import Any, Iterable, Self
+from collections.abc import Collection, Iterable
+from typing import Any, Self
 
 from mariadb import Cursor, ProgrammingError, connect
 from mariadb.connections import Connection
 
 from .cells import (
+    Axis,
+    Boolean,
     Category,
     Cell,
     Description,
@@ -19,6 +22,7 @@ from .cells import (
     Point,
     Property,
     ShortText,
+    UnsignedInt,
 )
 
 
@@ -26,9 +30,9 @@ class Column:
     """Represents an SQL table column"""
 
     _name: str
-    _type: type[Cell]
+    _type: type[Cell[Any]]
 
-    def __init__(self, name: str, column_type: type[Cell]) -> None:
+    def __init__(self, name: str, column_type: type[Cell[Any]]) -> None:
         """
         :param name: The column's name
         :param column_type: The column's cell type
@@ -70,7 +74,35 @@ class Statement:
         self._database.cursor.execute(self._statement, self._params)
 
 
-class Select(Statement):
+class DataStatement(Statement):
+    """Represents a data manipulation/query statement"""
+
+    def where(self, **conditions: Cell[Any] | str) -> Self:
+        """
+        Creates a version of the statement with a WHERE clause
+        :param conditions: The conditions that must be met, in the form of column=value
+        :return: The new statement
+        """
+
+        return self.__class__(
+            self._database,
+            f'{self._statement} WHERE '
+            + " AND ".join(
+                f"{column} = " + ("?" if isinstance(value, Cell) else value)
+                for column, value in conditions.items()
+            ),
+            (
+                *self._params,
+                *(
+                    value.value
+                    for value in conditions.values()
+                    if isinstance(value, Cell)
+                ),
+            ),
+        )
+
+
+class Select(DataStatement):
     """Represents a SELECT statement"""
 
     def into(self, table: str, columns: Iterable[str]) -> Statement:
@@ -87,37 +119,65 @@ class Select(Statement):
             self._params,
         )
 
-    def where(self, **conditions: Cell) -> Self:
+
+class TableReferences:
+    """Table refrences that can be used with FROM clauses"""
+
+    _database: Database
+    _references: str
+
+    def __init__(self, database: Database, references: Iterable[str]) -> None:
         """
-        Creates a version of the SELECT statement with a WHERE clause
-        :param conditions: The conditions that must be met, in the form of column=value
-        :return: The new SELECT statement
+        :param database: The table's database
+        :param references: A list of table references
         """
 
-        return self.__class__(
+        self._database = database
+        self._references = ', '.join(references)
+
+    def select(self, *columns: str | int) -> Select:
+        """
+        Creates a SELECT statement that selects data from the table
+        :param columns: The names of the columns/values to select from the table
+        :return: A SELECT statement
+        """
+
+        return Select(
             self._database,
-            f'{self._statement} WHERE {" AND ".join(f"{column} = ?" for column in conditions)}',
-            self._params + tuple(value.value for value in conditions.values()),
+            f'SELECT {", ".join(column if isinstance(column, str) else "?" for column in columns)}'
+            f' FROM {self._references}',
+            (column for column in columns if isinstance(column, int)),
+        )
+
+    def set(self, **columns: str) -> DataStatement:
+        """
+        Creates an UPDATE statement to update tables
+        :param columns: The columns to set, in the form of column=value
+        :return: An UPDATE statement
+        """
+
+        return DataStatement(
+            self._database,
+            f'UPDATE {self._references}'
+            f' SET {", ".join(f"{column} = {value}" for column, value in columns.items())}',
         )
 
 
-class Table(dict[str, Column]):
+class Table(TableReferences, dict[str, Column]):
     """Represents an SQL table"""
 
-    _database: Database
     name: str
 
     def __init__(
-        self, database: Database, table_name: str, **columns: type[Cell]
+        self, database: Database, table_name: str, **columns: type[Cell[Any]]
     ) -> None:
         """
         :param database: The table's database
         :param table_name: The table's name
         :param columns: The table's columns, in the form of name=type
         """
+        super().__init__(database, [table_name])
 
-        super().__init__()
-        self._database = database
         self.name = table_name
         self.update(
             {name: Column(name, column_type) for name, column_type in columns.items()}
@@ -130,31 +190,29 @@ class Table(dict[str, Column]):
             f'CREATE TABLE {self.name} ({", ".join(map(str, self.values()))})'
         )
 
-    def insert(self, **values: Cell) -> Statement:
+    def insert(self, **values: Cell[Any]) -> Statement:
         """
         Creates an INSERT statement that inserts values into the table (insecure)
         :param values: The values to insert in the form of column=value
         :return: An INSERT statement
         """
 
+        return self.insert_many(values.keys(), values.values())
+
+    def insert_many(
+        self, columns: Collection[str], *rows: Collection[Cell[Any]]
+    ) -> Statement:
+        """
+        Creates an INSERT statement to insert multiple rows into the table
+        :param columns: The columns to insert into
+        :param rows: The rows to insert, each as a sequence of values
+        :return: An INSERT statement
+        """
+
         return self._database.statement(
-            f'INSERT INTO {self.name} ({", ".join(values)}) VALUES'
-            f' ({", ".join("?" * len(values))})',
-            tuple(value.value for value in values.values()),
-        )
-
-    def select(self, *columns: str | int) -> Select:
-        """
-        Creates a SELECT statement that selects data from the table
-        :param columns: The names of the columns/values to select from the table
-        :return: A SELECT statement
-        """
-
-        return Select(
-            self._database,
-            f'SELECT {", ".join(column if isinstance(column, str) else "?" for column in columns)}'
-            f' FROM {self.name}',
-            (column for column in columns if isinstance(column, int)),
+            f'INSERT INTO {self.name} ({", ".join(columns)}) VALUES'
+            f' ({"), (".join(", ".join("?" * len(values)) for values in rows)})',
+            tuple(value.value for row in rows for value in row),
         )
 
 
@@ -178,6 +236,10 @@ class Database(dict[str, Table]):
             {
                 table.name: table
                 for table in (
+                    self.table(
+                        'axes',
+                        id=Axis.primary_key(),
+                    ),
                     self.table(
                         'categories',
                         id=Category.primary_key(),
@@ -211,7 +273,19 @@ class Database(dict[str, Table]):
                         id=Point.primary_key(),
                         element=Element,
                         property=Property,
-                        previous=Point.nullable(),
+                        analyzed=Boolean,
+                    ),
+                    self.table(
+                        'analysis',
+                        point=Point,
+                        axis=Axis,
+                        value=UnsignedInt,
+                    ),
+                    self.table(
+                        'order_rules',
+                        id=OrderRule.primary_key(),
+                        large=Property,
+                        small=Property,
                     ),
                     self.table(
                         'orders',
@@ -219,12 +293,6 @@ class Database(dict[str, Table]):
                         document=Document,
                         large=Point,
                         small=Point,
-                    ),
-                    self.table(
-                        'order_rules',
-                        id=OrderRule.primary_key(),
-                        large=Property,
-                        small=Property,
                     ),
                 )
             }
@@ -278,7 +346,7 @@ class Database(dict[str, Table]):
 
         return Statement(self, statement, params)
 
-    def table(self, table_name: str, **columns: type[Cell]) -> Table:
+    def table(self, table_name: str, **columns: type[Cell[Any]]) -> Table:
         """
         Creates table object
         :param table_name: The table's name
@@ -287,6 +355,15 @@ class Database(dict[str, Table]):
         """
 
         return Table(self, table_name, **columns)
+
+    def table_refrences(self, *references: str) -> TableReferences:
+        """
+        Creates a table refrences object to use with FROM clauses
+        :param references: A list of table references
+        :return: A table references object
+        """
+
+        return TableReferences(self, references)
 
     def use(self) -> Statement:
         """

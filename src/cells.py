@@ -2,16 +2,18 @@
 
 from __future__ import annotations
 
-from typing import Any, ClassVar
+from typing import ClassVar, Generic, TypeVar
+
+CellValue = TypeVar('CellValue')
 
 
-class Cell:
+class Cell(Generic[CellValue]):
     """Parent class for cells"""
 
     _SQL: ClassVar[str]
-    value: Any
+    value: CellValue
 
-    def __init__(self, value: Any) -> None:
+    def __init__(self, value: CellValue) -> None:
         """
         :param value: The object's value
         """
@@ -34,7 +36,7 @@ class Cell:
         return f'{cls._SQL} NOT NULL'
 
     @classmethod
-    def nullable(cls: type[Cell]) -> type[Cell]:
+    def nullable(cls: type[Cell[CellValue]]) -> type[Cell[CellValue]]:
         """
         Returns a nullable version of the cell
         :return: The result cell
@@ -59,15 +61,38 @@ class Cell:
         return cls._sql()
 
 
-class KeyCell(Cell):
-    """Represents an ID cell"""
+class Boolean(Cell[bool]):
+    """Represents a BOOLEAN cell, default to FALSE"""
+
+    _SQL = 'BOOLEAN'
+
+    @classmethod
+    def sql(cls) -> str:
+        return f'{cls._sql()} DEFAULT FALSE'
+
+
+class LongText(Cell[str]):
+    """Represents a TEXT long text"""
+
+    _SQL = 'TEXT'
+
+
+class ShortText(Cell[str]):
+    """Represents a VARCHAR(255) short text"""
+
+    _SQL = 'VARCHAR(255)'
+
+
+class UnsignedInt(Cell[int]):
+    """Represents an INT UNSIGNED cell"""
 
     _SQL = 'INT UNSIGNED'
-    _TABLE: ClassVar[str]
-    value: int
 
-    def __init__(self, value: int) -> None:
-        super().__init__(value)
+
+class KeyCell(UnsignedInt):
+    """Represents an ID cell"""
+
+    _TABLE: ClassVar[str]
 
     def __eq__(self, __value: object) -> bool:
         if isinstance(__value, type(self)):
@@ -97,13 +122,10 @@ class KeyCell(Cell):
         return f'{cls._sql()} REFERENCES {cls._TABLE}(id)'
 
 
-class StrCell(Cell):
-    """Represents a string cell"""
+class Axis(KeyCell):
+    """Represents an axis"""
 
-    value: str
-
-    def __init__(self, value: str) -> None:
-        super().__init__(value)
+    _TABLE = 'axes'
 
 
 class Category(KeyCell):
@@ -152,15 +174,3 @@ class Property(KeyCell):
     """Represents a category property"""
 
     _TABLE = 'properties'
-
-
-class LongText(StrCell):
-    """Represents a TEXT long text"""
-
-    _SQL = 'TEXT'
-
-
-class ShortText(StrCell):
-    """Represents a VARCHAR(255) short text"""
-
-    _SQL = 'VARCHAR(255)'
