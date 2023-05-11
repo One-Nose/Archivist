@@ -81,14 +81,14 @@ class DataStatement(Statement):
         self._limit_count = amount
         return self
 
-    def order_by(self, column: str) -> Self:
+    def order_by(self, column: str, descending: bool = False) -> Self:
         """
         Modifies the statement's ORDER BY clause
         :param column: The column to order by
         :return: This statement
         """
 
-        self._order_by = f' ORDER BY {column}'
+        self._order_by = f' ORDER BY {column}' + ' DESC' if descending else ''
         return self
 
     def where(self, **conditions: Cell[Any] | str | tuple[Cell[Any], ...]) -> Self:
