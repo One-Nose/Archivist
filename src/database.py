@@ -72,17 +72,22 @@ class TableReferences:
 
         return Select(self._database, self._references, columns)
 
-    def set(self, **columns: str) -> DataStatement:
+    def set(self, **columns: Cell[Any] | str) -> DataStatement:
         """
         Creates an UPDATE statement to update tables
         :param columns: The columns to set, in the form of column=value
         :return: An UPDATE statement
         """
 
+        clauses = ', '.join(
+            f'{column} = {"?" if isinstance(value,Cell) else value}'
+            for column, value in columns.items()
+        )
+
         return DataStatement(
             self._database,
-            f'UPDATE {self._references}'
-            f' SET {", ".join(f"{column} = {value}" for column, value in columns.items())}',
+            f'UPDATE {self._references}' f' SET {clauses}',
+            (value.value for value in columns.values() if isinstance(value, Cell)),
         )
 
 
