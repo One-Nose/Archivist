@@ -87,9 +87,9 @@ class Axis:
     """Allows access to an axis"""
 
     _database: Database
-    _id: int
+    _id: _Axis
 
     def __init__(self, database: Database, identifier: int) -> None:
         self._database = database
-        self._id = identifier
+        self._id = _Axis(identifier)
 
