@@ -80,7 +80,7 @@ class TableReferences:
         """
 
         clauses = ', '.join(
-            f'{column} = {"?" if isinstance(value,Cell) else value}'
+            f'{column} = {"?" if isinstance(value, Cell) else value}'
             for column, value in columns.items()
         )
 
@@ -98,11 +98,11 @@ class Table(TableReferences, dict[str, Column]):
     name: str
 
     def __init__(
-        self,
-        database: Database,
-        table_name: str,
-        unique: tuple[str, ...] | None,
-        **columns: type[Cell[Any]],
+            self,
+            database: Database,
+            table_name: str,
+            unique: tuple[str, ...] | None,
+            **columns: type[Cell[Any]],
     ) -> None:
         """
         :param database: The table's database
@@ -137,7 +137,7 @@ class Table(TableReferences, dict[str, Column]):
         return self.insert_many(values.keys(), values.values())
 
     def insert_many(
-        self, columns: Collection[str], *rows: Collection[Cell[Any]]
+            self, columns: Collection[str], *rows: Collection[Cell[Any]]
     ) -> Statement:
         """
         Creates an INSERT statement to insert multiple rows into the table
@@ -176,67 +176,67 @@ class Database(dict[str, Table]):
             {
                 table.name: table
                 for table in (
-                    self.table(
-                        'axes',
-                        id=Axis.primary_key(),
-                    ),
-                    self.table(
-                        'categories',
-                        id=Category.primary_key(),
-                        name=ShortText,
-                    ),
-                    self.table(
-                        'documents',
-                        id=Document.primary_key(),
-                        name=ShortText,
-                    ),
-                    self.table(
-                        'elements',
-                        id=Element.primary_key(),
-                        category=Category,
-                    ),
-                    self.table(
-                        'descriptions',
-                        id=Description.primary_key(),
-                        document=Document,
-                        element=Element,
-                        description=LongText,
-                    ),
-                    self.table(
-                        'properties',
-                        id=Property.primary_key(),
-                        category=Category,
-                        name=ShortText,
-                    ),
-                    self.table(
-                        'points',
-                        id=Point.primary_key(),
-                        element=Element,
-                        property=Property,
-                        analyzed=Boolean,
-                    ),
-                    self.table(
-                        'analysis',
-                        id=Analysis.primary_key(),
-                        point=Point,
-                        axis=Axis,
-                        value=UnsignedInt,
-                        unique=('axis', 'value'),
-                    ),
-                    self.table(
-                        'order_rules',
-                        id=OrderRule.primary_key(),
-                        large=Property,
-                        small=Property,
-                    ),
-                    self.table(
-                        'orders',
-                        id=Order.primary_key(),
-                        document=Document,
-                        large=Point,
-                        small=Point,
-                    ),
-                )
+                self.table(
+                    'axes',
+                    id=Axis.primary_key(),
+                ),
+                self.table(
+                    'categories',
+                    id=Category.primary_key(),
+                    name=ShortText,
+                ),
+                self.table(
+                    'documents',
+                    id=Document.primary_key(),
+                    name=ShortText,
+                ),
+                self.table(
+                    'elements',
+                    id=Element.primary_key(),
+                    category=Category,
+                ),
+                self.table(
+                    'descriptions',
+                    id=Description.primary_key(),
+                    document=Document,
+                    element=Element,
+                    description=LongText,
+                ),
+                self.table(
+                    'properties',
+                    id=Property.primary_key(),
+                    category=Category,
+                    name=ShortText,
+                ),
+                self.table(
+                    'points',
+                    id=Point.primary_key(),
+                    element=Element,
+                    property=Property,
+                    analyzed=Boolean,
+                ),
+                self.table(
+                    'analysis',
+                    id=Analysis.primary_key(),
+                    point=Point,
+                    axis=Axis,
+                    value=UnsignedInt,
+                    unique=('axis', 'value'),
+                ),
+                self.table(
+                    'order_rules',
+                    id=OrderRule.primary_key(),
+                    large=Property,
+                    small=Property,
+                ),
+                self.table(
+                    'orders',
+                    id=Order.primary_key(),
+                    document=Document,
+                    large=Point,
+                    small=Point,
+                ),
+            )
             }
         )
 
@@ -306,10 +306,10 @@ class Database(dict[str, Table]):
         return Statement(self, statement, params)
 
     def table(
-        self,
-        table_name: str,
-        unique: tuple[str, ...] | None = None,
-        **columns: type[Cell[Any]],
+            self,
+            table_name: str,
+            unique: tuple[str, ...] | None = None,
+            **columns: type[Cell[Any]],
     ) -> Table:
         """
         Creates table object
