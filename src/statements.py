@@ -1,6 +1,5 @@
 """Classes representing executable SQL statements"""
 
-
 from __future__ import annotations
 
 from collections.abc import Iterable
@@ -20,7 +19,7 @@ class Statement:
     _statement: str
 
     def __init__(
-        self, database: Database, statement: str, params: Iterable[Any] = ()
+            self, database: Database, statement: str, params: Iterable[Any] = ()
     ) -> None:
         """
         :param database: The statement's database
@@ -65,9 +64,9 @@ class DataStatement(Statement):
 
     def _get_params(self) -> tuple[Any, ...]:
         return (
-            super()._get_params()
-            + self._where_params
-            + (self._limit_count is not None) * (self._limit_count,)
+                super()._get_params()
+                + self._where_params
+                + (self._limit_count is not None) * (self._limit_count,)
         )
 
     def limit(self, amount: int) -> Self:
@@ -106,7 +105,7 @@ class DataStatement(Statement):
         return self
 
     def where_either(
-        self, *conditions: dict[str, Cell[Any] | str | tuple[Cell[Any], ...]]
+            self, *conditions: dict[str, Cell[Any] | str | tuple[Cell[Any], ...]]
     ) -> Self:
         """
         Sets the statement's WHERE clause to either of several lists of conditions
@@ -130,7 +129,7 @@ class DataStatement(Statement):
 
     @staticmethod
     def _condition(
-        column: str, value: Cell[Any] | str | tuple[Cell[Any], ...]
+            column: str, value: Cell[Any] | str | tuple[Cell[Any], ...]
     ) -> tuple[str, tuple[Any, ...]]:
         """
         Creates a condition string that can be used with a WHERE clause
@@ -152,7 +151,7 @@ class DataStatement(Statement):
 
     @classmethod
     def _multiple_conditions(
-        cls, **conditions: Cell[Any] | str | tuple[Cell[Any], ...]
+            cls, **conditions: Cell[Any] | str | tuple[Cell[Any], ...]
     ) -> tuple[str, tuple[Any, ...]]:
         """
         Creates a condition string for meeting a list of conditions, using AND
@@ -178,7 +177,7 @@ class Select(DataStatement):
     _into: str = ''
 
     def __init__(
-        self, database: Database, references: str, columns: tuple[str | int, ...]
+            self, database: Database, references: str, columns: tuple[str | int, ...]
     ) -> None:
         super().__init__(
             database,
