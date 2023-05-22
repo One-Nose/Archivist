@@ -321,9 +321,9 @@ class Database(dict[str, Table]):
 
         return Table(self, table_name, unique, **columns)
 
-    def table_refrences(self, *references: str) -> TableReferences:
+    def table_references(self, *references: str) -> TableReferences:
         """
-        Creates a table refrences object to use with FROM clauses
+        Creates a table references object to use with FROM clauses
         :param references: A list of table references
         :return: A table references object
         """
