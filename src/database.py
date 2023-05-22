@@ -49,7 +49,7 @@ class Column:
 
 
 class TableReferences:
-    """Table refrences that can be used with FROM clauses"""
+    """Table references that can be used with FROM clauses"""
 
     _database: Database
     _references: str
