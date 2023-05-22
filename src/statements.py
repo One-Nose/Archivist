@@ -93,8 +93,8 @@ class DataStatement(Statement):
 
     def where(self, **conditions: Cell[Any] | str | tuple[Cell[Any], ...]) -> Self:
         """
-        Modifies the statement's WHERE clause
-        :param conditions: The conditions that must be met, in the form of column=value
+        Modifies the WHERE clause of the statement
+        :param conditions: The conditions that must be met, in the form of column=value.
             value may be either a cell, a string or a tuple of cells to match at least one.
         :return: This statement
         """
@@ -109,7 +109,7 @@ class DataStatement(Statement):
             self, *conditions: dict[str, Cell[Any] | str | tuple[Cell[Any], ...]]
     ) -> Self:
         """
-        Sets the statement's WHERE clause to either of several lists of conditions
+        Sets the WHERE clause of the statement to either of several lists of conditions
         :param conditions: A list of conditions of which at least one must be met
             Each condition is in the form of {'column':value}
         :return: This statement
