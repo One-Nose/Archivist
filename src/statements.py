@@ -84,6 +84,7 @@ class DataStatement(Statement):
         """
         Modifies the statement's ORDER BY clause
         :param column: The column to order by
+        :param descending: Whether the order should be descending
         :return: This statement
         """
 
