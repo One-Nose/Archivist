@@ -9,8 +9,7 @@ from .cells import Boolean, Point, UnsignedInt
 if TYPE_CHECKING:
     from .database import Database
 
-
-LARGEST_VALUE = 2**32 - 1
+LARGEST_VALUE = 2 ** 32 - 1
 
 
 class Analyzer:
