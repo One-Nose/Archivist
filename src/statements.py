@@ -145,7 +145,7 @@ class DataStatement(Statement):
                 tuple(value.value for value in value),
             )
 
-        elif isinstance(value, Cell):
+        if isinstance(value, Cell):
             return f'{column} {"!=" if value.negated else "="} ?', (value.value,)
 
         return f'{column} = {value}', ()
