@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from collections.abc import Collection, Iterable, Sequence
-from typing import Any
+from typing import Any, Self
 
 from mariadb import Cursor, ProgrammingError, connect
 from mariadb.connections import Connection
@@ -94,15 +94,11 @@ class TableReferences:
 class Table(TableReferences, dict[str, Column]):
     """Represents an SQL table"""
 
-    _unique: tuple[str, ...]
+    _uniques: list[tuple[str, ...]]
     name: str
 
     def __init__(
-        self,
-        database: Database,
-        table_name: str,
-        unique: tuple[str, ...] | None,
-        **columns: type[Cell[Any]],
+        self, database: Database, table_name: str, **columns: type[Cell[Any]]
     ) -> None:
         """
         :param database: The table's database
@@ -113,7 +109,7 @@ class Table(TableReferences, dict[str, Column]):
         super().__init__(database, [table_name])
 
         self.name = table_name
-        self._unique = unique if unique else ()
+        self._uniques = []
         self.update(
             {name: Column(name, column_type) for name, column_type in columns.items()}
         )
@@ -123,7 +119,7 @@ class Table(TableReferences, dict[str, Column]):
 
         return self._database.statement(
             f'CREATE TABLE {self.name} ({", ".join(map(str, self.values()))}'
-            + (f', UNIQUE ({", ".join(self._unique)})' if self._unique else '')
+            + ''.join(f', UNIQUE ({", ".join(columns)})' for columns in self._uniques)
             + ')'
         )
 
@@ -151,6 +147,16 @@ class Table(TableReferences, dict[str, Column]):
             f' ({"), (".join(", ".join("?" * len(values)) for values in rows)})',
             tuple(value.value for row in rows for value in row),
         )
+
+    def unique(self, *columns: str) -> Self:
+        """
+        Adds a unique index to the table and returns it
+        :param columns: A list of columns for the unique index
+        :return: This table
+        """
+
+        self._uniques.append(columns)
+        return self
 
 
 class Database(dict[str, Table]):
@@ -221,8 +227,8 @@ class Database(dict[str, Table]):
                         point=Point,
                         axis=Axis,
                         value=UnsignedInt,
-                        unique=('axis', 'value'),
-                    ),
+                    )
+                    .unique('axis', 'value')
                     self.table(
                         'order_rules',
                         id=OrderRule.primary_key(),
@@ -308,7 +314,6 @@ class Database(dict[str, Table]):
     def table(
         self,
         table_name: str,
-        unique: tuple[str, ...] | None = None,
         **columns: type[Cell[Any]],
     ) -> Table:
         """
@@ -319,7 +324,7 @@ class Database(dict[str, Table]):
         :return: A table object
         """
 
-        return Table(self, table_name, unique, **columns)
+        return Table(self, table_name, **columns)
 
     def table_refrences(self, *references: str) -> TableReferences:
         """
