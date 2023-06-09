@@ -204,6 +204,11 @@ class Select(DataStatement):
         return self
 
     def execute(self) -> list[dict[str | int, Any]]:
+        """
+        Executes the SELECT statement and returns the results
+        :return: A list of rows, each in the form of {'column': value}
+        """
+
         super().execute()
 
         return (
