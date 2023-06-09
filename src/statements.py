@@ -146,7 +146,7 @@ class DataStatement(Statement):
             )
 
         elif isinstance(value, Cell):
-            return f'{column} = ?', (value.value,)
+            return f'{column} {"!=" if value.negated else "="} ?', (value.value,)
 
         return f'{column} = {value}', ()
 

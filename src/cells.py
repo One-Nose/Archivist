@@ -11,14 +11,17 @@ class Cell(Generic[CellValue]):
     """Parent class for cells"""
 
     _SQL: str
+    negated: bool
     value: CellValue
 
-    def __init__(self, value: CellValue) -> None:
+    def __init__(self, value: CellValue, negate: bool = False) -> None:
         """
         :param value: The object's value
+        :param negate: Whether the cell uses != instead of =
         """
 
         self.value = value
+        self.negated = negate
 
     def __repr__(self) -> str:
         return f'{type(self).__name__}({repr(self.value)})'
