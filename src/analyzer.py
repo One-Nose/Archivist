@@ -1,7 +1,8 @@
 """Data analyzing of the archive"""
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from collections.abc import Generator
+from typing import TYPE_CHECKING, Literal
 
 from .cells import Axis as _Axis
 from .cells import Boolean, Point, UnsignedInt
@@ -99,7 +100,12 @@ class Analyzer:
         large_matches = [match for match in matches if match['point'] == large.value]
         small_matches = [match for match in matches if match['point'] == small.value]
 
-        if len(large_matches) == 1:
+        if len(large_matches) == len(small_matches) == 1:
+            self._axis(small_matches[0]['axis']).join(
+                self._axis(large_matches[0]['axis'])
+            )
+
+        elif len(large_matches) == 1:
             self._axis(large_matches[0]['axis']).add_before(small)
 
         elif len(small_matches) == 1:
@@ -125,11 +131,45 @@ class Axis:
     """Allows access to an axis"""
 
     _database: Database
-    _id: _Axis
+    id: _Axis
 
     def __init__(self, database: Database, identifier: int) -> None:
         self._database = database
-        self._id = _Axis(identifier)
+        self.id = _Axis(identifier)
+
+    def _add_point(self, point: Point, value: int) -> None:
+        """
+        Adds a new point to the axis
+        :param point: The point to add
+        :param value: The point's value within the axis
+        """
+
+        self._database['analysis'].insert(
+            point=point, axis=self.id, value=UnsignedInt(value)
+        ).execute()
+
+    def _get_points_by_size(
+        self, size: Literal['largest', 'smallest'], amount: int
+    ) -> Generator[dict[str, int], None, None]:
+        """
+        Fetches either the largest or smallest points in the axis
+        :param size: Whether should fetch the largest or smallest points
+        :param amount: The amount of points to fetch
+        :return: A list of points, each in the form of {'id': id, 'value': value}
+        """
+
+        return (
+            {'id': point['id'], 'value': point['value']}
+            for point in self._database['analysis']
+            .select('id', 'value')
+            .where(axis=self.id)
+            .order_by(
+                'value',
+                descending=(size == 'largest'),
+            )
+            .limit(amount)
+            .execute()
+        )
 
     def add_after(self, point: Point) -> None:
         """
@@ -137,16 +177,9 @@ class Axis:
         :param point: The point to add
         """
 
-        largest, second_largest = (
-            self._database['analysis']
-            .select('id', 'value')
-            .where(axis=self._id)
-            .order_by('value', descending=True)
-            .limit(2)
-            .execute()
-        )
+        largest, second_largest = self._get_points_by_size('largest', 2)
 
-        new_value: int = (largest['value'] + second_largest['value']) // 2
+        new_value = (LARGEST_VALUE + second_largest['value']) // 2
 
         self._database['analysis'].set(value=UnsignedInt(new_value)).where(
             id=UnsignedInt(largest['id'])
@@ -160,16 +193,9 @@ class Axis:
         :param point: The point to add
         """
 
-        smallest, second_smallest = (
-            self._database['analysis']
-            .select('id', 'value')
-            .where(axis=self._id)
-            .order_by('value')
-            .limit(2)
-            .execute()
-        )
+        smallest, second_smallest = self._get_points_by_size('smallest', 2)
 
-        new_value: int = second_smallest['value'] // 2
+        new_value = second_smallest['value'] // 2
 
         self._database['analysis'].set(value=UnsignedInt(new_value)).where(
             id=UnsignedInt(smallest['id'])
@@ -177,13 +203,37 @@ class Axis:
 
         self._add_point(point, 0)
 
-    def _add_point(self, point: Point, value: int) -> None:
+    def join(self, axis: Axis) -> None:
         """
-        Adds a new point to the axis
-        :param point: The point to add
-        :param value: The point's value within the axis
+        Combines this axis with another axis by appending it after this axis
+        :param axis: The axis to append to this axis
         """
 
-        self._database['analysis'].insert(
-            point=point, axis=self._id, value=UnsignedInt(value)
+        largest, second_largest = self._get_points_by_size('largest', 2)
+        new_value = (LARGEST_VALUE + second_largest['value']) // 2
+
+        self._database['analysis'].set(value=UnsignedInt(new_value)).where(
+            id=UnsignedInt(largest['id'])
         ).execute()
+
+        amount_of_rows_to_join = (
+            self._database['analysis']
+            .select('COUNT(*)')
+            .where(axis=axis.id)
+            .execute()[0]['COUNT(*)']
+        )
+
+        self._database['analysis'].select(
+            'point',
+            self.id.value,
+            f'{new_value} + {(LARGEST_VALUE - new_value) // amount_of_rows_to_join}'
+            f' * ROW_NUMBER() OVER (ORDER BY value)',
+        ).where(axis=axis.id, value=UnsignedInt(LARGEST_VALUE, negate=True)).into(
+            'analysis', ('point', 'axis', 'value')
+        ).execute()
+
+        self._database['analysis'].set(axis=self.id).where(
+            axis=axis.id, value=UnsignedInt(LARGEST_VALUE)
+        ).execute()
+
+        self._database['analysis'].delete().where(axis=axis.id).execute()
