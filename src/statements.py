@@ -77,7 +77,7 @@ class DataStatement(Statement):
         :return: This statement
         """
 
-        self._limit = f' LIMIT ?'
+        self._limit = ' LIMIT ?'
         self._limit_count = amount
         return self
 
