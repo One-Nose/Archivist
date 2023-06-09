@@ -49,7 +49,7 @@ class Column:
 
 
 class TableReferences:
-    """Table refrences that can be used with FROM clauses"""
+    """Table references that can be used with FROM clauses"""
 
     _database: Database
     _references: str
@@ -80,7 +80,7 @@ class TableReferences:
         """
 
         clauses = ', '.join(
-            f'{column} = {"?" if isinstance(value,Cell) else value}'
+            f'{column} = {"?" if isinstance(value, Cell) else value}'
             for column, value in columns.items()
         )
 
@@ -335,9 +335,9 @@ class Database(dict[str, Table]):
 
         return Table(self, table_name, **columns)
 
-    def table_refrences(self, *references: str) -> TableReferences:
+    def table_references(self, *references: str) -> TableReferences:
         """
-        Creates a table refrences object to use with FROM clauses
+        Creates a table references object to use with FROM clauses
         :param references: A list of table references
         :return: A table references object
         """

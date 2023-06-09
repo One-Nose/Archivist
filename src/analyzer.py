@@ -10,7 +10,6 @@ from .cells import Boolean, Point, UnsignedInt
 if TYPE_CHECKING:
     from .database import Database
 
-
 LARGEST_VALUE = 2**32 - 1
 
 
@@ -59,7 +58,7 @@ class Analyzer:
         """
 
         results = (
-            self._database.table_refrences(
+            self._database.table_references(
                 'points AS large', 'points AS small', 'order_rules'
             )
             .select('large.id', 'small.id')

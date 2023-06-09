@@ -198,7 +198,6 @@ class Category(Row[_Category]):
         """
         Adds a property to the category
         :param name: The property's name
-        :param category: The property's optional category
         :return: A property object to access the newly created property
         """
 
@@ -212,7 +211,6 @@ class Category(Row[_Category]):
         """
         Creates a property object to access a property of the category
         :param identifier: The property's ID
-        :param category: The property's category
         :return: The created property object
         """
 
@@ -233,7 +231,7 @@ class Document(Row[_Document]):
         """
         Declares an order of two properties of elements
         :param large: The property that must be larger, in the form of (element, property)
-        :param smaller: The property that must be smaller, in the form of (element, property)
+        :param small: The property that must be smaller, in the form of (element, property)
         """
 
         self._database['orders'].insert(
