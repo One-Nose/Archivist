@@ -228,7 +228,7 @@ class Database(dict[str, Table]):
                         element=Element,
                         property=Property,
                         analyzed=Boolean,
-                    ),
+                    ).unique('element', 'property'),
                     self.table(
                         'analysis',
                         id=Analysis.primary_key(),
@@ -237,6 +237,7 @@ class Database(dict[str, Table]):
                         value=UnsignedInt,
                     )
                     .unique('axis', 'value')
+                    .unique('point', 'axis'),
                     self.table(
                         'order_rules',
                         id=OrderRule.primary_key(),
