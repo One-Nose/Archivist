@@ -148,6 +148,14 @@ class Table(TableReferences, dict[str, Column]):
             tuple(value.value for row in rows for value in row),
         )
 
+    def delete(self) -> DataStatement:
+        """
+        Creates a DELETE statement
+        :return: The DELETE statement
+        """
+
+        return DataStatement(self._database, f'DELETE FROM {self.name}')
+
     def unique(self, *columns: str) -> Self:
         """
         Adds a unique index to the table and returns it
