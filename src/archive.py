@@ -1,7 +1,7 @@
 """Provides archive user operations"""
 from __future__ import annotations
 
-from typing import Generic, TypedDict, TypeVar
+from typing import Generic, TypeVar
 
 from .cells import Category as _Category
 from .cells import Document as _Document
@@ -13,40 +13,15 @@ from .cells import ShortText
 from .database import Database
 
 
-class ArchiveConfig(TypedDict):
-    """
-    Configuration of the database
-    - connect: Configuration of the connection to the database
-    """
-
-    connect: ConnectionConfig
-
-
-class ConnectionConfig(TypedDict):
-    """
-    Configuration of the connection to the database
-    - username: The username to connect to the database
-    - password: The password to connect to the database
-    - database: The database to connect to (insecure)
-    """
-
-    username: str
-    password: str
-    database: str
-
-
 class Archive:
     """Allows access to the database"""
 
     _database: Database
 
-    def __init__(self, config: ArchiveConfig) -> None:
-        """
-        Creates a Database object according to the optional config object
-        :param config: An object containing the config options
-        """
+    def __init__(self) -> None:
+        """Creates a Database object according to the optional config object"""
 
-        self._database = Database(**config['connect'])
+        self._database = Database()
         self._database.connect()
 
     def __repr__(self) -> str:

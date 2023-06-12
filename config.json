@@ -1,7 +1,0 @@
-{
-  "connect": {
-    "username": "root",
-    "password": "root",
-    "database": "archivist"
-  }
-}

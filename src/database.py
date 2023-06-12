@@ -26,6 +26,7 @@ from .cells import (
     ShortText,
     UnsignedInt,
 )
+from .registry import get_database, get_connection
 from .statements import DataStatement, Select, Statement
 
 
@@ -172,17 +173,10 @@ class Database(dict[str, Table]):
 
     _connection: Connection
     _cursor: Cursor
-    _password: str
-    _username: str
     analyzer: Analyzer
-    name: str
 
-    def __init__(self, username: str, password: str, database: str) -> None:
+    def __init__(self) -> None:
         super().__init__()
-
-        self._username = username
-        self._password = password
-        self.name = database
 
         self.analyzer = Analyzer(self)
 
@@ -269,10 +263,7 @@ class Database(dict[str, Table]):
     def connect(self) -> None:
         """Connects to the database, creates a cursor, and saves the connection and the cursor"""
 
-        self._connection = connect(
-            user=self._username,
-            password=self._password,
-        )
+        self._connection = connect(**get_connection())
         self._cursor = self._connection.cursor()
         try:
             self.use().execute()
@@ -296,7 +287,7 @@ class Database(dict[str, Table]):
     def init(self) -> None:
         """Creates the database and initializes it"""
 
-        self.execute(f'CREATE DATABASE {self.name}')
+        self.execute(f'CREATE DATABASE {get_database()}')
         self.use().execute()
 
         for table in self.values():
@@ -350,7 +341,7 @@ class Database(dict[str, Table]):
         :return: The use statement
         """
 
-        return self.statement(f'USE {self.name}')
+        return self.statement(f'USE {get_database()}')
 
     @property
     def last_row_id(self) -> int:
