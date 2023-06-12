@@ -1,5 +1,6 @@
 {
   "pylint.args": [
+    "--disable=import-error",
     "--disable=no-name-in-module",
     "--disable=relative-beyond-top-level",
     "--disable=too-few-public-methods",
