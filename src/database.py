@@ -282,7 +282,7 @@ class Database(dict[str, Table]):
     def drop(self) -> None:
         """Drops the database"""
 
-        self.execute(f'DROP DATABASE {self.name}')
+        self.execute(f'DROP DATABASE {self._connection.database}')
 
     def execute(self, statement: str, params: Sequence[Any] = ()) -> None:
         """
