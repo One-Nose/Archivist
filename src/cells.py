@@ -24,7 +24,7 @@ class Cell(Generic[CellValue]):
         self.negated = negate
 
     def __repr__(self) -> str:
-        return f'{type(self).__name__}({repr(self.value)})'
+        return f'{type(self).__name__}({self.value!r})'
 
     def __str__(self) -> str:
         return str(self.value)

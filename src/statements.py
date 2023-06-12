@@ -32,7 +32,7 @@ class Statement:
         self._params = tuple(params)
 
     def __repr__(self) -> str:
-        return f'{type(self).__name__}({repr(str(self))})'
+        return f'{type(self).__name__}({str(self)!r})'
 
     def __str__(self) -> str:
         return self._statement

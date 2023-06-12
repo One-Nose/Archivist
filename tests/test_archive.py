@@ -24,4 +24,4 @@ class TestArchive:
         archive.close()
 
     def test___repr__(self, archive: Archive, config: ArchiveConfig):
-        assert repr(archive) == f'Archive({repr(config["connect"]["database"])})'
+        assert repr(archive) == f'Archive({config["connect"]["database"]!r})'
