@@ -50,7 +50,7 @@ class Archive:
         self._database.connect()
 
     def __repr__(self) -> str:
-        return f'{type(self).__name__}({repr(self._database.name)})'
+        return f'{type(self).__name__}()'
 
     def add_order_rule(self, large: Property, small: Property) -> None:
         """
