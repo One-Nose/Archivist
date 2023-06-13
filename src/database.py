@@ -174,11 +174,13 @@ class Database(dict[str, Table]):
     _connection: Connection
     _cursor: Cursor
     analyzer: Analyzer
+    connected: bool
 
     def __init__(self) -> None:
         super().__init__()
 
         self.analyzer = Analyzer(self)
+        self.connected = False
 
         self.update(
             {
@@ -254,6 +256,7 @@ class Database(dict[str, Table]):
 
         self._cursor.close()
         self._connection.close()
+        self.connected = False
 
     def commit(self) -> None:
         """Commits the changes to the database"""
@@ -269,6 +272,7 @@ class Database(dict[str, Table]):
             self.use().execute()
         except ProgrammingError:
             self.init()
+        self.connected = True
 
     def drop(self) -> None:
         """Drops the database"""
