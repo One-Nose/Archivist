@@ -21,15 +21,16 @@ from .registry import set_connection
 class MainWindow(QMainWindow):
     """Represents the main window"""
 
-    _archive: Archive
     _database: QLineEdit
     _drop_button: QPushButton
     _password: QLineEdit
     _username: QLineEdit
+    archive: Archive
 
     def __init__(self) -> None:
         super().__init__()
 
+        self.archive = Archive()
         self.setWindowTitle('Archivist Administer User Interface')
         self.setFixedSize(400, 200)
 
@@ -69,7 +70,7 @@ class MainWindow(QMainWindow):
         """Creates the archive if does not exist and connects to it"""
 
         try:
-            self._archive = Archive()
+            self.archive.connect()
             self._drop_button.setEnabled(True)
 
             success = QMessageBox()
@@ -98,7 +99,7 @@ class MainWindow(QMainWindow):
         query.addButton(QMessageBox.StandardButton.Yes)
 
         if query.exec() == QMessageBox.StandardButton.Yes:
-            self._archive.drop()
+            self.archive.drop()
             self._drop_button.setEnabled(False)
 
     def _update_connection(self) -> None:

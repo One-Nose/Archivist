@@ -4,6 +4,7 @@ from src.archive import Archive
 
 if __name__ == '__main__':
     archive = Archive()
+    archive.connect()
     archive.reset()
 
     try:

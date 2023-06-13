@@ -22,7 +22,6 @@ class Archive:
         """Creates a Database object according to the optional config object"""
 
         self._database = Database()
-        self._database.connect()
 
     def __repr__(self) -> str:
         return f'{type(self).__name__}()'
@@ -50,6 +49,11 @@ class Archive:
         """
 
         return Category(self._database, _Category(category_id))
+
+    def connect(self) -> None:
+        """Connects to the database"""
+
+        self._database.connect()
 
     @property
     def connected(self) -> bool:
