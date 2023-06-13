@@ -51,6 +51,12 @@ class Archive:
 
         return Category(self._database, _Category(category_id))
 
+    @property
+    def connected(self) -> bool:
+        """Whether the database is connected"""
+
+        return self._database.connected
+
     def close(self) -> None:
         """Closes the connection"""
 
