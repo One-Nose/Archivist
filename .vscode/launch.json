@@ -2,10 +2,17 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Python: Module",
+      "name": "Archive",
       "type": "python",
       "request": "launch",
       "module": "src.main",
+      "justMyCode": true
+    },
+    {
+      "name": "Server",
+      "type": "python",
+      "request": "launch",
+      "module": "server.main",
       "justMyCode": true
     },
     {
