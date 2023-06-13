@@ -136,11 +136,11 @@ class MainWindow(QMainWindow):
 
 
 def display() -> None:
-    """Displays the main window"""
+    """Displays the main window and blocks the program"""
 
-    app = QApplication([])
-
-    window = MainWindow()
     window.show()
-
     app.exec()
+
+
+app = QApplication([])
+window = MainWindow()
