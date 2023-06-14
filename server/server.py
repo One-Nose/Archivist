@@ -4,6 +4,8 @@ from logging import info
 
 from flask import Flask
 
+from blueprints import connect, index
+
 PORT = 8627
 
 
@@ -12,6 +14,7 @@ def _create_app() -> Flask:
 
     app = Flask(__name__)
     app.register_blueprint(index)
+    app.register_blueprint(connect, url_prefix='/connect')
 
     return app
 
