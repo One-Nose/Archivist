@@ -1,7 +1,10 @@
 """Server running and utilities"""
+
+from logging import info
+
 from flask import Flask
 
-from blueprints import index
+PORT = 8627
 
 
 def _create_app() -> Flask:
@@ -16,4 +19,5 @@ def _create_app() -> Flask:
 def start_server() -> None:
     """Starts a server"""
 
-    _create_app().run('127.0.0.1', 8080, debug=True)
+    info('Starting server...')
+    _create_app().run('0.0.0.0', PORT)
