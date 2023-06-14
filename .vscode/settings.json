@@ -36,5 +36,6 @@
   "python.testing.autoTestDiscoverOnSaveEnabled": false,
   "python.analysis.diagnosticSeverityOverrides": {
     "reportIncompatibleMethodOverride": "none"
-  }
+  },
+  "python.analysis.autoSearchPaths": false
 }
