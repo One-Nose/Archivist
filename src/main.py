@@ -8,6 +8,6 @@ from .server import listen
 
 setup()
 
-Thread(target=listen).start()
+Thread(target=listen, daemon=True).start()
 
 display()
