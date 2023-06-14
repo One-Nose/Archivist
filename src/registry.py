@@ -1,5 +1,6 @@
 """Allows access to the registry"""
 
+from random import choices
 from winreg import (
     HKEY_CURRENT_USER,
     KEY_WRITE,
@@ -9,6 +10,16 @@ from winreg import (
     QueryValueEx,
     SetValueEx,
 )
+
+
+def get_archive_password() -> str:
+    """
+    Fetches the archive's password from the database
+    :return: The archive's password
+    """
+
+    with OpenKeyEx(HKEY_CURRENT_USER, r'SOFTWARE\\Archivist\\') as archivist:
+        return QueryValueEx(archivist, 'ArchivePassword')[0]
 
 
 def get_database() -> str:
@@ -65,3 +76,15 @@ def setup() -> None:
                 SetValueEx(archivist, 'Username', 0, REG_SZ, 'root')
                 SetValueEx(archivist, 'Password', 0, REG_SZ, 'root')
                 SetValueEx(archivist, 'Database', 0, REG_SZ, 'archivist')
+                SetValueEx(
+                    archivist,
+                    'ArchivePassword',
+                    0,
+                    REG_SZ,
+                    ''.join(
+                        choices(
+                            'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789',
+                            k=16,
+                        )
+                    ),
+                )
