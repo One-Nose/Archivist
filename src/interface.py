@@ -13,9 +13,10 @@ from PyQt6.QtWidgets import (
     QVBoxLayout,
     QWidget,
 )
+from PyQt6.QtCore import Qt
 
 from .archive import Archive
-from .registry import set_connection
+from .registry import get_archive_password, set_connection
 
 
 class MainWindow(QMainWindow):
@@ -32,7 +33,7 @@ class MainWindow(QMainWindow):
 
         self.archive = Archive()
         self.setWindowTitle('Archivist Administer User Interface')
-        self.setFixedSize(400, 200)
+        self.setFixedSize(400, 230)
 
         self._username = QLineEdit()
         self._username.setPlaceholderText('Username...')
@@ -61,6 +62,10 @@ class MainWindow(QMainWindow):
         self._drop_button.setEnabled(False)
         self._drop_button.clicked.connect(self._drop)
         layout.addWidget(self._drop_button)
+
+        view_password = QPushButton('View Archive Password')
+        view_password.clicked.connect(self._show_password)
+        layout.addWidget(view_password)
 
         widget = QWidget()
         widget.setLayout(layout)
@@ -101,6 +106,18 @@ class MainWindow(QMainWindow):
         if query.exec() == QMessageBox.StandardButton.Yes:
             self.archive.drop()
             self._drop_button.setEnabled(False)
+
+    def _show_password(self) -> None:
+        """Shows the archive password"""
+
+        message_box = QMessageBox()
+        message_box.setIcon(QMessageBox.Icon.Information)
+        message_box.setWindowTitle('Archive Password')
+        message_box.setText(get_archive_password())
+        message_box.setTextInteractionFlags(
+            Qt.TextInteractionFlag.TextSelectableByMouse
+        )
+        message_box.exec()
 
     def _update_connection(self) -> None:
         """Updates the connection details according to the input"""
