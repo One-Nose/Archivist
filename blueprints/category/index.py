@@ -10,7 +10,7 @@ category = Blueprint('category', __name__, template_folder='templates')
 @category.route('/<int:category_id>')
 def show(category_id: int) -> str:
     """
-    :param category_id: he category's ID
+    :param category_id: The category's ID
     :return: The category page HTML
     """
 
