@@ -1,5 +1,6 @@
 """Provides archive user operations"""
 from __future__ import annotations
+from itertools import groupby
 
 from typing import Generic, TypeVar
 
@@ -202,6 +203,28 @@ class Category(Row[_Category]):
     """Allows access to a category"""
 
     _NO_CATEGORY = _Category(0)
+
+    def get_elements(self) -> list[list[str]]:
+        """
+        Fetches of element of the category
+        :return: A list of lists of descriptions
+        """
+
+        return [
+            [row['descriptions.description'] for row in element]
+            for _, element in groupby(
+                self._database.table_references('elements', 'descriptions')
+                .select('elements.id', 'descriptions.description')
+                .where(
+                    **{
+                        'elements.id': 'descriptions.element',
+                        'elements.category': self.id,
+                    }
+                )
+                .execute(),
+                lambda row: row['elements.id'],
+            )
+        ]
 
     def get_name(self) -> str:
         """
