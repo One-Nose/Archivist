@@ -94,6 +94,20 @@ class Archive:
 
         return Element(self._database, _Element(identifier))
 
+    def get_categories(self) -> list[dict[str, str | int]]:
+        """
+        Fetches all categories
+        :return: An alphabetical list of categories, in the form of {'id': id, 'name': name}
+        """
+
+        return [
+            {'id': category['id'], 'name': category['name']}
+            for category in self._database['categories']
+            .select('id', 'name')
+            .order_by('name')
+            .execute()
+        ]
+
     def new_category(self, name: str) -> Category:
         """
         Creates a new category
