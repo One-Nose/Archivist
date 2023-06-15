@@ -220,7 +220,12 @@ class Category(Row[_Category]):
                 )
                 .select('large.name', 'small.name')
                 .where(
-                    **{'order_rules.large': 'large.id', 'order_rules.small': 'small.id'}
+                    **{
+                        'order_rules.large': 'large.id',
+                        'order_rules.small': 'small.id',
+                        'large.category': self.id,
+                        'small.category': self.id,
+                    }
                 )
             ).execute()
         ]
