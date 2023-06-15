@@ -1,24 +1,15 @@
-<!DOCTYPE html>
-<html>
-    <head>
-        <title>Archivist</title>
-        <link
-            rel="stylesheet"
-            href="{{ url_for('static', filename='style.css') }}"
-        />
-        <script
-            src="https://code.jquery.com/jquery-3.7.0.min.js"
-            integrity="sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g="
-            crossorigin="anonymous"
-        ></script>
-    </head>
+{% extends 'base.html' %}
 
-    <body>
-        <h1>Archivist</h1>
-        <input id="connect-password" type="text" placeholder="Password..." />
-        <br />
-        <button id="connect-button">Connect to Archive</button>
+<!-- Title -->
+{% block title %} Connect Archive {% endblock %}
 
-        <script src="{{ url_for('static', filename='script.js') }}"></script>
-    </body>
-</html>
+<!-- Content -->
+{% block content %}
+
+<input id="connect-password" type="text" placeholder="Password..." />
+<br />
+<button id="connect-button">Connect to Archive</button>
+<br />
+<button id="guest-button">View Archive as Guest</button>
+
+{% endblock %}

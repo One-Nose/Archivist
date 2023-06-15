@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+<!-- Title -->
+{% block title %} Categories {% endblock %}
+
+<!-- Content -->
+{% block content %}
+
+<button id="view-archive">View Archive</button>
+<br /><br />
+<b>Categories</b>
+<div>
+    {% for category in categories %}
+    <button id="view-category" name="{{ category.id }}">
+        {{ category.name }}
+    </button>
+    {% endfor %}
+</div>
+
+{% endblock %}

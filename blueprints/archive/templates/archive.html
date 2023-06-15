@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+<!-- Title -->
+{% block title %} Arhive: {{ archive_name }} {% endblock %}
+
+<!-- Content -->
+{% block content %}
+
+<h2>Archive: {{ archive_name }}</h2>
+
+{% if not connected %}
+<button id="view-index">Connect to Archive</button>
+{% else %}
+<button id="disconnect">Disconnect from Archive</button>
+{% endif %}
+
+<br />
+<button id="view-categories">View Categories</button>
+
+{% endblock %}

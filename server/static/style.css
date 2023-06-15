@@ -3,10 +3,11 @@ body {
     font-size: xx-large;
 }
 
-#connect-password {
+button,
+input {
     font-size: large;
 }
 
-#connect-button {
-    font-size: large;
+div button {
+    width: 50%;
 }
