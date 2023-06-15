@@ -33,6 +33,7 @@ def handle(connection: socket, data: bytes) -> None:
                 {
                     'name': category.get_name(),
                     'properties': category.get_property_names(),
+                    'order_rules': category.get_order_rules(),
                 }
             )
         case 'get_database_name':

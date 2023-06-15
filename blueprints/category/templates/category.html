@@ -9,6 +9,18 @@
 <h2>Category: {{ name }}</h2>
 <button id="view-categories">View Categories</button>
 <br /><br />
-<b>Properties:</b> {{ properties }}
+<b>Properties:</b>
+{{ properties }}
 
+<br /><br />
+<b>Order Rules</b>
+
+{% for rule in order_rules %}
+
+<br />{{ rule.large }} > {{ rule.small }}
+
+<!-- End Order Rules -->
+{% endfor %}
+
+<!-- End Content -->
 {% endblock %}

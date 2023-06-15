@@ -20,4 +20,5 @@ def show(category_id: int) -> str:
         'category.html',
         name=category_details['name'],
         properties=', '.join(category_details['properties']),
+        order_rules=category_details['order_rules'],
     )
