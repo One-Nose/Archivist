@@ -26,7 +26,7 @@ from .cells import (
     ShortText,
     UnsignedInt,
 )
-from .registry import get_database, get_connection
+from .registry import get_connection, get_database
 from .statements import DataStatement, Select, Statement
 
 
