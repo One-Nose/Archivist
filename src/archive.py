@@ -240,6 +240,21 @@ class Category(Row[_Category]):
             ).execute()
         ]
 
+    def get_properties(self) -> list[dict[str, str | int]]:
+        """
+        Fetches the category's properties
+        :return: An alphabetical list of properties, as {'id': id, 'name': name}
+        """
+
+        return [
+            {'id': property['id'], 'name': property['name']}
+            for property in self._database['properties']
+            .select('id', 'name')
+            .where(category=self.id)
+            .order_by('name')
+            .execute()
+        ]
+
     def get_property_names(self) -> list[str]:
         """
         Fetches the category's properties' names
