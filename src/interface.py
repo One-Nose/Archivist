@@ -2,7 +2,8 @@
 
 from re import match
 
-from mariadb import OperationalError
+from mariadb import Error
+from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import (
     QApplication,
     QLabel,
@@ -13,7 +14,6 @@ from PyQt6.QtWidgets import (
     QVBoxLayout,
     QWidget,
 )
-from PyQt6.QtCore import Qt
 
 from .archive import Archive
 from .registry import get_archive_password, set_connection
@@ -84,7 +84,7 @@ class MainWindow(QMainWindow):
             success.setText('Connected to database.')
             success.exec()
 
-        except OperationalError:
+        except Error:
             error = QMessageBox()
             error.setIcon(QMessageBox.Icon.Critical)
             error.setWindowTitle('Error')
