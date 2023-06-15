@@ -206,6 +206,25 @@ class Category(Row[_Category]):
             .execute()[0]['name']
         )
 
+    def get_order_rules(self) -> list[dict[str, str]]:
+        """
+        Fetches the category's order rules
+        :return: A list of order rules, as {'large': name, 'small': name}
+        """
+
+        return [
+            {'large': rule['large.name'], 'small': rule['small.name']}
+            for rule in (
+                self._database.table_references(
+                    'order_rules', 'properties as large', 'properties as small'
+                )
+                .select('large.name', 'small.name')
+                .where(
+                    **{'order_rules.large': 'large.id', 'order_rules.small': 'small.id'}
+                )
+            ).execute()
+        ]
+
     def get_property_names(self) -> list[str]:
         """
         Fetches the category's properties' names
