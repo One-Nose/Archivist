@@ -22,10 +22,11 @@ def handle(connection: socket, data: bytes) -> None:
 
     response: dict[str, Any] = {'message': 'response', 'response': message['message']}
 
-    if message['message'] == 'connect_user':
-        response.update({'success': message['password'] == get_archive_password()})
-    else:
-        raise ValueError
+    match message['message']:
+        case 'connect_user':
+            response.update({'success': message['password'] == get_archive_password()})
+        case _:
+            raise ValueError
 
     connection.sendall(dumps(response).encode())
 
