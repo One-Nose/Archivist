@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+<!-- Title -->
+{% block title %} Add Order Rule to Category: {{ category_name }} {% endblock %}
+
+<!-- Content -->
+{% block content %}
+
+<h2>Category: {{ category_name }}</h2>
+<button id="view-category" name="{{ category_id }}">Return to Category</button>
+
+<br /><br />
+Large:
+<select id="select-large">
+    <option value="">Select property...</option>
+    {% for property in properties %}
+    <option value="{{ property.id }}">{{ property.name }}</option>
+    {% endfor %}
+</select>
+
+<br />
+Small:
+<select id="select-small">
+    <option value="">Select property...</option>
+    {% for property in properties %}
+    <option value="{{ property.id }}">{{ property.name }}</option>
+    {% endfor %}
+</select>
+
+<br /><br />
+<button id="add-order-rule">Add Order Rule</button>
+
+{% endblock %}

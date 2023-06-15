@@ -8,6 +8,12 @@
 
 <h2>Category: {{ name }}</h2>
 <button id="view-categories">View Categories</button>
+
+{% if connected %}
+<br />
+<button id="view-add-order-rule">Add Order Rule</button>
+{% endif %}
+
 <br /><br />
 <b>Properties:</b>
 {{ properties }}

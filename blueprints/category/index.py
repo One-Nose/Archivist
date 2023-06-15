@@ -1,6 +1,6 @@
 """A category's page"""
 
-from flask import Blueprint, render_template
+from flask import Blueprint, render_template, request
 
 from server.client import send
 
@@ -18,6 +18,7 @@ def show(category_id: int) -> str:
 
     return render_template(
         'category.html',
+        connected=request.cookies.get('password') is not None,
         name=category_details['name'],
         properties=', '.join(category_details['properties']),
         order_rules=category_details['order_rules'],

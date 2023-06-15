@@ -5,6 +5,8 @@ from socket import AF_INET, SOCK_STREAM, gethostname, socket
 from time import sleep
 from typing import Any
 
+from mariadb import Error
+
 from .interface import window
 from .registry import get_archive_password, get_database
 
@@ -23,6 +25,20 @@ def handle(connection: socket, data: bytes) -> None:
     response: dict[str, Any] = {'message': 'response', 'response': message['message']}
 
     match message['message']:
+        case 'add_order_rule':
+            success = True
+            if message['password'] == get_archive_password():
+                try:
+                    window.archive.add_order_rule(
+                        window.archive.property(message['large']),
+                        window.archive.property(message['small']),
+                    )
+                    window.archive.commit()
+                except (Error, AssertionError):
+                    success = False
+            else:
+                success = False
+            response.update({'success': success})
         case 'connect_user':
             response.update({'success': message['password'] == get_archive_password()})
         case 'get_categories':
@@ -35,6 +51,11 @@ def handle(connection: socket, data: bytes) -> None:
                     'properties': category.get_property_names(),
                     'order_rules': category.get_order_rules(),
                 }
+            )
+        case 'get_category_and_properties':
+            category = window.archive.category(message['id'])
+            response.update(
+                {'name': category.get_name(), 'properties': category.get_properties()}
             )
         case 'get_database_name':
             response.update({'name': get_database()})

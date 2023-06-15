@@ -4,8 +4,9 @@ body {
 }
 
 button,
-input {
-    font-size: large;
+input,
+select {
+    font-size: x-large;
 }
 
 div button {

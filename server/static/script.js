@@ -1,3 +1,20 @@
+$('#add-order-rule').click((event) => {
+    const large = $('#select-large').val()
+    const small = $('#select-small').val()
+
+    if (large === '' || small === '') alert('Please choose two properties.')
+    else if (large === small) alert('Please choose different properties.')
+    else
+        $.post('/add-order-rule', { large: large, small: small }, (data) => {
+            if (data.success) {
+                alert('Order rule added successfully.')
+                $('#view-category').click()
+            } else alert('Could not add order rule.')
+        }).fail(() => {
+            alert('An error has occurred.')
+        })
+})
+
 $('#connect-button').click(() => {
     const connectPassword = $('#connect-password')
     const password = connectPassword.val()
@@ -21,6 +38,12 @@ $('#disconnect').click(() => {
 
 $('#guest-button').click(() => {
     location.replace('/archive')
+})
+
+$('#view-add-order-rule').click(() => {
+    location.replace(
+        `/add-order-rule-page/${location.pathname.match(/\/([^/]+)$/)[1]}`
+    )
 })
 
 $('#view-archive').click(() => {
