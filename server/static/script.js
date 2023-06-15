@@ -1,4 +1,8 @@
-$('#add-order-rule').click((event) => {
+function lastPathPart() {
+    return location.pathname.match(/\/([^/]+)$/)[1]
+}
+
+$('#add-order-rule').click(() => {
     const large = $('#select-large').val()
     const small = $('#select-small').val()
 
@@ -41,9 +45,7 @@ $('#guest-button').click(() => {
 })
 
 $('#view-add-order-rule').click(() => {
-    location.replace(
-        `/add-order-rule-page/${location.pathname.match(/\/([^/]+)$/)[1]}`
-    )
+    location.replace(`/add-order-rule-page/${lastPathPart()}`)
 })
 
 $('#view-archive').click(() => {
