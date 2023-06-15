@@ -206,6 +206,21 @@ class Category(Row[_Category]):
             .execute()[0]['name']
         )
 
+    def get_property_names(self) -> list[str]:
+        """
+        Fetches the category's properties' names
+        :return: An alphabetical list of the properties' names
+        """
+
+        return [
+            property['name']
+            for property in self._database['properties']
+            .select('name')
+            .where(category=self.id)
+            .order_by('name')
+            .execute()
+        ]
+
     def new_property(self, name: str) -> Property:
         """
         Adds a property to the category
