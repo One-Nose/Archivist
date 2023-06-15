@@ -33,7 +33,8 @@ class Archive:
         :param small: The property that must be smaller
         """
 
-        assert large.parent == small.parent
+        if large.parent and small.parent:
+            assert large.parent == small.parent
         self._database['order_rules'].insert(large=large.id, small=small.id).execute()
 
     def analyze_rules(self) -> None:
@@ -303,9 +304,17 @@ class Point(Row[_Point]):
 class Property(Row[_Property]):
     """Allows access to a category property"""
 
-    parent: Category
+    parent: Category | None
 
-    def __init__(self, parent: Category, identifier: _Property) -> None:
-        super().__init__(parent._database, identifier)
+    def __init__(self, parent: Category | Database, identifier: _Property) -> None:
+        """
+        Creates a property object to access a property
+        :param parent: Either the category parent or the database parent of the property
+        :param identifier: The property's ID
+        """
 
-        self.parent = parent
+        super().__init__(
+            parent._database if isinstance(parent, Category) else parent, identifier
+        )
+
+        self.parent = parent if isinstance(parent, Category) else None
