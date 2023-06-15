@@ -239,7 +239,7 @@ class Database(dict[str, Table]):
                         id=OrderRule.primary_key(),
                         large=Property,
                         small=Property,
-                    ),
+                    ).unique('large', 'small'),
                     self.table(
                         'orders',
                         id=Order.primary_key(),
