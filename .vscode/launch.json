@@ -16,6 +16,13 @@
       "justMyCode": true
     },
     {
+      "name": "Main",
+      "type": "python",
+      "request": "launch",
+      "module": "main",
+      "justMyCode": true
+    },
+    {
       "name": "Python: Debug Tests",
       "type": "python",
       "request": "launch",
