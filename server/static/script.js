@@ -30,7 +30,7 @@ $('#view-categories').click(() => {
 })
 
 $('#view-category').click((event) => {
-    location.replace(`/category/${event.target.name}`)
+    location.replace(`/category/${event.currentTarget.name}`)
 })
 
 $('#view-index').click(() => {
