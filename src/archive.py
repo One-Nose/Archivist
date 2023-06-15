@@ -154,6 +154,15 @@ class Archive:
 
         return Point(self._database, _Point(identifier))
 
+    def property(self, identifier: int) -> Property:
+        """
+        Creates a property object with an unknown parent to access a category's property
+        :param identifier: The property's ID
+        :return: The newly created property object
+        """
+
+        return Property(self._database, _Property(identifier))
+
     def reset(self) -> None:
         """Completely resets the database"""
 
