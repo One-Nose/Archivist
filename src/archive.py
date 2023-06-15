@@ -193,6 +193,19 @@ class Category(Row[_Category]):
 
     _NO_CATEGORY = _Category(0)
 
+    def get_name(self) -> str:
+        """
+        Fetches the category's name
+        :return: The category's name
+        """
+
+        return (
+            self._database['categories']
+            .select('name')
+            .where(id=self.id)
+            .execute()[0]['name']
+        )
+
     def new_property(self, name: str) -> Property:
         """
         Adds a property to the category
