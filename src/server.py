@@ -6,7 +6,7 @@ from time import sleep
 from typing import Any
 
 from .interface import window
-from .registry import get_archive_password
+from .registry import get_archive_password, get_database
 
 PORT = 8626
 
@@ -25,6 +25,12 @@ def handle(connection: socket, data: bytes) -> None:
     match message['message']:
         case 'connect_user':
             response.update({'success': message['password'] == get_archive_password()})
+        case 'get_categories':
+            response.update({'categories': window.archive.get_categories()})
+        case 'get_category':
+            response.update({'name': window.archive.category(message['id']).get_name()})
+        case 'get_database_name':
+            response.update({'name': get_database()})
         case _:
             raise ValueError
 
