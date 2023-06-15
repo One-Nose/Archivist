@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+<!-- Title -->
+{% block title %} Elements of Category: {{ name }} {% endblock %}
+
+<!-- Content -->
+{% block content %}
+
+<h2>Category: {{ name }}</h2>
+<button id="view-category" name="{{ category_id }}">Return to Category</button>
+
+<br /><br />
+<b>Elements</b>
+<br /><br />
+<div>
+    {% for element in elements %}
+    <div>
+        {% for description in element %} {{ description }} <br />{% endfor %}
+    </div>
+    {% endfor %}
+</div>
+
+{% endblock %}

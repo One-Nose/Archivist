@@ -60,6 +60,10 @@ $('#view-category').click((event) => {
     location.replace(`/category/${event.currentTarget.name}`)
 })
 
+$('#view-elements').click((event) => {
+    location.replace(`/elements/${lastPathPart()}`)
+})
+
 $('#view-index').click(() => {
     location.replace('/')
 })

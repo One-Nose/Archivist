@@ -52,6 +52,11 @@ def handle(connection: socket, data: bytes) -> None:
                     'order_rules': category.get_order_rules(),
                 }
             )
+        case 'get_category_and_elements':
+            category = window.archive.category(message['id'])
+            response.update(
+                {'name': category.get_name(), 'elements': category.get_elements()}
+            )
         case 'get_category_and_properties':
             category = window.archive.category(message['id'])
             response.update(

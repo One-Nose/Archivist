@@ -11,6 +11,7 @@ from blueprints import (
     categories,
     category,
     connect,
+    elements,
     index,
 )
 
@@ -26,6 +27,7 @@ def _create_app() -> Flask:
     app.register_blueprint(archive, url_prefix='/archive')
     app.register_blueprint(categories, url_prefix='/categories')
     app.register_blueprint(category, url_prefix='/category')
+    app.register_blueprint(elements, url_prefix='/elements')
 
     app.register_blueprint(add_order_rule, url_prefix='/add-order-rule')
     app.register_blueprint(connect, url_prefix='/connect')

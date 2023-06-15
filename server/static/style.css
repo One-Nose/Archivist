@@ -12,3 +12,16 @@ select {
 div button {
     width: 50%;
 }
+
+div div {
+    border: solid;
+    border-radius: 10px;
+    width: 28%;
+    display: inline-block;
+    margin: 0.5%;
+    padding: 1%;
+    height: 20vh;
+    overflow-y: auto;
+    text-align: justify;
+    font-size: x-large;
+}
