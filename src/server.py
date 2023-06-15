@@ -28,7 +28,13 @@ def handle(connection: socket, data: bytes) -> None:
         case 'get_categories':
             response.update({'categories': window.archive.get_categories()})
         case 'get_category':
-            response.update({'name': window.archive.category(message['id']).get_name()})
+            category = window.archive.category(message['id'])
+            response.update(
+                {
+                    'name': category.get_name(),
+                    'properties': category.get_property_names(),
+                }
+            )
         case 'get_database_name':
             response.update({'name': get_database()})
         case _:

@@ -14,7 +14,10 @@ def show(category_id: int) -> str:
     :return: The category page HTML
     """
 
+    category_details = send({'message': 'get_category', 'id': category_id})
+
     return render_template(
         'category.html',
-        name=send({'message': 'get_category', 'id': category_id})['name'],
+        name=category_details['name'],
+        properties=', '.join(category_details['properties']),
     )
