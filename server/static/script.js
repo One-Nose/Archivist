@@ -9,6 +9,8 @@ $('#connect-button').click(() => {
             connectPassword.val('')
             alert('Wrong password')
         }
+    }).fail(() => {
+        alert('An error has occurred.')
     })
 })
 
