@@ -1,6 +1,6 @@
 """The archive screen"""
 
-from flask import Blueprint, render_template, request
+from flask import Blueprint, render_template
 
 from server.client import send
 
@@ -12,7 +12,5 @@ def show() -> str:
     """:return: The archive screen's HTML"""
 
     return render_template(
-        'archive.html',
-        archive_name=send({'message': 'get_database_name'})['name'],
-        connected=request.cookies.get('password') is not None,
+        'archive.html', archive_name=send({'message': 'get_database_name'})['name']
     )

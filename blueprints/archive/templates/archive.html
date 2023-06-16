@@ -8,10 +8,10 @@
 
 <h2>Archive: {{ archive_name }}</h2>
 
-{% if not connected %}
-<button id="view-index">Connect to Archive</button>
-{% else %}
+{% if 'password' in request.cookies %}
 <button id="disconnect">Disconnect from Archive</button>
+{% else %}
+<button id="view-index">Connect to Archive</button>
 {% endif %}
 
 <br />

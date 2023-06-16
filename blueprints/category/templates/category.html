@@ -12,7 +12,7 @@
 <br /><br />
 <button id="view-elements">View Elements</button>
 
-{% if connected %}
+{% if 'password' in request.cookies %}
 <br />
 <button id="view-add-order-rule">Add Order Rule</button>
 {% endif %}
