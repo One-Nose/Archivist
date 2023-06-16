@@ -70,7 +70,7 @@ def handle(connection: socket, data: bytes) -> None:
         case 'get_database_name':
             response.update({'name': get_database()})
         case _:
-            raise ValueError
+            pass
 
     connection.sendall(dumps(response).encode())
 
