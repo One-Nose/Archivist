@@ -1,7 +1,8 @@
 """Provides archive user operations"""
-from __future__ import annotations
-from itertools import groupby
 
+from __future__ import annotations
+
+from collections import defaultdict
 from typing import Generic, TypeVar
 
 from .cells import Category as _Category
@@ -210,21 +211,18 @@ class Category(Row[_Category]):
         :return: A list of lists of descriptions
         """
 
-        return [
-            [row['descriptions.description'] for row in element]
-            for _, element in groupby(
-                self._database.table_references('elements', 'descriptions')
-                .select('elements.id', 'descriptions.description')
-                .where(
-                    **{
-                        'elements.id': 'descriptions.element',
-                        'elements.category': self.id,
-                    }
-                )
-                .execute(),
-                lambda row: row['elements.id'],
-            )
-        ]
+        elements: defaultdict[int, list[str]] = defaultdict(lambda: [])
+
+        for row in (
+            self._database['elements']
+            .left_join('descriptions', ('elements.id', 'descriptions.element'))
+            .select('elements.id', 'descriptions.description')
+            .where(**{'elements.category': self.id})
+            .execute()
+        ):
+            elements[row['elements.id']].append(row['descriptions.description'])
+
+        return list(elements.values())
 
     def get_name(self) -> str:
         """

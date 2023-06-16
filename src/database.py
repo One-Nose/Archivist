@@ -64,6 +64,19 @@ class TableReferences:
         self._database = database
         self._references = ', '.join(references)
 
+    def left_join(self, table: str, columns: tuple[str, str]) -> TableReferences:
+        """
+        Left joins another table to this
+        :param table: The table to join
+        :param columns: Two columns that should be used to join the tables
+        :return: A joined table references object
+        """
+
+        return TableReferences(
+            self._database,
+            [f'{self._references} LEFT JOIN {table} ON {" = ".join(columns)}'],
+        )
+
     def select(self, *columns: str | int) -> Select:
         """
         Creates a SELECT statement that selects data from the table
