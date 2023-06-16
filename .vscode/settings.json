@@ -4,6 +4,8 @@
     "--disable=no-name-in-module",
     "--disable=relative-beyond-top-level",
     "--disable=too-few-public-methods",
+    "--disable=too-many-branches",
+    "--disable=too-many-statements",
     "--disable=useless-import-alias",
     "--good-names=id",
     "--ignore-patterns=test_.*?py"
