@@ -15,7 +15,14 @@
 <div>
     {% for element in elements %}
     <div>
-        {% for description in element %} {{ description }} <br />{% endfor %}
+        {% for description in element %}
+        <!-- For Each description -->
+
+        {% if description is none %} --- {%else %} {{ description }}<br /><br />
+        {% endif %}
+
+        <!-- End For -->
+        {% endfor %}
     </div>
     {% endfor %}
 </div>
