@@ -20,6 +20,5 @@ def show(category_id: int) -> str:
         'elements.html',
         category_id=category_id,
         name=category_details['name'],
-        # elements=category_details['elements'],
         elements=category_details['elements'],
     )
