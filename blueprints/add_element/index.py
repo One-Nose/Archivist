@@ -1,4 +1,4 @@
-"""Recieves POST requests to add an order rule"""
+"""Recieves POST requests to add an element"""
 
 from typing import Any
 from flask import Blueprint, request
@@ -11,7 +11,7 @@ add_element = Blueprint('add_element', __name__)
 @add_element.post('/')
 def post() -> dict[str, bool]:
     """
-    Adds an order rule
+    Adds an element
     :return: {'success': bool}
     """
 
