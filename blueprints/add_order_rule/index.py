@@ -1,5 +1,7 @@
 """Recieves POST requests to add an order rule"""
 
+from typing import Any
+
 from flask import Blueprint, request
 
 from server.client import send
@@ -14,13 +16,16 @@ def post() -> dict[str, bool]:
     :return: {'success': bool}
     """
 
+    large: Any = request.form['large']
+    small: Any = request.form['small']
+
     return {
         'success': send(
             {
                 'message': 'add_order_rule',
-                'password': request.cookies.get('password'),
-                'large': request.form['large'],
-                'small': request.form['small'],
+                'password': request.cookies['password'],
+                'large': int(large),
+                'small': int(small),
             }
         )['success']
     }

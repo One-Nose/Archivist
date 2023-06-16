@@ -29,6 +29,8 @@ def handle(connection: socket, data: bytes) -> None:
             success = True
             if message['password'] == get_archive_password():
                 try:
+                    assert isinstance(message['large'], int)
+                    assert isinstance(message['small'], int)
                     window.archive.add_order_rule(
                         window.archive.property(message['large']),
                         window.archive.property(message['small']),
@@ -44,6 +46,7 @@ def handle(connection: socket, data: bytes) -> None:
         case 'get_categories':
             response.update({'categories': window.archive.get_categories()})
         case 'get_category':
+            assert isinstance(message['id'], int)
             category = window.archive.category(message['id'])
             response.update(
                 {
@@ -53,11 +56,13 @@ def handle(connection: socket, data: bytes) -> None:
                 }
             )
         case 'get_category_and_elements':
+            assert isinstance(message['id'], int)
             category = window.archive.category(message['id'])
             response.update(
                 {'name': category.get_name(), 'elements': category.get_elements()}
             )
         case 'get_category_and_properties':
+            assert isinstance(message['id'], int)
             category = window.archive.category(message['id'])
             response.update(
                 {'name': category.get_name(), 'properties': category.get_properties()}
