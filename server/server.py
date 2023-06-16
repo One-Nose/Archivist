@@ -5,6 +5,7 @@ from logging import info
 from flask import Flask
 
 from blueprints import (
+    add_element,
     add_order_rule,
     add_order_rule_page,
     archive,
@@ -29,6 +30,7 @@ def _create_app() -> Flask:
     app.register_blueprint(category, url_prefix='/category')
     app.register_blueprint(elements, url_prefix='/elements')
 
+    app.register_blueprint(add_element, url_prefix='/add-element')
     app.register_blueprint(add_order_rule, url_prefix='/add-order-rule')
     app.register_blueprint(connect, url_prefix='/connect')
 

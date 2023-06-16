@@ -25,6 +25,18 @@ def handle(connection: socket, data: bytes) -> None:
     response: dict[str, Any] = {'message': 'response', 'response': message['message']}
 
     match message['message']:
+        case 'add_element':
+            success = True
+            if message['password'] == get_archive_password():
+                try:
+                    assert isinstance(message['category'], int)
+                    window.archive.category(message['category']).add_element()
+                    window.archive.commit()
+                except (Error, AssertionError):
+                    success = False
+            else:
+                success = False
+            response.update({'success': success})
         case 'add_order_rule':
             success = True
             if message['password'] == get_archive_password():

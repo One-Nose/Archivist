@@ -9,6 +9,11 @@
 <h2>Category: {{ name }}</h2>
 <button id="view-category" name="{{ category_id }}">Return to Category</button>
 
+{% if 'password' in request.cookies %}
+<br />
+<button id="add-element">Add Element</button>
+{% endif %}
+
 <br /><br />
 <b>Elements</b>
 <br /><br />

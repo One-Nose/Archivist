@@ -1,5 +1,6 @@
 """Allows importing from blueprints"""
 
+from .add_element.index import add_element as add_element
 from .add_order_rule.index import add_order_rule as add_order_rule
 from .add_order_rule_page.index import add_order_rule_page as add_order_rule_page
 from .archive.index import archive as archive

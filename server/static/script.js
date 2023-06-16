@@ -2,6 +2,15 @@ function lastPathPart() {
     return location.pathname.match(/\/([^/]+)$/)[1]
 }
 
+$('#add-element').click(() => {
+    $.post('/add-element', { category: lastPathPart() }, (data) => {
+        if (data.success) location.reload()
+        else alert('Could not add the element')
+    }).fail(() => {
+        alert('An error has occurred')
+    })
+})
+
 $('#add-order-rule').click(() => {
     const large = $('#select-large').val()
     const small = $('#select-small').val()
