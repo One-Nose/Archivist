@@ -205,6 +205,11 @@ class Category(Row[_Category]):
 
     _NO_CATEGORY = _Category(0)
 
+    def add_element(self) -> None:
+        """Adds an element of the category"""
+
+        self._database['elements'].insert(category=self.id).execute()
+
     def get_elements(self) -> list[list[str]]:
         """
         Fetches of element of the category
