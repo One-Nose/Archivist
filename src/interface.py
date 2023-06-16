@@ -54,7 +54,7 @@ class MainWindow(QMainWindow):
         update_connection.clicked.connect(self._update_connection)
         layout.addWidget(update_connection)
 
-        connect = QPushButton('Create Database (unless exists) and Connect to it')
+        connect = QPushButton('Connect to database')
         connect.clicked.connect(self._connect)
         layout.addWidget(connect)
 
