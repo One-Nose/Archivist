@@ -5,6 +5,7 @@
     "--disable=relative-beyond-top-level",
     "--disable=too-few-public-methods",
     "--disable=too-many-branches",
+    "--disable=too-many-public-methods",
     "--disable=too-many-statements",
     "--disable=useless-import-alias",
     "--good-names=id",
