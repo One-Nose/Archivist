@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+<!-- Title -->
+{% block title %} Axes {% endblock %}
+
+<!-- Content -->
+{% block content %}
+
+<button id="view-archive">View Archive</button>
+
+{% if 'password' in request.cookies %}
+<br />
+<button id="analyze">Analyze Archive</button>
+{% endif %}
+
+<br /><br />
+<b>Axes</b>
+<div>
+    {% for axis in axes %}
+    <button class="view-axis" value="{{ axis }}">Axis {{ axis }}</button>
+    {% endfor %}
+</div>
+
+{% endblock %}

@@ -1,25 +1,25 @@
-"""Recieves POST requests to add an element"""
+"""Recieves POST requests to add a document"""
 
 from flask import Blueprint, request
 
 from server.client import send
 
-add_element = Blueprint('add_element', __name__)
+add_document = Blueprint('add_document', __name__)
 
 
-@add_element.post('/')
+@add_document.post('/')
 def post() -> dict[str, bool]:
     """
-    Adds an element
+    Adds a document
     :return: {'success': bool}
     """
 
     return {
         'success': send(
             {
-                'message': 'add_element',
+                'message': 'add_document',
                 'password': request.cookies['password'],
-                'category': request.json['category'],
+                'name': request.json['name'],
             }
         )['success']
     }

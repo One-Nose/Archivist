@@ -9,19 +9,58 @@ select {
     font-size: x-large;
 }
 
+textarea {
+    resize: none;
+}
+
 div button {
     width: 50%;
 }
 
-div div {
+#elements > div {
     border: solid;
     border-radius: 10px;
     width: 28%;
     display: inline-block;
     margin: 0.5%;
     padding: 1%;
-    height: 20vh;
+    height: 30vh;
     overflow-y: auto;
     text-align: justify;
     font-size: x-large;
+}
+
+#elements div div {
+    text-align: center;
+    font-weight: bold;
+}
+
+#elements div div label {
+    font-weight: normal;
+}
+
+#elements button {
+    width: auto;
+}
+
+#properties {
+    border: solid;
+    border-radius: 10px;
+    padding: 1%;
+    width: 40%;
+    height: 21vh;
+    margin: auto;
+    overflow-y: auto;
+    text-align: initial;
+}
+
+#properties button {
+    width: 20%;
+    float: right;
+}
+
+.larger {
+    font-weight: bold;
+    font-size: larger;
+    vertical-align: 300%;
 }

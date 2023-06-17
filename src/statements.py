@@ -53,6 +53,7 @@ class Statement:
 class DataStatement(Statement):
     """Represents a data manipulation/query statement"""
 
+    _group_by: str = ''
     _limit: str = ''
     _limit_count: int | None = None
     _order_by: str = ''
@@ -60,7 +61,13 @@ class DataStatement(Statement):
     _where_params: tuple[Any, ...] = ()
 
     def __str__(self) -> str:
-        return super().__str__() + self._where + self._order_by + self._limit
+        return (
+            super().__str__()
+            + self._where
+            + self._group_by
+            + self._order_by
+            + self._limit
+        )
 
     def _get_params(self) -> tuple[Any, ...]:
         return (
@@ -68,6 +75,16 @@ class DataStatement(Statement):
             + self._where_params
             + (self._limit_count is not None) * (self._limit_count,)
         )
+
+    def group_by(self, column: str) -> Self:
+        """
+        Modifies the statement's GROUP BY clause
+        :param column: The column to group by
+        :return: This statement
+        """
+
+        self._group_by = f' GROUP BY {column}'
+        return self
 
     def limit(self, amount: int) -> Self:
         """
@@ -88,7 +105,7 @@ class DataStatement(Statement):
         :return: This statement
         """
 
-        self._order_by = f' ORDER BY {column}' + ' DESC' if descending else ''
+        self._order_by = f' ORDER BY {column}' + (' DESC' if descending else '')
         return self
 
     def where(self, **conditions: Cell[Any] | str | tuple[Cell[Any], ...]) -> Self:
@@ -147,6 +164,9 @@ class DataStatement(Statement):
 
         if isinstance(value, Cell):
             return f'{column} {"!=" if value.negated else "="} ?', (value.value,)
+
+        if value[0] == '!':
+            return f'{column} != {value[1:]}', ()
 
         return f'{column} = {value}', ()
 

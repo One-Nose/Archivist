@@ -7,7 +7,9 @@
 {% block content %}
 
 <h2>Category: {{ name }}</h2>
-<button id="view-category" name="{{ category_id }}">Return to Category</button>
+<button class="view-category" value="{{ category_id }}">
+    Return to Category
+</button>
 
 {% if 'password' in request.cookies %}
 <br />
@@ -17,13 +19,13 @@
 <br /><br />
 <b>Elements</b>
 <br /><br />
-<div>
+<div id="elements">
     {% for element in elements %}
     <div>
         {% for description in element %}
         <!-- For Each description -->
 
-        {% if description is none %} --- {%else %} {{ description }}<br /><br />
+        {% if description is none %} --- {% else %} {{ description }}<br /><br />
         {% endif %}
 
         <!-- End For -->

@@ -51,6 +51,56 @@ class Analyzer:
 
         return Axis(self._database, identifier)
 
+    def _remove_useless_axes(self) -> None:
+        """Removes axes that add no new information"""
+
+        axis_couples: list[tuple[int, int]] = [
+            (couple['small1.axis'], couple['small2.axis'])
+            for couple in self._database.table_references(
+                'analysis AS small1',
+                'analysis AS small2',
+                'analysis AS large1',
+                'analysis AS large2',
+            )
+            .select('small1.axis', 'small2.axis')
+            .where(
+                **{
+                    'small1.axis': 'large1.axis',
+                    'small2.axis': 'large2.axis',
+                    'large1.axis': '!large2.axis',
+                    'small1.point': 'small2.point',
+                    'large1.point': 'large2.point',
+                    'small1.value': UnsignedInt(0),
+                    'large1.value': UnsignedInt(4294967295),
+                    'small2.value': UnsignedInt(0),
+                    'large2.value': UnsignedInt(4294967295),
+                }
+            )
+            .execute()
+        ]
+
+        if not axis_couples:
+            return
+
+        tiny_axes: set[int] = {
+            row['axis']
+            for row in self._database['analysis']
+            .select('axis', 'COUNT(*)')
+            .where(
+                axis=tuple(_Axis(id) for id in {couple[0] for couple in axis_couples})
+            )
+            .group_by('axis')
+            .execute()
+            if row['COUNT(*)'] == 2
+        }
+
+        useless_axes = tuple(
+            _Axis(couple[0]) for couple in axis_couples if couple[0] in tiny_axes
+        )
+
+        self._database['analysis'].delete().where(axis=useless_axes).execute()
+        self._database['axes'].delete().where(id=useless_axes).execute()
+
     def _unanalyzed_orders(self) -> list[dict[str, Point]]:
         """
         Fetches the order_rules ordering of unanalyzed points
@@ -120,6 +170,8 @@ class Analyzer:
 
         for order in self._unanalyzed_orders():
             self.analyze_order(**order)
+
+        self._remove_useless_axes()
 
         self._database['points'].set(analyzed=Boolean(True)).where(
             analyzed=Boolean(False)
@@ -236,3 +288,4 @@ class Axis:
         ).execute()
 
         self._database['analysis'].delete().where(axis=axis.id).execute()
+        self._database['axes'].delete().where(id=axis.id).execute()

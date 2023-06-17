@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+<!-- Title -->
+{% block title %} Document: {{ name }} {% endblock %}
+
+<!-- Content -->
+{% block content %}
+
+<h2>Document</h2>
+<h3>{{ name }}</h3>
+<button id="view-documents">View Documents</button>
+
+{% if 'password' in request.cookies %}
+<br /><br />
+<button id="view-add-description">Add Element Description</button>
+<br />
+<button id="view-add-order">Add Order</button>
+{% endif %}
+
+<br /><br />
+<b>Orders</b>
+
+<div id="elements">
+    {% for order in orders %}
+
+    <br />
+    <div>
+        <div>{{ order.large.category }}: {{ order.large.property }}</div>
+        {% for description in order.large.descriptions %}
+        <!-- For Each description -->
+
+        {% if description is none %} --- {% else %} {{ description }}<br /><br />
+        {% endif %}
+
+        <!-- End For -->
+        {% endfor %}
+    </div>
+
+    <text class="larger"> > </text>
+
+    <div>
+        <div>{{ order.small.category }}: {{ order.small.property }}</div>
+        {% for description in order.small.descriptions %}
+        <!-- For Each description -->
+
+        {% if description is none %} --- {% else %} {{ description }}<br /><br />
+        {% endif %}
+
+        <!-- End For -->
+        {% endfor %}
+    </div>
+
+    <!-- End Order Rules -->
+    {% endfor %}
+</div>
+
+{% endblock %}

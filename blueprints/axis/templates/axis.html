@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+
+<!-- Title -->
+{% block title %} Axis {{ id }} {% endblock %}
+
+<!-- Content -->
+{% block content %}
+
+<h2>Axis {{ id }}</h2>
+<button id="view-axes">View Axes</button>
+<br />
+
+{% for point in points %}
+
+<br />
+<div id="elements">
+    <div>
+        <div>{{ point.category }}: {{ point.property }}</div>
+
+        {% for description in point.descriptions %}
+        <!-- For Each description -->
+
+        {% if description is none %} --- {% else %} {{ description }}<br /><br />
+        {% endif %}
+
+        <!-- End For -->
+        {% endfor %}
+    </div>
+</div>
+
+{% endfor %}
+
+<!-- End Content -->
+{% endblock %}

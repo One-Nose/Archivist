@@ -5,7 +5,7 @@ from __future__ import annotations
 from collections import defaultdict
 from typing import Generic, TypeVar
 
-from .cells import Category as _Category
+from .cells import Axis, Category as _Category
 from .cells import Document as _Document
 from .cells import Element as _Element
 from .cells import KeyCell, LongText
@@ -97,6 +97,67 @@ class Archive:
 
         return Element(self._database, _Element(identifier))
 
+    def get_axes(self) -> list[int]:
+        """
+        Fetches all axes
+        :return: A list of axis IDs
+        """
+
+        return [axis['id'] for axis in self._database['axes'].select('id').execute()]
+
+    def get_axis(self, axis_id: int) -> list[dict[str, str | list[str]]]:
+        """
+        Fetches all points in an axis, by order, in the form of [{
+            'category': name,
+            'property': name,
+            'descriptions: [descriptions],
+        }]
+        """
+
+        points = (
+            self._database.table_references(
+                'analysis', 'points', 'categories', 'properties'
+            )
+            .select('points.element', 'categories.name', 'properties.name')
+            .where(
+                **{
+                    'analysis.axis': Axis(axis_id),
+                    'analysis.point': 'points.id',
+                    'points.property': 'properties.id',
+                    'properties.category': 'categories.id',
+                }
+            )
+            .order_by('analysis.value')
+            .execute()
+        )
+
+        descriptions: defaultdict[int, list[str]] = defaultdict(lambda: [])
+
+        for row in (
+            self._database['elements']
+            .left_join('descriptions', ('elements.id', 'descriptions.element'))
+            .select('elements.id', 'descriptions.description')
+            .where(
+                **{
+                    'elements.id': tuple(
+                        _Element(id)
+                        for id in set(point['points.element'] for point in points)
+                    )
+                }
+            )
+            .execute()
+        ):
+            descriptions[row['elements.id']].append(row['descriptions.description'])
+
+        return [
+            {
+                'category': point['categories.name'],
+                'property': point['properties.name'],
+                'descriptions': descriptions[point['points.element']],
+            }
+            for point in points
+        ]
+
     def get_categories(self) -> list[dict[str, str | int]]:
         """
         Fetches all categories
@@ -109,6 +170,107 @@ class Archive:
             .select('id', 'name')
             .order_by('name')
             .execute()
+        ]
+
+    def get_documents(self) -> list[dict[str, str | int]]:
+        """
+        Fetches all documents
+        :return: An alphabetical list of documents, in the form of {'id': id, 'name': name}
+        """
+
+        return [
+            {'id': document['id'], 'name': document['name']}
+            for document in self._database['documents']
+            .select('id', 'name')
+            .order_by('name')
+            .execute()
+        ]
+
+    def get_elements(self) -> list[dict[str, int | str | list[str]]]:
+        """
+        Fetches all elements, in the form of [{
+            'id': id,
+            'category': name,
+            'descriptions': [descriptions],
+        }]
+        """
+
+        elements = (
+            self._database.table_references('elements', 'categories')
+            .select('elements.id', 'categories.name')
+            .where(**{'elements.category': 'categories.id'})
+            .execute()
+        )
+
+        descriptions: defaultdict[int, list[str]] = defaultdict(lambda: [])
+
+        for row in (
+            self._database['elements']
+            .left_join('descriptions', ('elements.id', 'descriptions.element'))
+            .select('elements.id', 'descriptions.description')
+            .execute()
+        ):
+            descriptions[row['elements.id']].append(row['descriptions.description'])
+
+        return [
+            {
+                'id': element['elements.id'],
+                'category': element['categories.name'],
+                'descriptions': descriptions[element['elements.id']],
+            }
+            for element in elements
+        ]
+
+    def get_points(self) -> list[dict[str, int | str | list[str]]]:
+        """
+        Fetches all points, in the form of [{
+            'id': id,
+            'category': name,
+            'property': name,
+            'descriptions': [descriptions],
+        }]
+        :return: All points
+        """
+
+        points = (
+            self._database.table_references('points', 'categories', 'properties')
+            .select('points.id', 'points.element', 'categories.name', 'properties.name')
+            .where(
+                **{
+                    'points.property': 'properties.id',
+                    'properties.category': 'categories.id',
+                }
+            )
+            .order_by('points.element')
+            .execute()
+        )
+
+        elements: defaultdict[int, list[str]] = defaultdict(lambda: [])
+
+        for row in (
+            self._database['elements']
+            .left_join('descriptions', ('elements.id', 'descriptions.element'))
+            .select('elements.id', 'descriptions.description')
+            .where(
+                **{
+                    'elements.id': tuple(
+                        _Element(id)
+                        for id in set(point['points.element'] for point in points)
+                    )
+                }
+            )
+            .execute()
+        ):
+            elements[row['elements.id']].append(row['descriptions.description'])
+
+        return [
+            {
+                'id': point['points.id'],
+                'category': point['categories.name'],
+                'property': point['properties.name'],
+                'descriptions': elements[point['points.element']],
+            }
+            for point in points
         ]
 
     def new_category(self, name: str) -> Category:
@@ -204,11 +366,6 @@ class Category(Row[_Category]):
     """Allows access to a category"""
 
     _NO_CATEGORY = _Category(0)
-
-    def add_element(self) -> None:
-        """Adds an element of the category"""
-
-        self._database['elements'].insert(category=self.id).execute()
 
     def get_elements(self) -> list[list[str]]:
         """
@@ -341,6 +498,98 @@ class Document(Row[_Document]):
         ).execute()
 
         self._database.analyzer.analyze_order(large.id, small.id)
+
+    def get_name(self) -> str:
+        """:return: The document's name"""
+
+        return (
+            self._database['documents']
+            .select('name')
+            .where(id=self.id)
+            .execute()[0]['name']
+        )
+
+    def get_orders(self) -> list[dict[str, dict[str, str | list[str]]]]:
+        """
+        Fetches all orders related to the document
+        Result is in the form of: [{
+            <'large', 'small'>: {
+                'category': name,
+                'property': name,
+                'descriptions': [descriptions]
+            }
+        }]
+        :return: The orders
+        """
+
+        orders = (
+            self._database.table_references(
+                'orders',
+                'points AS large',
+                'points AS small',
+                'properties AS large_props',
+                'properties AS small_props',
+                'categories AS large_cats',
+                'categories AS small_cats',
+            )
+            .select(
+                'large.element',
+                'small.element',
+                'large_props.name',
+                'small_props.name',
+                'large_cats.name',
+                'small_cats.name',
+            )
+            .where(
+                **{
+                    'orders.document': self.id,
+                    'orders.large': 'large.id',
+                    'orders.small': 'small.id',
+                    'large.property': 'large_props.id',
+                    'small.property': 'small_props.id',
+                    'large_props.category': 'large_cats.id',
+                    'small_props.category': 'small_cats.id',
+                }
+            )
+            .execute()
+        )
+
+        if orders:
+            descriptions: defaultdict[int, list[str]] = defaultdict(lambda: [])
+
+            for row in (
+                self._database['elements']
+                .left_join('descriptions', ('elements.id', 'descriptions.element'))
+                .select('elements.id', 'descriptions.description')
+                .where(
+                    **{
+                        'elements.id': tuple(
+                            _Element(element)
+                            for element in set(order['large.element'] for order in orders)
+                            | set(order['small.element'] for order in orders)
+                        )
+                    }
+                )
+                .execute()
+            ):
+                descriptions[row['elements.id']].append(row['descriptions.description'])
+
+            return [
+                {
+                    'large': {
+                        'category': order['large_cats.name'],
+                        'property': order['large_props.name'],
+                        'descriptions': descriptions[order['large.element']],
+                    },
+                    'small': {
+                        'category': order['small_cats.name'],
+                        'property': order['small_props.name'],
+                        'descriptions': descriptions[order['small.element']],
+                    },
+                }
+                for order in orders
+            ]
+        return []
 
 
 class Element(Row[_Element]):

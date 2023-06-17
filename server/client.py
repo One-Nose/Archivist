@@ -37,7 +37,8 @@ def recieve() -> dict[str, Any]:
     :return: The data
     """
 
-    return loads(client.recv(1024))
+    data = client.recv(2**16)
+    return loads(data)
 
 
 def send(message: dict[str, Any]) -> dict[str, Any]:

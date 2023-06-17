@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+<!-- Title -->
+{% block title %} Add Description to {{ document_name }} {% endblock %}
+
+<!-- Content -->
+{% block content %}
+
+<h2>Document</h2>
+<h3>{{ document_name }}</h3>
+<button class="view-document" value="{{ document_id }}">
+    Return to Document
+</button>
+
+<br /><br />
+<textarea placeholder="Description..." rows="5" cols="40"></textarea>
+<br /><br />
+
+<b>Add Description to:</b>
+<br />
+<div id="elements">
+    {% for element in elements %}
+    <div>
+        <div>
+            <button class="add-description" value="{{ element.id }}">
+                {{ element.category }}
+            </button>
+        </div>
+        <br />
+
+        {% for description in element.descriptions %}
+        <!-- For Each description -->
+
+        {% if description is none %} --- {% else %} {{ description }}<br /><br />
+        {% endif %}
+
+        <!-- End For -->
+        {% endfor %}
+    </div>
+    {% endfor %}
+</div>
+
+{% endblock %}

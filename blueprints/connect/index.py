@@ -16,6 +16,6 @@ def post() -> dict[str, bool]:
 
     return {
         'success': send(
-            {'message': 'connect_user', 'password': request.form['password']}
+            {'message': 'connect_user', 'password': request.json['password']}
         )['success']
     }

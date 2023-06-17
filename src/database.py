@@ -259,7 +259,7 @@ class Database(dict[str, Table]):
                         document=Document,
                         large=Point,
                         small=Point,
-                    ),
+                    ).unique('document', 'large', 'small'),
                 )
             }
         )

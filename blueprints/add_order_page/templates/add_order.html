@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+
+<!-- Title -->
+{% block title %} Add Order to Document: {{ document_name }} {% endblock %}
+
+<!-- Content -->
+{% block content %}
+
+<h2>Document</h2>
+<h3>{{ document_name }}</h3>
+<button class="view-document" value="{{ document_id }}">
+    Return to Document
+</button>
+
+<br /><br />
+<b>Points</b>
+<br />
+<button id="add-order">Add Order</button>
+<div id="elements">
+    {% for point in points %}
+    <div>
+        <div>
+            <label
+                ><input
+                    type="radio"
+                    name="large"
+                    value="{{ point.id }}"
+                />Large</label
+            >
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <label
+                ><input
+                    type="radio"
+                    name="small"
+                    value="{{ point.id }}"
+                />Small</label
+            >
+        </div>
+        <br />
+        <div>{{ point.category }}: {{ point.property }}</div>
+
+        {% for description in point.descriptions %}
+        <!-- For Each description -->
+
+        {% if description is none %} --- {% else %} {{ description }}<br /><br />
+        {% endif %}
+
+        <!-- End For -->
+        {% endfor %}
+    </div>
+    {% endfor %}
+</div>
+
+{% endblock %}

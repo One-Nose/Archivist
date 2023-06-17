@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 <!-- Title -->
-{% block title %} Categories {% endblock %}
+{% block title %} Documents {% endblock %}
 
 <!-- Content -->
 {% block content %}
@@ -10,15 +10,15 @@
 
 {% if 'password' in request.cookies %}
 <br />
-<button id="view-add-category">Add Category</button>
+<button id="view-add-document">Add Document</button>
 {% endif %}
 
 <br /><br />
-<b>Categories</b>
+<b>Documents</b>
 <div>
-    {% for category in categories %}
-    <button class="view-category" value="{{ category.id }}">
-        {{ category.name }}
+    {% for document in documents %}
+    <button class="view-document" value="{{ document.id }}">
+        {{ document.name }}
     </button>
     {% endfor %}
 </div>

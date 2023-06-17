@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+<!-- Title -->
+{% block title %} Add Category {% endblock %}
+
+<!-- Content -->
+{% block content %}
+
+<button id="view-categories">Return to Categories</button>
+<br /><br />
+<b>Name:</b>
+<input id="category-name" type="text" placeholder="Category name..." />
+<br /><br />
+<b>Properties</b>
+<br />
+<input id="property-name" type="text" placeholder="Property name..." />
+<button id="add-property">Add Property</button>
+<br /><br />
+<div id="properties"></div>
+
+<button id="add-category">Add Category</button>
+
+{% endblock %}
