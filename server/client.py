@@ -8,11 +8,14 @@ from typing import Any
 PORT = 8626
 
 
-def connect() -> None:
-    """Connects to the archive"""
+def connect(host: str) -> None:
+    """
+    Connects to the archive
+    :param host: The host to connect to
+    """
 
     info('Connecting to archive...')
-    client.connect((gethostname(), PORT))
+    client.connect((host, PORT))
     message = recieve()
     assert message['message'] == 'connection'
     info('Connected to archive')

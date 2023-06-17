@@ -7,8 +7,10 @@ from .server import start_server
 
 basicConfig(format='[%(asctime)s] %(message)s', level=INFO, datefmt='%H:%M:%S')
 
+host = input('Enter host: ')
+
 try:
-    connect()
+    connect(host)
 except ConnectionRefusedError:
     info('Could not connect')
 else:
