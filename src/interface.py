@@ -1,6 +1,7 @@
 """User interface to access the app"""
 
 from re import match
+from socket import gethostname
 
 from mariadb import Error
 from PyQt6.QtCore import Qt
@@ -33,7 +34,7 @@ class MainWindow(QMainWindow):
 
         self.archive = Archive()
         self.setWindowTitle('Archivist Administer User Interface')
-        self.setFixedSize(400, 230)
+        self.setFixedSize(400, 260)
 
         self._username = QLineEdit()
         self._username.setPlaceholderText('Username...')
@@ -66,6 +67,10 @@ class MainWindow(QMainWindow):
         view_password = QPushButton('View Archive Password')
         view_password.clicked.connect(self._show_password)
         layout.addWidget(view_password)
+
+        view_host = QPushButton('View Host Name')
+        view_host.clicked.connect(self._show_host)
+        layout.addWidget(view_host)
 
         widget = QWidget()
         widget.setLayout(layout)
@@ -106,6 +111,18 @@ class MainWindow(QMainWindow):
         if query.exec() == QMessageBox.StandardButton.Yes:
             self.archive.drop()
             self._drop_button.setEnabled(False)
+
+    def _show_host(self) -> None:
+        """Shows the host name"""
+
+        message_box = QMessageBox()
+        message_box.setIcon(QMessageBox.Icon.Information)
+        message_box.setWindowTitle('Host Name')
+        message_box.setText(gethostname())
+        message_box.setTextInteractionFlags(
+            Qt.TextInteractionFlag.TextSelectableByMouse
+        )
+        message_box.exec()
 
     def _show_password(self) -> None:
         """Shows the archive password"""
