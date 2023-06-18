@@ -9,7 +9,7 @@ from cryptography.fernet import Fernet
 from mariadb import Error as MariaDBError
 
 from .interface import window
-from .registry import get_archive_password, get_database, get_key
+from .registry import generate_key, get_archive_password, get_database, get_key
 
 PORT = 8626
 
@@ -204,11 +204,14 @@ def handle(connection: socket, data: bytes) -> None:
 
 def listen() -> None:
     """Starts a server and listens"""
+    global fernet
 
     with socket(AF_INET, SOCK_STREAM) as server:
         server.bind((gethostname(), PORT))
         server.listen()
         while True:
+            generate_key()
+            fernet = Fernet(get_key())
             connection = server.accept()[0]
             with connection:
                 send(
@@ -236,6 +239,3 @@ def send(connection: socket, data: dict[str, Any]) -> None:
     """
 
     connection.sendall(dumps(data).encode())
-
-
-fernet = Fernet(get_key())

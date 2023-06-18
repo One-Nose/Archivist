@@ -14,6 +14,15 @@ from winreg import (
 from cryptography.fernet import Fernet
 
 
+def generate_key() -> None:
+    """Generates a new key and saves it in the registry"""
+
+    with OpenKeyEx(
+        HKEY_CURRENT_USER, r'SOFTWARE\\Archivist\\', access=KEY_WRITE
+    ) as archivist:
+        SetValueEx(archivist, 'Key', 0, REG_SZ, Fernet.generate_key().decode())
+
+
 def get_archive_password() -> str:
     """
     Fetches the archive's password from the database
@@ -47,6 +56,16 @@ def get_connection() -> dict[str, str]:
         }
 
 
+def get_key() -> str:
+    """
+    Fetches the key from the registry
+    :return: The key
+    """
+
+    with OpenKeyEx(HKEY_CURRENT_USER, r'SOFTWARE\\Archivist\\') as archivist:
+        return QueryValueEx(archivist, 'Key')[0]
+
+
 def set_connection(username: str, password: str, database: str) -> None:
     """
     Sets the connection registry keys
@@ -64,16 +83,6 @@ def set_connection(username: str, password: str, database: str) -> None:
             SetValueEx(archivist, 'Password', 0, REG_SZ, password)
         if database:
             SetValueEx(archivist, 'Database', 0, REG_SZ, database)
-
-
-def get_key() -> str:
-    """
-    Fetches the key from the registry
-    :return: The key
-    """
-
-    with OpenKeyEx(HKEY_CURRENT_USER, r'SOFTWARE\\Archivist\\') as archivist:
-        return QueryValueEx(archivist, 'Key')[0]
 
 
 def setup() -> None:
