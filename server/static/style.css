@@ -17,6 +17,10 @@ div button {
     width: 50%;
 }
 
+#connect-password {
+    font-family: monospace;
+}
+
 #elements > div {
     border: solid;
     border-radius: 10px;

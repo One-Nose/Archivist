@@ -5,6 +5,7 @@ from socket import gethostname
 
 from mariadb import Error
 from PyQt6.QtCore import Qt
+from PyQt6.QtGui import QFont
 from PyQt6.QtWidgets import (
     QApplication,
     QLabel,
@@ -126,6 +127,7 @@ class MainWindow(QMainWindow):
         message_box.setTextInteractionFlags(
             Qt.TextInteractionFlag.TextSelectableByMouse
         )
+        message_box.setFont(QFont('Consolas'))
         message_box.exec()
 
     def _show_key(self) -> None:
@@ -138,6 +140,7 @@ class MainWindow(QMainWindow):
         message_box.setTextInteractionFlags(
             Qt.TextInteractionFlag.TextSelectableByMouse
         )
+        message_box.setFont(QFont('Consolas'))
         message_box.exec()
 
     def _show_password(self) -> None:
@@ -150,6 +153,7 @@ class MainWindow(QMainWindow):
         message_box.setTextInteractionFlags(
             Qt.TextInteractionFlag.TextSelectableByMouse
         )
+        message_box.setFont(QFont('Consolas'))
         message_box.exec()
 
     def _update_connection(self) -> None:
