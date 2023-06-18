@@ -5,10 +5,11 @@ from socket import AF_INET, SOCK_STREAM, gethostname, socket
 from time import sleep
 from typing import Any
 
+from cryptography.fernet import Fernet
 from mariadb import Error as MariaDBError
 
 from .interface import window
-from .registry import get_archive_password, get_database
+from .registry import get_archive_password, get_database, get_key
 
 PORT = 8626
 
@@ -23,6 +24,9 @@ def handle(connection: socket, data: bytes) -> None:
     message: dict[str, Any] = loads(data)
 
     response: dict[str, Any] = {'message': 'response', 'response': message['message']}
+
+    if 'password' in message:
+        message['password'] = fernet.decrypt(message['password']).decode()
 
     try:
         match message['message']:
@@ -232,3 +236,6 @@ def send(connection: socket, data: dict[str, Any]) -> None:
     """
 
     connection.sendall(dumps(data).encode())
+
+
+fernet = Fernet(get_key())

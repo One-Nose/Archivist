@@ -2,18 +2,23 @@
 
 from json import dumps, loads
 from logging import info
-from socket import AF_INET, SOCK_STREAM, gethostname, socket
+from socket import AF_INET, SOCK_STREAM, socket
 from typing import Any
+
+from cryptography.fernet import Fernet
 
 PORT = 8626
 
 
-def connect(host: str) -> None:
+def connect(host: str, key: str) -> None:
     """
     Connects to the archive
     :param host: The host to connect to
+    :param key: The key to encrypt using
     """
+    global fernet
 
+    fernet = Fernet(key)
     info('Connecting to archive...')
     client.connect((host, PORT))
     message = recieve()
@@ -50,6 +55,9 @@ def send(message: dict[str, Any]) -> dict[str, Any]:
     :param message: The message to send
     :return: The response
     """
+
+    if 'password' in message:
+        message['password'] = fernet.encrypt(message['password'].encode()).decode()
 
     client.sendall(dumps(message).encode())
     data = recieve()

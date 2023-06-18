@@ -1,3 +1,4 @@
+cryptography~=41.0.1
 Flask~=2.2.3
 mariadb~=1.1.6
 pytest~=7.3.1

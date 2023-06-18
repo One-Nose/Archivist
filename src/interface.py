@@ -17,7 +17,7 @@ from PyQt6.QtWidgets import (
 )
 
 from .archive import Archive
-from .registry import get_archive_password, set_connection
+from .registry import get_archive_password, get_key, set_connection
 
 
 class MainWindow(QMainWindow):
@@ -34,7 +34,7 @@ class MainWindow(QMainWindow):
 
         self.archive = Archive()
         self.setWindowTitle('Archivist Administer User Interface')
-        self.setFixedSize(400, 260)
+        self.setFixedSize(400, 300)
 
         self._username = QLineEdit()
         self._username.setPlaceholderText('Username...')
@@ -67,6 +67,10 @@ class MainWindow(QMainWindow):
         view_password = QPushButton('View Archive Password')
         view_password.clicked.connect(self._show_password)
         layout.addWidget(view_password)
+
+        view_key = QPushButton('View Key')
+        view_key.clicked.connect(self._show_key)
+        layout.addWidget(view_key)
 
         view_host = QPushButton('View Host Name')
         view_host.clicked.connect(self._show_host)
@@ -119,6 +123,18 @@ class MainWindow(QMainWindow):
         message_box.setIcon(QMessageBox.Icon.Information)
         message_box.setWindowTitle('Host Name')
         message_box.setText(gethostname())
+        message_box.setTextInteractionFlags(
+            Qt.TextInteractionFlag.TextSelectableByMouse
+        )
+        message_box.exec()
+
+    def _show_key(self) -> None:
+        """Shows the key"""
+
+        message_box = QMessageBox()
+        message_box.setIcon(QMessageBox.Icon.Information)
+        message_box.setWindowTitle('Key')
+        message_box.setText(get_key())
         message_box.setTextInteractionFlags(
             Qt.TextInteractionFlag.TextSelectableByMouse
         )
