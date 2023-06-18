@@ -252,6 +252,7 @@ class Database(dict[str, Table]):
                         id=OrderRule.primary_key(),
                         large=Property,
                         small=Property,
+                        analyzed=Boolean,
                     ).unique('large', 'small'),
                     self.table(
                         'orders',
@@ -291,6 +292,7 @@ class Database(dict[str, Table]):
         """Drops the database"""
 
         self.execute(f'DROP DATABASE {self._connection.database}')
+        self.connected = False
 
     def execute(self, statement: str, params: Sequence[Any] = ()) -> None:
         """

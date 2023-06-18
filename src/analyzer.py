@@ -94,8 +94,24 @@ class Analyzer:
             if row['COUNT(*)'] == 2
         }
 
+        useless_couples = [
+            couple
+            for couple in axis_couples
+            if couple[0] in tiny_axes and couple[1] not in tiny_axes
+        ]
+
+        other_useless_couples = [
+            couple
+            for couple in axis_couples
+            if couple[0] in tiny_axes and couple[1] in tiny_axes
+        ]
+
+        for couple in other_useless_couples:
+            if (couple[1], couple[0]) in other_useless_couples:
+                other_useless_couples.remove(couple)
+
         useless_axes = tuple(
-            _Axis(couple[0]) for couple in axis_couples if couple[0] in tiny_axes
+            _Axis(couple[0]) for couple in (useless_couples + other_useless_couples)
         )
 
         self._database['analysis'].delete().where(axis=useless_axes).execute()
@@ -116,6 +132,23 @@ class Analyzer:
                 **{
                     'large.analyzed': Boolean(False),
                     'small.analyzed': Boolean(False),
+                    'order_rules.analyzed': Boolean(True),
+                    'large.element': 'small.element',
+                    'large.property': 'order_rules.large',
+                    'small.property': 'order_rules.small',
+                }
+            )
+            .execute()
+        )
+
+        results.extend(
+            self._database.table_references(
+                'points AS large', 'points AS small', 'order_rules'
+            )
+            .select('large.id', 'small.id')
+            .where(
+                **{
+                    'order_rules.analyzed': Boolean(False),
                     'large.element': 'small.element',
                     'large.property': 'order_rules.large',
                     'small.property': 'order_rules.small',
@@ -174,6 +207,10 @@ class Analyzer:
         self._remove_useless_axes()
 
         self._database['points'].set(analyzed=Boolean(True)).where(
+            analyzed=Boolean(False)
+        ).execute()
+
+        self._database['order_rules'].set(analyzed=Boolean(True)).where(
             analyzed=Boolean(False)
         ).execute()
 
